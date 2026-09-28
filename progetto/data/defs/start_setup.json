@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "notes": "Situazione politica iniziale della mappa ufficiale (decisioni D1/D2). Ogni entità parte da un punto d'ancora (metri): viene scelta la provincia adatta più vicina, poi il dominio cresce sul grafo delle province con i costi sotto. Deterministico: ogni campagna parte uguale.",
+  "player": {
+    "anchor": [34000, 38000],
+    "search_radius_m": 14000,
+    "culture": "latin",
+    "religion": "catholic",
+    "require": { "river": true, "coastal": false, "min_forest": 0.3, "min_fertility": 0.45, "deposit": "stone" },
+    "realm_name": "Comunità di {province}",
+    "kingdom_name": "Regno di {province}",
+    "color": "#2F4F9E",
+    "free_buffer_steps": 2,
+    "population": 6,
+    "development": 0
+  },
+  "growth_costs": {
+    "border": { "land": 1.0, "river": 2.5, "pass": 3.0, "mountain": 6.0 },
+    "other_culture": 4.0,
+    "other_religion": 2.0,
+    "mountain_province": 1.5
+  },
+  "population": {
+    "base_per_km2": 3.0,
+    "fertility_per_km2": 22.0,
+    "forest_malus": 0.45,
+    "owned_bonus": 1.35,
+    "capital_bonus": 2.2
+  },
+  "development": { "free": 1, "lordship": 2, "kingdom": 2, "capital": 4 },
+  "kingdoms": [
+    { "id": "waldmark",   "name": "Regno di Waldmark",   "house": "Casa Hohenrath",  "culture": "germanic", "religion": "catholic",
+      "anchor": [21000, 21000], "provinces": 14, "color": "#9E3B32" },
+    { "id": "velgrad",    "name": "Regno di Velgrad",    "house": "Casa Zorović",    "culture": "slavic",   "religion": "orthodox",
+      "anchor": [68000, 17000], "provinces": 13, "color": "#3E6E4A" },
+    { "id": "sundara",    "name": "Regno di Sundara",    "house": "Casa Varmadeva",  "culture": "asian",    "religion": "hindu",
+      "anchor": [96000, 30000], "provinces": 11, "color": "#7A4A8C" },
+    { "id": "kallithea",  "name": "Regno di Kallithea",  "house": "Casa Doukaris",   "culture": "hellenic", "religion": "orthodox",
+      "anchor": [58000, 56000], "provinces": 9,  "color": "#2E7D86" },
+    { "id": "qasr_almas", "name": "Regno di Qasr Almas", "house": "Casa Banu Rashid", "culture": "arab",    "religion": "muslim",
+      "anchor": [86000, 52000], "provinces": 12, "color": "#B07A2A" },
+    { "id": "aurelia",    "name": "Regno di Aurelia",    "house": "Casa Valeri",     "culture": "latin",    "religion": "catholic",
+      "anchor": [29000, 58000], "provinces": 8,  "color": "#8C2F52" }
+  ],
+  "lordships": [
+    { "anchor": [41000, 29000], "provinces": 3, "culture": "germanic" },
+    { "anchor": [14000, 38000], "provinces": 2, "culture": "germanic" },
+    { "anchor": [35000, 12000], "provinces": 4, "culture": "germanic" },
+    { "anchor": [54000, 30000], "provinces": 2, "culture": "slavic" },
+    { "anchor": [82000, 12000], "provinces": 3, "culture": "slavic" },
+    { "anchor": [43000, 51000], "provinces": 2, "culture": "latin" },
+    { "anchor": [62000, 41000], "provinces": 3, "culture": "hellenic" },
+    { "anchor": [71000, 46000], "provinces": 2, "culture": "arab" },
+    { "anchor": [96000, 57000], "provinces": 4, "culture": "arab" },
+    { "anchor": [101000, 12000], "provinces": 2, "culture": "asian" }
+  ],
+  "lordship_colors": ["#6B5B3E", "#4F6B6B", "#7D6A8A", "#5E7A3A", "#8A5A44", "#46607F", "#7F7440", "#6E4E5E", "#50704F", "#8B6E4E"]
+}
+

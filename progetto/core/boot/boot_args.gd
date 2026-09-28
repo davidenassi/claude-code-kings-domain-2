@@ -1,0 +1,47 @@
+class_name BootArgs
+extends RefCounted
+## Parses user command-line arguments passed after "--":
+##   --kd-screenshot=<path>     save a PNG of the viewport and quit
+##   --kd-camera=x,y,mpp        initial camera position (metres) and zoom (metres per pixel);
+##                              also settlement,mpp / player,mpp / army,mpp (the first army of the crown)
+##                              / home,dx,dy,mpp (offset in metres from the player's settlement)
+##   --kd-frames=N              frames to wait before the screenshot (default 30)
+##   --kd-speed=N               initial simulation speed index
+##   --kd-days=N                simulate N days instantly before rendering
+##   --kd-hide-debug            hide the debug overlay
+##   --kd-no-events             switch the events off (clean screenshots)
+##   --kd-menu                  stay on the main menu instead of entering the game
+##   --kd-pause                 open the pause menu straight away
+##   --kd-save-to=<path>        after the scenario is set up, save the world there (for the standard screenshots)
+##   --kd-load=<path>           start from that saved world instead of a new game
+##   --kd-years=N               years of the pilot in the kingdom_grown scenario (default 20)
+##   --kd-scenario=stress_city  a town of --kd-people=N inhabitants (default 1500) built at once (Phase 19)
+##   --kd-scenario=stress_war   every realm in arms and at war with its neighbours (Phase 19)
+##   --kd-no-autosave           never write the automatic save of the year (screenshots and benchmarks never do)
+##   --kd-benchmark=S           fly the camera for S seconds and print fps, draw calls and memory
+##   --kd-bench-home            ... circling the player's settlement instead of crossing the continent
+##   --kd-hide-layers=A,B       profiling: take those children of WorldView out of the picture
+
+
+static func parse() -> Dictionary:
+	var out := {}
+	for arg in OS.get_cmdline_user_args():
+		if not arg.begins_with("--kd-"):
+			continue
+		var body := arg.substr(5)
+		var eq := body.find("=")
+		if eq < 0:
+			out[body] = true
+		else:
+			out[body.substr(0, eq)] = body.substr(eq + 1)
+	return out
+
+
+static func camera_from(args: Dictionary) -> Dictionary:
+	if not args.has("camera"):
+		return {}
+	var parts := String(args["camera"]).split(",")
+	if parts.size() < 3:
+		return {}
+	return {"pos": Vector2(parts[0].to_float(), parts[1].to_float()), "mpp": parts[2].to_float()}
+

@@ -1,0 +1,198 @@
+{
+ "version": 1,
+ "count": 395,
+ "provinces": [
+  {
+   "id": 0,
+   "cells": 5089,
+   "area_km2": 20.84,
+   "centroid": [
+    12873.5,
+    10016.6
+   ],
+   "center": [
+    12704.0,
+    9760.0
+   ],
+   "inner_radius_m": 1920.0,
+   "elevation_mean": 991.6,
+   "elevation_max": 1986.9,
+   "forest": 0.283,
+   "fertility": 0.138,
+   "moisture": 0.56,
+   "temperature": 0.052,
+   "coastal": false,
+   "river": false,
+   "lake": false,
+   "terrain": "mountains",
+   "biomes": {
+    "mountain": 0.636,
+    "taiga": 0.354
+   },
+   "neighbors": [
+    {
+     "id": 1,
+     "length_m": 8256,
+     "type": "land"
+    },
+    {
+     "id": 2,
+     "length_m": 576,
+     "type": "land"
+    },
+    {
+     "id": 24,
+     "length_m": 9408,
+     "type": "land"
+    },
+    "... 5 elementi in tutto, qui i primi 3"
+   ],
+   "culture": "germanic",
+   "religion": "catholic",
+   "name": "Berfeld",
+   "deposits": [
+    {
+     "type": "iron",
+     "x": 13792.0,
+     "y": 9312.0,
+     "richness": 0.89
+    },
+    {
+     "type": "stone",
+     "x": 12640.0,
+     "y": 10016.0,
+     "richness": 0.99
+    },
+    {
+     "type": "stone",
+     "x": 10720.0,
+     "y": 9312.0,
+     "richness": 1.01
+    }
+   ]
+  },
+  {
+   "id": 1,
+   "cells": 8995,
+   "area_km2": 36.84,
+   "centroid": [
+    18229.1,
+    8286.1
+   ],
+   "center": [
+    16992.0,
+    8224.0
+   ],
+   "inner_radius_m": 1984.0,
+   "elevation_mean": 99.6,
+   "elevation_max": 416.0,
+   "forest": 0.578,
+   "fertility": 0.424,
+   "moisture": 0.596,
+   "temperature": 0.294,
+   "coastal": true,
+   "river": true,
+   "lake": false,
+   "terrain": "forest",
+   "biomes": {
+    "taiga": 0.613,
+    "grassland": 0.176,
+    "deciduous": 0.117
+   },
+   "neighbors": [
+    {
+     "id": 0,
+     "length_m": 8256,
+     "type": "land"
+    },
+    {
+     "id": 2,
+     "length_m": 11072,
+     "type": "land"
+    },
+    {
+     "id": 24,
+     "length_m": 448,
+     "type": "land"
+    },
+    "... 4 elementi in tutto, qui i primi 3"
+   ],
+   "culture": "germanic",
+   "religion": "catholic",
+   "name": "Lindheim",
+   "deposits": [
+    {
+     "type": "stone",
+     "x": 22432.0,
+     "y": 8736.0,
+     "richness": 1.42
+    },
+    {
+     "type": "stone",
+     "x": 17184.0,
+     "y": 7968.0,
+     "richness": 1.26
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "cells": 4377,
+   "area_km2": 17.93,
+   "centroid": [
+    20936.4,
+    11692.0
+   ],
+   "center": [
+    22240.0,
+    12192.0
+   ],
+   "inner_radius_m": 1536.0,
+   "elevation_mean": 149.9,
+   "elevation_max": 428.8,
+   "forest": 0.629,
+   "fertility": 0.492,
+   "moisture": 0.551,
+   "temperature": 0.314,
+   "coastal": false,
+   "river": true,
+   "lake": false,
+   "terrain": "forest",
+   "biomes": {
+    "deciduous": 0.343,
+    "taiga": 0.253,
+    "mixed": 0.192
+   },
+   "neighbors": [
+    {
+     "id": 0,
+     "length_m": 576,
+     "type": "land"
+    },
+    {
+     "id": 1,
+     "length_m": 11072,
+     "type": "land"
+    },
+    {
+     "id": 27,
+     "length_m": 10304,
+     "type": "land"
+    },
+    "... 5 elementi in tutto, qui i primi 3"
+   ],
+   "culture": "germanic",
+   "religion": "catholic",
+   "name": "Hartau",
+   "deposits": [
+    {
+     "type": "clay",
+     "x": 19360.0,
+     "y": 11616.0,
+     "richness": 0.61
+    }
+   ]
+  },
+  "... 395 elementi in tutto, qui i primi 3"
+ ]
+}

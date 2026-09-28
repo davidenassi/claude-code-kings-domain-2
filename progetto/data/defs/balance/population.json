@@ -1,0 +1,126 @@
+{
+  "notes": "Popolazione, fiducia ed economia della corona (Fase 5). Numeri di bozza, tarati sulla simulazione di 20 anni; l'anno è realistico (360 giorni).",
+  "adult_age": 16,
+  "elder_age": 62,
+  "max_age": 92,
+
+  "birth": {
+    "annual_rate": 0.16,
+    "min_trust": 42.0,
+    "min_food_days": 45.0,
+    "mother_age": [18, 42],
+    "needs_free_bed": true,
+    "trust_factor": [40.0, 80.0, 0.4, 1.3],
+    "food_factor": [45.0, 260.0, 0.5, 1.3]
+  },
+
+  "death": {
+    "adult_annual": 0.012,
+    "child_annual": 0.02,
+    "elder_annual_at_62": 0.06,
+    "elder_annual_at_80": 0.22,
+    "starvation_days": 12.0,
+    "starvation_daily": 0.02,
+    "misery_trust": 20.0,
+    "misery_daily": 0.002
+  },
+
+  "travellers": {
+    "min_trust": 32.0,
+    "min_food_days": 70.0,
+    "monthly_chance": 0.35,
+    "group": [1, 3],
+    "family_chance": 0.35,
+    "needs_free_bed": true
+  },
+
+  "emigration": {
+    "notes": "La valvola: un villaggio che non riesce piu a nutrire, alloggiare o impiegare la sua gente la perde. La misura e il raccolto: se quel che resta nei depositi non arriva alla mietitura, qualcuno parte ogni giorno finche il cibo basta per chi resta.",
+    "hunger_days": 4.0,
+    "hungry_share_per_day": 0.06,
+    "harvest_month": 8,
+    "harvest_margin": 0.85,
+    "short_of_harvest_chance": 0.5,
+    "max_per_day": 2,
+    "max_share_per_year": 0.35,
+    "max_trust": 30.0,
+    "daily_chance": 0.02,
+    "group": [1, 2],
+    "keep_at_least": 3,
+    "harvest_valve_min_people": 6,
+    "notes_harvest_valve": "Fase 16: i sei fondatori restano insieme anche se il cibo non arriva al raccolto (dividersi voleva dire morire); da sette in su la valvola torna a far partire chi il granaio non porta. Con 12 un villaggio piccolo moriva di fame invece di rimpicciolirsi.",
+    "target_min_food_days": 70.0
+  },
+
+  "trust": {
+    "base": 50.0,
+    "legitimacy_weight": 0.12,
+    "siege_malus": -30.0,
+    "occupation_malus": -20.0,
+    "stability_weight": 0.10,
+    "food_days_good": 180.0,
+    "food_days_bonus": 18.0,
+    "food_days_bad": 20.0,
+    "food_days_malus": -34.0,
+    "hunger_malus_per_day": -2.2,
+    "housing_bonus": 10.0,
+    "homeless_malus_per_person": -6.0,
+    "service_bonus": 8.0,
+    "recent_death_malus": -6.0,
+    "death_memory_days": 60,
+    "debt_malus": -10.0,
+    "smooth_per_day": 0.25
+  },
+
+  "wages_gold_per_day": {
+    "idle": 0.010, "builder": 0.030, "woodcutter": 0.028, "quarrier": 0.030, "farmer": 0.026,
+    "baker": 0.028, "miner": 0.035, "smith": 0.045, "king": 0.0, "child": 0.0
+  },
+
+  "treasury": {
+    "tax_per_person_month": 0.9,
+    "stability_collection_min": 0.80,
+    "province_income_base": 0.55,
+    "province_income_per_development": 0.18,
+    "province_income_population_divisor": 30.0,
+    "notes_province_income": "Fase 16: con 260 un abitante di provincia rendeva 0,001 ori al mese, ottocento volte meno di uno del villaggio; i regni dell IA, che vivono di rendite, non potevano fare nulla e le terre annesse non valevano nulla. Con 30 rende circa 0,02: un decimo di chi è governato da vicino.",
+    "admin_control_base": 0.55,
+    "admin_control_per_province": 0.012,
+    "admin_control_range": [0.30, 1.0],
+    "upkeep_share_of_cost": 0.015,
+    "notes_upkeep": "Fase 16: ogni edificio costa ogni mese in oro l'1,5% del valore dei materiali con cui è stato costruito; senza mantenimento un regno maturo accumulava 150.000 ori senza nulla su cui spenderli.",
+    "administration_free_provinces": 3,
+    "administration_provinces_for_all": 60.0,
+    "administration_max_share": 0.8
+  },
+
+  "province_growth": {
+    "annual_rate": 0.006,
+    "fertility_weight": 0.9,
+    "development_weight": 0.05,
+    "max_per_km2": 45.0
+  },
+
+  "trade": {
+    "notes": "Fase 16: i mercanti comprano ogni mese una parte di ciò che supera la riserva di un insediamento, al prezzo del mercato del regno e fin dove il mercato assorbe (cresce con la gente del regno). Il cibo si vende solo con un anno di scorte che arrivano al raccolto.",
+    "reserve_per_person": { "wood": 12.0, "stone": 8.0, "iron": 3.0, "grain": 20.0, "bread": 10.0, "weapons": 1.0 },
+    "sell_share": 0.25,
+    "depth_base": 30.0,
+    "depth_per_person": 0.02,
+    "merchant_cut": 0.2,
+    "food_days_before_selling": 360.0,
+    "food_full_share": 0.1,
+    "import_below_per_person": { "stone": 1.5, "wood": 2.0, "iron": 0.3 },
+    "import_markup": 0.35,
+    "import_min_treasury": 120.0,
+    "import_budget_share": 0.25
+  },
+
+  "market": {
+    "reference_stock_per_person": { "wood": 6.0, "stone": 4.0, "iron": 1.5, "grain": 8.0, "bread": 10.0, "weapons": 0.6 },
+    "exponent": 0.42,
+    "price_range": [0.55, 2.4],
+    "daily_adjust": 0.12
+  }
+}
+

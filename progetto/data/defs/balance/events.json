@@ -1,0 +1,37 @@
+{
+  "notes": "Ogni quanto il mondo bussa alla porta, quanto aspetta una risposta e quanto in fretta cresce il sapere del regno.",
+  "events": {
+    "fate_min": 0.25,
+    "fate_max": 1.8,
+    "days_between_rolls": 30,
+    "chance_per_roll": 0.5,
+    "ai_chance_per_roll": 0.35,
+    "answer_days": 45,
+    "min_days_between_events": 90,
+    "chronicle_max": 600
+  },
+  "research": {
+    "base_per_month": 6.0,
+    "per_development": 1.1,
+    "per_building": 0.5,
+    "per_governo_skill": 0.8,
+    "saggio_bonus": 1.25,
+    "ai_adopt_threshold": 1.0
+  },
+  "notes_fate": "Fase 17: il destino della campagna. Ogni evento pesa fra fate_min e fate_max del suo peso, deciso una volta dal seme della partita.",
+  "objectives": {
+    "notes": "Fase 17: undici traguardi in campi diversi — la capitale, le terre, la dinastia, la ricchezza, il commercio, il sapere, la guerra, i patti, l'identità, la pace interna. La conquista non è l'unica strada.",
+    "village_people": 25,
+    "capital_people": 150,
+    "provinces": 8,
+    "dynasty_rulers": 4,
+    "treasury": 1500,
+    "trade_gold": 5000,
+    "technologies": 3,
+    "battles_won": 5,
+    "pacts": 3,
+    "identity_spirits": 2,
+    "stable_years": 15
+  }
+}
+

@@ -1,0 +1,80 @@
+{
+  "notes": "Misure della corona e corte (Fase 7). Le formule vengono da Regno, adattate all'anno realistico: legittimità e ordine inseguono il loro bersaglio ogni giorno invece di saltare.",
+  "legitimacy": {
+    "start": 65.0,
+    "base": 50.0,
+    "adult_heir": 15.0,
+    "no_heir": -12.0,
+    "child_ruler": -20.0,
+    "old_ruler": -6.0,
+    "old_age": 65,
+    "hostile_faction": -10.0,
+    "hostile_below": 30.0,
+    "clergy_weight": 0.12,
+    "chase_per_day": 0.12,
+    "low_consent": 35.0,
+    "crisis": 15.0
+  },
+  "stability": {
+    "start": 80.0,
+    "base": 90.0,
+    "notes_base": "Fase 16: con base 100 un regno piccolo e in pace restava a 100 per trent'anni. Nessun regno è perfettamente in ordine; ogni provincia oltre le prime cinque toglie un poco.",
+    "provinces_free": 5,
+    "per_province": 0.4,
+    "faction_discontent_weight": 0.5,
+    "turbulence_decay_per_day": 0.35,
+    "unrest_weight": 12.0,
+    "chase_per_day": 0.12
+  },
+  "prestige": {
+    "start": 10.0,
+    "per_province": 1.5,
+    "per_building": 0.25,
+    "per_legitimacy": 0.2,
+    "scale": 70.0,
+    "deeds_fade_per_year": 0.05,
+    "notes": "Fase 16: prestigio = 100 x (1 - e^(-(terre + edifici + legittimità + imprese)/scala)); le imprese (battaglie, annessioni, eventi) si sommano e sbiadiscono del 5% l'anno."
+  },
+  "revolt": {
+    "notes": "Fase 17: un anno con ordine e legittimità entrambi da 60 in su allunga la pace interna (obiettivo di stabilità); sotto 18 di ordine la cronaca registra una rivolta, sopra 40 la sua fine.",
+    "stability": 60.0,
+    "legitimacy": 60.0,
+    "revolt_below": 18.0,
+    "revolt_over": 40.0
+  },
+  "gifts": {
+    "notes": "Fase 16: il dono della corona a un ceto. Costa di più in un regno vasto, una volta l'anno per ceto, e si ricorda come una legge.",
+    "base_gold": 60.0,
+    "gold_per_province": 25.0,
+    "cooldown_days": 360,
+    "favour": 10.0,
+    "ai_min_treasury_multiple": 5.0
+  },
+  "factions": {
+    "start_favour": 55.0,
+    "drift_per_day": 0.08,
+    "trust_weight": 0.35,
+    "wage_debt_penalty": -12.0,
+    "hostile_warning": 28.0,
+    "saturate_above": 75.0,
+    "saturation": 0.5
+  },
+  "court": {
+    "ruler_age": [26, 46],
+    "consort_age_delta": [-6, 4],
+    "children_at_start": [0, 3],
+    "child_age_max": 20,
+    "traits_per_ruler": [2, 3],
+    "inherit_trait_chance": 0.4,
+    "skill_range": [2, 9],
+    "adult_age": 16,
+    "regency_legitimacy": -10.0,
+    "crisis_turbulence": 20.0,
+    "minor_turbulence": 12.0,
+    "marriage_chance_per_year": 0.5,
+    "birth_chance_per_year": 0.35,
+    "max_children": 6,
+    "death": { "base_annual": 0.012, "from_age": 58, "annual_at_58": 0.05, "annual_at_80": 0.28, "max_age": 92 }
+  }
+}
+

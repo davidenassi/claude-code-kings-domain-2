@@ -1,0 +1,207 @@
+{
+  "version": 1,
+  "notes": "Eventi del regno (Fase 17: cinquantasette eventi in undici categorie — economia, famiglie, dinastia, sovrano, guerra, diplomazia, fede, cultura, terra, crisi, popolazione — quasi tutti legati a ciò che il regno è davvero): condizioni vere (`when`), un peso, un tempo di riposo, e scelte che costano e rendono davvero. `kind` serve solo al colore nell'interfaccia. Le catene si fanno con `effects.chain`. I pesi dell'IA (`ai`) dicono quale scelta somiglia a quale sovrano. Nei testi {corona}, {Corona}, {regno}, {Regno}, {della_corona}, {alla_corona} diventano «la comunità» prima dell'incoronazione; `crowned` limita un evento ai regni con una corona (Fase 15).",
+  "events": [
+    { "id": "raccolto_abbondante", "category": "economia", "title": "Un raccolto abbondante", "kind": "good", "weight": 10, "cooldown_days": 1080,
+      "text": "Le spighe sono pesanti come non si vedeva da una generazione. I carri entrano pieni fino a sera.",
+      "when": { "season": "autunno", "has_settlement": true, "min_trust": 35 },
+      "options": [
+        { "text": "Si riempiano i granai", "effects": { "stock": { "grain": 90 }, "trust": 4 },
+          "ai": { "caution": 1.0 } },
+        { "text": "Si venda il di più ai mercanti", "effects": { "treasury": 70, "favour": { "merchants": 5, "people": -2 } },
+          "ai": { "greed": 1.0, "trade": 0.8 } }
+      ] },
+
+    { "id": "inverno_rigido", "category": "terra", "title": "Un inverno che non finisce", "kind": "bad", "weight": 9, "cooldown_days": 900,
+      "text": "Il gelo tiene la terra da novembre. Le riserve calano e i vecchi non escono più di casa.",
+      "when": { "season": "inverno", "has_settlement": true },
+      "options": [
+        { "text": "Si apra il granaio {della_corona}", "effects": { "stock": { "grain": -40 }, "trust": 6, "favour": { "people": 5 } },
+          "ai": { "justice": 1.0 } },
+        { "text": "Ognuno si arrangi", "effects": { "trust": -8, "favour": { "people": -6, "nobility": 2 }, "unrest": 0.04 },
+          "ai": { "cruelty": 1.0, "greed": 0.6 } }
+      ] },
+
+    { "id": "peste", "category": "popolazione", "title": "La peste alle porte", "kind": "crisis", "weight": 5, "cooldown_days": 3600,
+      "text": "Dai porti del sud arriva la voce di un morbo che non risparmia nessuno. I primi malati sono già alle cascine.",
+      "when": { "min_population": 10, "has_settlement": true },
+      "options": [
+        { "text": "Si chiudano le strade", "effects": { "crisis": { "id": "quarantena", "name": "Quarantena", "days": 180,
+              "modifiers": [ { "key": "trade.income", "op": "mul", "value": 0.7 }, { "key": "stability.base", "op": "add", "value": -6 } ] },
+            "favour": { "merchants": -8, "clergy": 4 }, "chronicle": "{Corona} chiude le strade contro la peste." },
+          "ai": { "caution": 1.0 } },
+        { "text": "Si preghi e si continui a lavorare", "effects": { "kill_people": 3, "trust": -10,
+            "crisis": { "id": "peste_nera", "name": "Peste", "days": 240,
+              "modifiers": [ { "key": "population.growth", "op": "mul", "value": 0.4 }, { "key": "stability.base", "op": "add", "value": -10 } ] },
+            "chronicle": "La peste passa per il dominio e lascia case vuote." },
+          "ai": { "piety": 1.0 } }
+      ] },
+
+    { "id": "banditi_nei_boschi", "category": "crisi", "title": "Banditi nei boschi", "kind": "bad", "weight": 10, "cooldown_days": 720,
+      "text": "Qualcuno assale i carri sulla strada del bosco. I mercanti chiedono scorta, i contadini chiudono le porte.",
+      "when": { "has_settlement": true },
+      "options": [
+        { "text": "Si mandino uomini a stanarli", "effects": { "treasury": -40, "favour": { "merchants": 6, "army": 3 }, "stability": 4 },
+          "ai": { "authority": 1.0, "aggression": 0.6 } },
+        { "text": "Non abbiamo uomini da sprecare", "effects": { "stability": -6, "favour": { "merchants": -6 }, "unrest": 0.05 },
+          "ai": { "greed": 1.0 } }
+      ] },
+
+    { "id": "nobile_ribelle", "category": "dinastia", "title": "Un nobile che non si presenta", "kind": "crisis", "weight": 8, "cooldown_days": 1440,
+      "text": "Un signore delle terre di confine non manda più né uomini né tributi, e si dice tenga corte come un re.",
+      "when": { "crowned": true, "min_provinces": 2, "max_stability": 70 },
+      "options": [
+        { "text": "Si pieghi con le armi", "effects": { "treasury": -80, "turbulence": 10, "stability": 8,
+            "favour": { "nobility": -10, "army": 6 }, "chronicle": "{Corona} piega un signore ribelle." },
+          "ai": { "aggression": 1.0, "authority": 0.8 } },
+        { "text": "Si tratti: terre in cambio di fedeltà", "effects": { "legitimacy": -6, "favour": { "nobility": 8, "people": -3 },
+            "chronicle": "{Corona} compra la fedeltà di un signore." },
+          "ai": { "caution": 1.0 } }
+      ] },
+
+    { "id": "monaco_viaggiante", "category": "fede", "title": "Un monaco di passaggio", "kind": "good", "weight": 8, "cooldown_days": 900,
+      "text": "Un monaco chiede ospitalità per l'inverno. Porta libri, e dice di saper leggere le stelle e i conti.",
+      "when": {},
+      "options": [
+        { "text": "Sia accolto e ascoltato", "effects": { "research": 40, "favour": { "clergy": 6 }, "treasury": -15 },
+          "ai": { "piety": 1.0, "caution": 0.5 } },
+        { "text": "{Regno} ha altre spese", "effects": { "favour": { "clergy": -5 } },
+          "ai": { "greed": 1.0 } }
+      ] },
+
+    { "id": "mercante_straniero", "category": "economia", "title": "Un mercante straniero", "kind": "good", "weight": 9, "cooldown_days": 720,
+      "text": "Un mercante di lontano chiede di aprire bottega e promette dazi puntuali.",
+      "when": { "min_provinces": 1 },
+      "options": [
+        { "text": "Si apra la piazza", "effects": { "treasury": 45, "favour": { "merchants": 7, "clergy": -3 },
+            "crisis": { "id": "fiera", "name": "Fiera aperta", "days": 240,
+              "modifiers": [ { "key": "trade.income", "op": "mul", "value": 1.12 } ] } },
+          "ai": { "trade": 1.0, "greed": 0.6 } },
+        { "text": "Non vogliamo forestieri", "effects": { "favour": { "merchants": -6, "people": 3 }, "trust": 2 },
+          "ai": { "authority": 1.0, "piety": 0.5 } }
+      ] },
+
+    { "id": "eretici", "category": "fede", "title": "Voci di eresia", "kind": "bad", "weight": 7, "cooldown_days": 1440,
+      "text": "In una valle si prega in un altro modo, e la gente ci va volentieri.",
+      "when": { "min_provinces": 2 },
+      "options": [
+        { "text": "Si mandino i predicatori", "effects": { "treasury": -30, "favour": { "clergy": 6 }, "unrest": -0.05 },
+          "ai": { "piety": 1.0 } },
+        { "text": "Si lasci pregare chi paga", "effects": { "favour": { "clergy": -8, "merchants": 4, "people": 3 },
+            "crisis": { "id": "tolleranza_di_fatto", "name": "Tolleranza di fatto", "days": 360,
+              "modifiers": [ { "key": "stability.tolerance", "op": "add", "value": 5 } ] } },
+          "ai": { "trade": 1.0, "justice": 0.6 } }
+      ] },
+
+    { "id": "incendio", "category": "crisi", "title": "Fuoco nel villaggio", "kind": "bad", "weight": 6, "cooldown_days": 1080,
+      "text": "Una scintilla, il vento e un tetto di paglia: metà della strada brucia prima dell'alba.",
+      "when": { "has_settlement": true, "min_population": 6 },
+      "options": [
+        { "text": "{Corona} paga la ricostruzione", "effects": { "treasury": -60, "trust": 5, "favour": { "people": 6 } },
+          "ai": { "justice": 1.0 } },
+        { "text": "Si ricostruisca da sé", "effects": { "stock": { "wood": -30 }, "trust": -6 },
+          "ai": { "greed": 1.0 } }
+      ] },
+
+    { "id": "pretendente", "category": "dinastia", "title": "Un pretendente alla corona", "kind": "crisis", "weight": 6, "cooldown_days": 2160,
+      "text": "Un cugino dimenticato mostra pergamene e cerca amici fra i grandi del regno.",
+      "when": { "crowned": true, "max_legitimacy": 55 },
+      "options": [
+        { "text": "Si compri il suo silenzio", "effects": { "treasury": -100, "legitimacy": 4 },
+          "ai": { "caution": 1.0, "greed": -0.5 } },
+        { "text": "Si risponda con il ferro", "effects": { "turbulence": 14, "legitimacy": 8, "favour": { "nobility": -8, "army": 5 },
+            "chronicle": "Il pretendente finisce in catene." },
+          "ai": { "cruelty": 1.0, "aggression": 0.8 } }
+      ] },
+
+    { "id": "miracolo", "category": "fede", "title": "Un segno nel cielo", "kind": "good", "weight": 4, "cooldown_days": 2880,
+      "text": "Una notte il cielo si accende sopra la cappella. Il prete parla di un segno, e la gente ci crede.",
+      "when": {},
+      "options": [
+        { "text": "Si celebri per tre giorni", "effects": { "treasury": -25, "legitimacy": 6, "trust": 8, "favour": { "clergy": 8, "people": 5 },
+            "chronicle": "Un segno nel cielo e tre giorni di festa." },
+          "ai": { "piety": 1.0 } },
+        { "text": "Era una cometa, si torni al lavoro", "effects": { "favour": { "clergy": -6 }, "research": 25 },
+          "ai": { "caution": 1.0 } }
+      ] },
+
+    { "id": "rivolta_contadina", "category": "crisi", "title": "I contadini scendono in piazza", "kind": "crisis", "weight": 9, "cooldown_days": 1080,
+      "text": "Le tasse, la fame o tutte e due: la gente si raduna davanti al mastio con i forconi.",
+      "when": { "max_trust": 35, "has_settlement": true },
+      "options": [
+        { "text": "Si ascoltino e si abbassi la gabella", "effects": { "treasury": -50, "trust": 10, "favour": { "people": 8, "nobility": -4 },
+            "chronicle": "{Corona} ascolta i contadini e abbassa la gabella." },
+          "ai": { "justice": 1.0 } },
+        { "text": "Si disperda la folla", "effects": { "kill_people": 1, "trust": -6, "stability": 6, "turbulence": 8,
+            "favour": { "people": -12, "army": 4 }, "chronicle": "La folla viene dispersa con le armi." },
+          "ai": { "cruelty": 1.0, "authority": 0.7 } }
+      ] },
+
+    { "id": "guerra_stanca", "category": "guerra", "title": "{Regno} non regge più la guerra", "kind": "bad", "weight": 8, "cooldown_days": 720,
+      "text": "Nelle campagne mancano braccia e nelle case si contano i morti. I grandi chiedono che si finisca.",
+      "when": { "at_war": true, "min_war_years": 2 },
+      "options": [
+        { "text": "Si cerchi una pace onorevole", "effects": { "legitimacy": -3, "trust": 6, "favour": { "people": 6, "army": -5 } },
+          "ai": { "caution": 1.0 } },
+        { "text": "Si vada avanti fino alla vittoria", "effects": { "trust": -8, "turbulence": 8, "favour": { "army": 6, "people": -6 } },
+          "ai": { "aggression": 1.0 } }
+      ] },
+
+    { "id": "dono_di_un_vicino", "category": "diplomazia", "title": "Un dono da un vicino", "kind": "good", "weight": 7, "cooldown_days": 900,
+      "text": "Da oltre il confine arrivano carri di vino e un anello d'oro, senza altra richiesta che l'amicizia.",
+      "when": { "min_provinces": 1, "at_peace": true },
+      "options": [
+        { "text": "Si accetti con gratitudine", "effects": { "treasury": 40, "opinion_neighbour": 10,
+            "chronicle": "Un vicino manda doni {alla_corona}." },
+          "ai": { "trade": 1.0, "caution": 0.6 } },
+        { "text": "Si rimandi indietro: non siamo in vendita", "effects": { "prestige": 4, "opinion_neighbour": -12 },
+          "ai": { "authority": 1.0 } }
+      ] },
+
+    {"id": "fiera_di_primavera", "category": "economia", "title": "La fiera di primavera", "kind": "good", "weight": 7, "cooldown_days": 1080, "text": "Mercanti di tre valli chiedono di piantare le tende sul prato del villaggio per una settimana.", "when": {"season": "primavera", "has_settlement": true, "min_population": 30, "at_peace": true}, "options": [{"text": "Si apra il prato, e si prenda il dazio", "effects": {"treasury": 70, "trust": 4, "favour": {"merchants": 6}}, "ai": {"trade": 1.0, "greed": 0.5}}, {"text": "Niente dazio: che vengano in tanti", "effects": {"trust": 8, "prestige": 3, "favour": {"merchants": 10, "people": 4}}, "ai": {"trade": 0.6, "authority": -0.2}}]},
+    {"id": "vena_ricca", "category": "economia", "title": "Una vena ricca", "kind": "good", "weight": 5, "cooldown_days": 1800, "text": "I cavatori hanno aperto una faccia di pietra buona, dritta e senza crepe.", "when": {"has_building": "quarry"}, "options": [{"text": "Si cavi finché dura", "effects": {"stock": {"stone": 90}, "trust": 2}, "ai": {"greed": 1.0}}, {"text": "Metà per la corona, metà per chi l'ha trovata", "effects": {"stock": {"stone": 45}, "trust": 6, "favour": {"people": 4}}, "ai": {"authority": -0.3, "caution": 0.6}}]},
+    {"id": "usurai", "category": "economia", "title": "Gli usurai di passaggio", "kind": "bad", "weight": 6, "cooldown_days": 1440, "text": "Due banchieri di città offrono oro subito, da rendere con gli interessi alla prossima stagione.", "when": {"crowned": true, "max_treasury": 60}, "options": [{"text": "Si prenda il prestito", "effects": {"treasury": 300, "chain": "usurai_tornano", "favour": {"merchants": 4}, "chain_days": 360}, "ai": {"greed": 0.8, "caution": -0.5}}, {"text": "Meglio stringere la cinghia", "effects": {"trust": -3, "legitimacy": 2}, "ai": {"caution": 1.0}}]},
+    {"id": "usurai_tornano", "category": "economia", "title": "Gli usurai tornano", "kind": "bad", "weight": 0, "cooldown_days": 0, "chain_only": true, "text": "I banchieri sono tornati, puntuali come la grandine, a chiedere il loro oro e qualcosa di più.", "when": {}, "options": [{"text": "Si paghi il debito", "effects": {"treasury": -390}, "ai": {"caution": 1.0}}, {"text": "Si cacci chi presta a usura", "effects": {"prestige": -4, "favour": {"merchants": -15, "clergy": 6}, "turbulence": 4, "chronicle": "{Corona} caccia gli usurai senza rendere il prestito."}, "ai": {"aggression": 0.6, "piety": 0.5}}]},
+    {"id": "sale_sul_fiume", "category": "economia", "title": "Il sale risale il fiume", "kind": "good", "weight": 6, "cooldown_days": 1440, "text": "Una chiatta carica di sale chiede di fermarsi al guado: il fiume è una strada, se qualcuno la sorveglia.", "when": {"capital_river": true, "at_peace": true, "min_population": 20}, "options": [{"text": "Un pedaggio al guado", "effects": {"treasury": 45, "favour": {"merchants": -2}, "crisis": {"id": "pedaggio_del_guado", "name": "Pedaggio del guado", "days": 720, "modifiers": [{"key": "trade.income", "op": "mul", "value": 1.15}]}}, "ai": {"greed": 1.0}}, {"text": "Il guado resta libero", "effects": {"favour": {"merchants": 8}, "prestige": 2}, "ai": {"trade": 1.0}}]},
+    {"id": "gemelli", "category": "famiglie", "title": "Due gemelli", "kind": "good", "weight": 6, "cooldown_days": 900, "text": "In una delle case sono nati due gemelli: le vecchie dicono che porta bene a tutto il villaggio.", "when": {"has_settlement": true, "min_families": 3}, "options": [{"text": "Si faccia festa", "effects": {"trust": 6, "stock": {"bread": -15}}, "ai": {"piety": 0.5, "trade": 0.3}}, {"text": "Un dono della comunità alla famiglia", "effects": {"trust": 4, "authority": 3, "treasury": -10}, "ai": {"authority": 0.6}}]},
+    {"id": "lite_tra_famiglie", "category": "famiglie", "title": "Due famiglie in lite", "kind": "bad", "weight": 7, "cooldown_days": 1080, "text": "Un campo conteso, un confine spostato di notte: due famiglie non si parlano più e il villaggio si divide.", "when": {"has_settlement": true, "min_families": 4}, "options": [{"text": "Decidano gli anziani", "effects": {"authority": 6, "trust": -4}, "ai": {"caution": 0.8, "authority": 0.4}}, {"text": "Si divida il campo a metà", "effects": {"trust": 5, "authority": -5}, "ai": {"trade": 0.4}}]},
+    {"id": "matrimonio_combinato", "category": "famiglie", "title": "Un matrimonio tra le famiglie", "kind": "good", "weight": 6, "cooldown_days": 1080, "text": "Le due famiglie più antiche propongono di unire i figli: un patto che terrebbe insieme la comunità.", "when": {"has_settlement": true, "crowned": false, "min_families": 3, "min_year": 2}, "options": [{"text": "Si celebri davanti a tutti", "effects": {"authority": 6, "trust": 4, "stock": {"bread": -20}, "chronicle": "Due famiglie fondatrici si uniscono in un matrimonio che tutti ricordano."}, "ai": {"authority": 0.6, "piety": 0.4}}, {"text": "Sono affari loro", "effects": {"authority": -2}, "ai": {"caution": 0.5}}]},
+    {"id": "vedova_con_figli", "category": "famiglie", "title": "Una vedova con i figli", "kind": "bad", "weight": 5, "cooldown_days": 900, "text": "Il marito è morto nel bosco sotto un albero. Lei resta con tre bambini e un campo da arare.", "when": {"has_settlement": true, "min_population": 15}, "options": [{"text": "La comunità l'aiuti", "effects": {"stock": {"grain": -25}, "trust": 5, "favour": {"people": 4, "clergy": 3}}, "ai": {"piety": 1.0}}, {"text": "Ognuno ha le sue pene", "effects": {"trust": -4}, "ai": {"greed": 0.6}}]},
+    {"id": "erede_ribelle", "category": "dinastia", "title": "L'erede impaziente", "kind": "crisis", "weight": 6, "cooldown_days": 2160, "text": "L'erede ha raccolto intorno a sé giovani nobili e dice ad alta voce che il trono aspetta lui.", "when": {"crowned": true, "heir": "adult", "ruler_min_age": 50}, "options": [{"text": "Gli si dia un governo lontano", "effects": {"legitimacy": 3, "treasury": -40, "favour": {"nobility": 4}}, "ai": {"caution": 1.0}}, {"text": "Lo si richiami all'ordine", "effects": {"legitimacy": -4, "turbulence": 6, "favour": {"nobility": -6, "army": 3}}, "ai": {"authority": 1.0, "aggression": 0.4}}]},
+    {"id": "sovrano_malato", "category": "dinastia", "title": "Il sovrano ha la febbre", "kind": "bad", "weight": 5, "cooldown_days": 1440, "text": "Da giorni chi regna non esce dalle sue stanze. A corte si parla sottovoce, e già si fanno i conti.", "when": {"crowned": true, "ruler_min_age": 58}, "options": [{"text": "Si chiamino i medici di città", "effects": {"treasury": -60, "legitimacy": 2}, "ai": {"caution": 0.8, "trade": 0.3}}, {"text": "Si preghi", "effects": {"favour": {"clergy": 6}, "legitimacy": -2}, "ai": {"piety": 1.0}}]},
+    {"id": "nascita_a_corte", "category": "dinastia", "title": "Un figlio della casa reale", "kind": "good", "weight": 6, "cooldown_days": 1440, "text": "A corte è nato un bambino della casa reale: le campane suonano per un giorno intero.", "when": {"crowned": true, "heir": "none"}, "options": [{"text": "Tre giorni di festa", "effects": {"treasury": -40, "legitimacy": 6, "trust": 6}, "ai": {"trade": 0.4, "piety": 0.4}}, {"text": "Una messa e basta", "effects": {"legitimacy": 3, "favour": {"clergy": 4}}, "ai": {"caution": 0.6, "piety": 0.6}}]},
+    {"id": "reggente_ambizioso", "category": "dinastia", "title": "Un reggente che non vuole lasciare", "kind": "crisis", "weight": 7, "cooldown_days": 1800, "text": "Il reggente firma ormai con il proprio sigillo, e i suoi uomini tengono le chiavi del tesoro.", "when": {"crowned": true, "regency": true}, "options": [{"text": "Il consiglio lo sorvegli", "effects": {"legitimacy": 2, "treasury": -30, "favour": {"nobility": -3}}, "ai": {"caution": 1.0}}, {"text": "Lo si lasci fare, per ora", "effects": {"legitimacy": -6, "stability": 4, "favour": {"nobility": 5}}, "ai": {"authority": 0.5}}]},
+    {"id": "veterani_senza_paga", "category": "guerra", "title": "Veterani senza paga", "kind": "bad", "weight": 7, "cooldown_days": 1080, "text": "Tornati dalla guerra, i soldati chiedono la paga promessa. Bevono, e cominciano a chiedere forte.", "when": {"crowned": true, "max_treasury": 150, "min_wars": 1}, "options": [{"text": "Si paghi a rate", "effects": {"treasury": -50, "favour": {"army": 6}}, "ai": {"caution": 1.0}}, {"text": "Terre invece d'oro", "effects": {"favour": {"army": 4, "nobility": -5}, "unrest": 0.05}, "ai": {"greed": 0.6}}, {"text": "Si mandino a casa", "effects": {"stability": -8, "favour": {"army": -12}, "turbulence": 5}, "ai": {"greed": 0.8, "caution": -0.4}}]},
+    {"id": "maestro_d_armi", "category": "guerra", "title": "Un maestro d'armi", "kind": "good", "weight": 5, "cooldown_days": 1800, "text": "Un vecchio capitano chiede di fermarsi: insegnerebbe ai giovani a tenere la lancia come si deve.", "when": {"crowned": true, "min_population": 30}, "options": [{"text": "Resti, con un salario", "effects": {"treasury": -35, "favour": {"army": 8}, "crisis": {"id": "addestramento", "name": "Un maestro d'armi", "days": 1440, "modifiers": [{"key": "military.infantry_defense", "op": "mul", "value": 1.1}]}}, "ai": {"aggression": 1.0}}, {"text": "Qui si ara, non si combatte", "effects": {"favour": {"people": 3, "army": -4}}, "ai": {"caution": 0.6, "trade": 0.3}}]},
+    {"id": "disertori", "category": "guerra", "title": "Disertori nei boschi", "kind": "bad", "weight": 7, "cooldown_days": 720, "text": "Uomini scappati dall'esercito vivono nei boschi e rubano galline, a volte di peggio.", "when": {"at_war": true, "min_war_years": 1}, "options": [{"text": "Perdono a chi torna", "effects": {"favour": {"army": -4, "people": 3}, "legitimacy": -2}, "ai": {"piety": 0.6, "caution": 0.4}}, {"text": "La forca per tutti", "effects": {"stability": 6, "trust": -5, "favour": {"army": 5}}, "ai": {"authority": 0.8, "aggression": 0.5}}]},
+    {"id": "ambasciatore_offeso", "category": "diplomazia", "title": "Un ambasciatore offeso", "kind": "bad", "weight": 6, "cooldown_days": 1080, "text": "L'inviato di un regno vicino è stato messo in fondo alla tavola. Se n'è andato senza salutare.", "when": {"crowned": true, "min_provinces": 2}, "options": [{"text": "Si mandino doni e scuse", "effects": {"treasury": -40, "opinion_neighbour": 10}, "ai": {"caution": 0.8, "trade": 0.5}}, {"text": "Che impari dove si siede", "effects": {"opinion_neighbour": -15, "prestige": 3}, "ai": {"aggression": 0.8, "authority": 0.4}}]},
+    {"id": "mercanti_di_confine", "category": "diplomazia", "title": "I mercanti del confine", "kind": "good", "weight": 6, "cooldown_days": 1080, "text": "Il trattato di commercio ha portato carri e facce nuove: i mercanti chiedono un magazzino comune.", "when": {"has_pact": "trade"}, "options": [{"text": "Si costruisca a spese nostre", "effects": {"treasury": -50, "opinion_neighbour": 8, "crisis": {"id": "magazzino_comune", "name": "Magazzino comune", "days": 1800, "modifiers": [{"key": "trade.income", "op": "mul", "value": 1.12}]}}, "ai": {"trade": 1.0}}, {"text": "Paghino loro", "effects": {"treasury": 20, "opinion_neighbour": -4}, "ai": {"greed": 1.0}}]},
+    {"id": "ostaggio_d_onore", "category": "diplomazia", "title": "Un ostaggio d'onore", "kind": "good", "weight": 4, "cooldown_days": 2160, "text": "Un alleato propone di scambiarsi un figlio di buona casa, da crescere a corte come pegno di fedeltà.", "when": {"has_pact": "alliance"}, "options": [{"text": "Si accetti lo scambio", "effects": {"opinion_neighbour": 15, "legitimacy": 2, "favour": {"nobility": 3}}, "ai": {"caution": 0.8}}, {"text": "Nessun figlio lascia la casa", "effects": {"opinion_neighbour": -6, "favour": {"nobility": 2}}, "ai": {"authority": 0.8}}]},
+    {"id": "pellegrini", "category": "fede", "title": "Pellegrini sulla strada", "kind": "good", "weight": 7, "cooldown_days": 900, "text": "Una fila di pellegrini chiede riparo per la notte: vanno a un santuario lontano e pagano in preghiere.", "when": {"has_settlement": true, "at_peace": true}, "options": [{"text": "Si dia loro pane e un tetto", "effects": {"stock": {"bread": -20}, "favour": {"clergy": 6}, "prestige": 2}, "ai": {"piety": 1.0}}, {"text": "Si chieda un'offerta", "effects": {"treasury": 25, "favour": {"clergy": -4}}, "ai": {"greed": 1.0}}]},
+    {"id": "decime", "category": "fede", "title": "Il vescovo chiede le decime", "kind": "bad", "weight": 6, "cooldown_days": 1440, "text": "Il vescovo ricorda che un decimo del raccolto spetta alla Chiesa, e che la corona lo sa bene.", "when": {"crowned": true, "favour_above": {"clergy": 55}, "min_provinces": 2}, "options": [{"text": "Si paghino le decime", "effects": {"stock": {"grain": -60}, "favour": {"clergy": 8}, "legitimacy": 3}, "ai": {"piety": 1.0}}, {"text": "La corona non paga nessuno", "effects": {"favour": {"clergy": -12, "nobility": 3}, "legitimacy": -3}, "ai": {"authority": 0.8, "greed": 0.5}}]},
+    {"id": "reliquia", "category": "fede", "title": "Una reliquia in vendita", "kind": "good", "weight": 4, "cooldown_days": 2880, "once": true, "text": "Un mercante giura di avere il dito di un santo. Il sovrano, devoto, lo guarda a lungo.", "when": {"crowned": true, "ruler_trait": "pio", "min_treasury": 200}, "options": [{"text": "Si compri, e si costruisca una cappella", "effects": {"treasury": -180, "legitimacy": 8, "prestige": 6, "favour": {"clergy": 12}, "chronicle": "{Corona} compra una reliquia e le costruisce una cappella."}, "ai": {"piety": 1.0}}, {"text": "È un osso di pollo", "effects": {"favour": {"clergy": -5, "merchants": 2}}, "ai": {"greed": 0.5, "caution": 0.5}}]},
+    {"id": "predicatore", "category": "fede", "title": "Un predicatore nelle piazze", "kind": "bad", "weight": 6, "cooldown_days": 1080, "text": "Un frate scalzo predica contro i ricchi e i signori. La gente lo ascolta, e non se ne va.", "when": {"crowned": true, "favour_below": {"people": 45}}, "options": [{"text": "Lo si ascolti, e si faccia qualcosa", "effects": {"treasury": -40, "favour": {"people": 8, "nobility": -4}}, "ai": {"piety": 0.8, "caution": 0.4}}, {"text": "Lo si cacci dal regno", "effects": {"stability": 5, "favour": {"people": -6, "clergy": -3}}, "ai": {"authority": 1.0}}]},
+    {"id": "cantastorie", "category": "cultura", "title": "Un cantastorie", "kind": "good", "weight": 6, "cooldown_days": 1440, "text": "Un cantastorie canta la storia dei fondatori nella piazza. Qualcuno piange, tutti la imparano.", "when": {"has_settlement": true, "min_year": 8}, "options": [{"text": "Che la canti ogni anno", "effects": {"trust": 5, "prestige": 3, "treasury": -15}, "ai": {"trade": 0.4, "piety": 0.3}}, {"text": "Che la scriva, invece", "effects": {"research": 25, "prestige": 2}, "ai": {"authority": 0.6}}]},
+    {"id": "lingua_della_corte", "category": "cultura", "title": "La lingua della corte", "kind": "bad", "weight": 6, "cooldown_days": 1800, "text": "Nelle terre nuove si parla un'altra lingua. I giudici del regno non capiscono chi giudicano.", "when": {"crowned": true, "min_foreign_provinces": 2}, "options": [{"text": "Giudici del posto", "effects": {"treasury": -50, "unrest": -0.1, "favour": {"nobility": -3}}, "ai": {"caution": 0.8, "trade": 0.3}}, {"text": "La legge si dice in una lingua sola", "effects": {"unrest": 0.08, "legitimacy": 2}, "ai": {"authority": 1.0}}]},
+    {"id": "scuola_del_monastero", "category": "cultura", "title": "La scuola del monastero", "kind": "good", "weight": 5, "cooldown_days": 2160, "text": "I monaci offrono di insegnare a leggere ai figli delle famiglie, se la corona paga l'inchiostro.", "when": {"crowned": true, "min_year": 12, "min_population": 40}, "options": [{"text": "La corona paghi", "effects": {"treasury": -70, "research": 60, "favour": {"clergy": 5}}, "ai": {"authority": 0.5, "trade": 0.5}}, {"text": "Chi vuole leggere, paghi", "effects": {"research": 20, "favour": {"people": -2}}, "ai": {"greed": 0.8}}]},
+    {"id": "piena_del_fiume", "category": "terra", "title": "La piena", "kind": "bad", "weight": 6, "cooldown_days": 1440, "text": "Dopo tre giorni di pioggia il fiume è uscito dagli argini e ha coperto i campi più bassi.", "when": {"capital_river": true, "season": "primavera", "has_settlement": true}, "options": [{"text": "Tutti agli argini", "effects": {"stock": {"grain": -30, "wood": -20}, "trust": -2}, "ai": {"caution": 1.0}}, {"text": "Si salvi il granaio, i campi si rifaranno", "effects": {"trust": -5, "crisis": {"id": "campi_allagati", "name": "Campi allagati", "days": 180, "modifiers": [{"key": "production.grain", "op": "mul", "value": 0.8}]}}, "ai": {"greed": 0.6}}]},
+    {"id": "frana", "category": "terra", "title": "La frana", "kind": "bad", "weight": 5, "cooldown_days": 1800, "text": "Un costone è venuto giù sulla strada della valle. Sotto, però, c'è pietra buona.", "when": {"capital_mountain": true}, "options": [{"text": "Si liberi la strada e si tenga la pietra", "effects": {"stock": {"stone": 60}, "trust": -2}, "ai": {"greed": 0.8, "trade": 0.3}}, {"text": "Si giri intorno", "effects": {"crisis": {"id": "strada_chiusa", "name": "Strada chiusa", "days": 360, "modifiers": [{"key": "trade.income", "op": "mul", "value": 0.85}]}}, "ai": {"caution": 0.6}}]},
+    {"id": "lupi", "category": "terra", "title": "I lupi", "kind": "bad", "weight": 6, "cooldown_days": 1080, "text": "Un branco scende dal bosco nelle notti di gelo: hanno già preso due pecore e un cane.", "when": {"season": "inverno", "capital_forest": 0.4, "has_settlement": true}, "options": [{"text": "Una battuta di caccia", "effects": {"trust": 3, "treasury": -10, "favour": {"nobility": 3}}, "ai": {"aggression": 0.8}}, {"text": "Si chiudano le stalle di notte", "effects": {"trust": -3}, "ai": {"caution": 1.0}}]},
+    {"id": "siccita", "category": "terra", "title": "La siccità", "kind": "crisis", "weight": 5, "cooldown_days": 2160, "text": "Non piove da quaranta giorni. Il grano è basso e giallo, i pozzi si abbassano.", "when": {"season": "estate", "has_settlement": true, "min_year": 3}, "options": [{"text": "Si porti acqua dal fiume, a braccia", "effects": {"trust": -4, "crisis": {"id": "siccita_vinta", "name": "Siccità", "days": 90, "modifiers": [{"key": "production.grain", "op": "mul", "value": 0.85}]}}, "ai": {"caution": 0.8}}, {"text": "Si preghi per la pioggia", "effects": {"favour": {"clergy": 5}, "crisis": {"id": "siccita_dura", "name": "Siccità", "days": 120, "modifiers": [{"key": "production.grain", "op": "mul", "value": 0.65}]}}, "ai": {"piety": 1.0}}]},
+    {"id": "complotto", "category": "crisi", "title": "Un complotto a corte", "kind": "crisis", "weight": 6, "cooldown_days": 2160, "text": "Una lettera intercettata: tre signori contano i giorni che mancano a un cambio di sovrano.", "when": {"crowned": true, "max_legitimacy": 50, "favour_below": {"nobility": 45}}, "options": [{"text": "Arresti, subito", "effects": {"stability": 6, "legitimacy": 4, "turbulence": 6, "favour": {"nobility": -10, "army": 4}}, "ai": {"authority": 1.0, "aggression": 0.5}}, {"text": "Li si compri", "effects": {"treasury": -120, "favour": {"nobility": 10}, "legitimacy": -2}, "ai": {"caution": 1.0, "greed": -0.4}}]},
+    {"id": "rivolta_fiscale", "category": "crisi", "title": "Non si paga più", "kind": "crisis", "weight": 7, "cooldown_days": 1440, "text": "In tre villaggi hanno bruciato i registri delle tasse e cacciato l'esattore a sassate.", "when": {"crowned": true, "favour_below": {"people": 32}, "min_provinces": 3}, "options": [{"text": "Un anno di sconto", "effects": {"treasury": -80, "favour": {"people": 10}, "stability": 3}, "ai": {"caution": 1.0}}, {"text": "Si mandino i soldati", "effects": {"stability": 8, "trust": -8, "unrest": 0.1, "favour": {"people": -8, "army": 4}, "chronicle": "{Corona} doma una rivolta contro le tasse con i soldati."}, "ai": {"authority": 0.8, "aggression": 0.6}}]},
+    {"id": "incendio_del_granaio", "category": "crisi", "title": "Il granaio brucia", "kind": "crisis", "weight": 4, "cooldown_days": 2880, "text": "Di notte il granaio ha preso fuoco. Qualcuno dice che non è stato un caso.", "when": {"has_building": "granary", "max_trust": 50}, "options": [{"text": "Si cerchi il colpevole", "effects": {"stock": {"grain": -150}, "stability": 3, "trust": -3}, "ai": {"authority": 1.0}}, {"text": "Si pensi a chi ha fame", "effects": {"stock": {"grain": -150}, "trust": 3, "treasury": -30}, "ai": {"piety": 0.8, "caution": 0.4}}]},
+    {"id": "coloni", "category": "popolazione", "title": "Coloni da oltre i monti", "kind": "good", "weight": 5, "cooldown_days": 1440, "text": "Quattro famiglie scappate da una guerra lontana chiedono terra da arare e un tetto per l'inverno.", "when": {"has_settlement": true, "at_peace": true, "min_trust": 55, "min_population": 15}, "options": [{"text": "Che restino", "effects": {"arrivals": 5, "stock": {"grain": -30}, "favour": {"people": 2}}, "ai": {"trade": 0.6, "piety": 0.4}}, {"text": "Non c'è terra per tutti", "effects": {"trust": -3, "favour": {"clergy": -3}}, "ai": {"caution": 0.8, "greed": 0.3}}]},
+    {"id": "febbre_dei_bambini", "category": "popolazione", "title": "La febbre dei bambini", "kind": "crisis", "weight": 5, "cooldown_days": 2160, "text": "Una febbre che colpisce i più piccoli gira di casa in casa. Le madri non dormono.", "when": {"has_settlement": true, "min_population": 30}, "options": [{"text": "Si separino i malati", "effects": {"kill_people": 1, "trust": -4}, "ai": {"caution": 1.0}}, {"text": "Si chiami la guaritrice", "effects": {"kill_people": 2, "trust": -2, "favour": {"clergy": -3}}, "ai": {"trade": 0.3}}]},
+    {"id": "giovani_in_citta", "category": "popolazione", "title": "I giovani vanno in città", "kind": "bad", "weight": 5, "cooldown_days": 1440, "text": "Alcuni ragazzi vogliono andare a imparare un mestiere in città: qui, dicono, c'è solo la zappa.", "when": {"has_settlement": true, "max_trust": 55, "min_population": 25}, "options": [{"text": "Che vadano", "effects": {"departures": 3, "trust": 2}, "ai": {"caution": 0.5}}, {"text": "Una bottega qui, con l'oro della corona", "effects": {"treasury": -60, "trust": 4, "favour": {"merchants": 4}}, "ai": {"trade": 1.0}}]},
+    {"id": "anno_di_nozze", "category": "popolazione", "title": "Un anno di nozze", "kind": "good", "weight": 5, "cooldown_days": 1440, "text": "Raccolto buono e pace: quest'anno si sono sposate più coppie che in tutti gli anni passati.", "when": {"has_settlement": true, "min_trust": 65, "at_peace": true}, "options": [{"text": "Un dono a ogni coppia", "effects": {"treasury": -30, "trust": 6, "authority": 3}, "ai": {"trade": 0.4, "piety": 0.5}}, {"text": "Le nozze le paghi chi si sposa", "effects": {"trust": 2}, "ai": {"greed": 0.8}}]},
+
+    {"id": "banchetto", "category": "sovrano", "title": "Un banchetto di sette giorni", "kind": "bad", "weight": 6, "cooldown_days": 1440, "text": "Chi regna ha voluto una festa che si ricordi: cacciagione, musici, vino di tre paesi. I conti arrivano dopo.", "when": {"crowned": true, "ruler_trait": "scialacquatore", "min_treasury": 150}, "options": [{"text": "Si paghi tutto, e che se ne parli", "effects": {"treasury": -140, "prestige": 5, "favour": {"nobility": 8, "clergy": -4}}, "ai": {"greed": -0.6, "trade": 0.4}}, {"text": "Il tesoriere metta un freno", "effects": {"treasury": -40, "favour": {"nobility": -5}, "legitimacy": 3}, "ai": {"caution": 1.0}}]},
+    {"id": "duello", "category": "sovrano", "title": "Una sfida a duello", "kind": "crisis", "weight": 5, "cooldown_days": 2160, "text": "Un signore ha offeso il sovrano davanti alla corte. Chi regna ha già la mano sulla spada.", "when": {"crowned": true, "ruler_trait": "impulsivo"}, "options": [{"text": "Si combatta all'alba", "effects": {"prestige": 8, "legitimacy": 4, "turbulence": 4, "favour": {"army": 6, "clergy": -4}}, "ai": {"aggression": 1.0}}, {"text": "Un sovrano non duella: lo si mandi in esilio", "effects": {"stability": 4, "favour": {"nobility": -5}}, "ai": {"caution": 1.0, "authority": 0.4}}]},
+    {"id": "notte_insonne", "category": "sovrano", "title": "Notti insonni", "kind": "bad", "weight": 5, "cooldown_days": 1440, "text": "Chi regna non dorme più: fa cambiare le guardie ogni notte e legge le lettere dei suoi consiglieri.", "when": {"crowned": true, "ruler_trait": "sospettoso"}, "options": [{"text": "Si scelgano guardie nuove, straniere", "effects": {"treasury": -60, "stability": 4, "favour": {"nobility": -6, "army": -3}}, "ai": {"authority": 1.0}}, {"text": "Il confessore gli parli", "effects": {"favour": {"clergy": 5}, "legitimacy": 2}, "ai": {"piety": 1.0}}]},
+    {"id": "libro_prezioso", "category": "sovrano", "title": "Un libro dall'oriente", "kind": "good", "weight": 5, "cooldown_days": 2160, "text": "Un mercante porta un libro di numeri e di stelle scritto in una lingua che a corte solo il sovrano sa leggere.", "when": {"crowned": true, "ruler_trait": "colto", "min_treasury": 100}, "options": [{"text": "Si compri, e lo si faccia copiare", "effects": {"treasury": -90, "research": 70, "prestige": 3}, "ai": {"authority": 0.5, "trade": 0.5}}, {"text": "Un libro non sfama nessuno", "effects": {"favour": {"people": 2}}, "ai": {"greed": 0.8}}]},
+    {"id": "cantiere_del_re", "category": "sovrano", "title": "Il ponte del re", "kind": "good", "weight": 5, "cooldown_days": 2160, "text": "Chi regna ha disegnato con le sue mani un ponte di pietra sul fiume, e vuole vederlo finito prima di morire.", "when": {"crowned": true, "ruler_trait": "costruttore", "capital_river": true, "min_treasury": 150}, "options": [{"text": "Si costruisca", "effects": {"treasury": -150, "stock": {"stone": -40}, "prestige": 6, "legitimacy": 3, "crisis": {"id": "ponte_del_re", "name": "Il ponte del re", "days": 3600, "modifiers": [{"key": "trade.income", "op": "mul", "value": 1.1}]}, "chronicle": "Sul fiume si alza il ponte voluto dal sovrano."}, "ai": {"authority": 0.6, "trade": 0.5}}, {"text": "Ci sono cose più urgenti", "effects": {"legitimacy": -3, "favour": {"merchants": 3}}, "ai": {"caution": 0.8}}]},
+    {"id": "voto_del_sovrano", "category": "sovrano", "title": "Il voto", "kind": "good", "weight": 5, "cooldown_days": 2880, "once": true, "text": "Dopo una malattia, chi regna ha fatto voto di fondare un monastero. Il clero aspetta che lo mantenga.", "when": {"crowned": true, "ruler_trait": "zelante"}, "options": [{"text": "Si mantenga il voto", "effects": {"treasury": -120, "legitimacy": 6, "research": 30, "favour": {"clergy": 12, "merchants": -3}}, "ai": {"piety": 1.0}}, {"text": "Un voto fatto con la febbre non vale", "effects": {"legitimacy": -5, "favour": {"clergy": -10}}, "ai": {"greed": 0.8}}]}
+  ]
+}
+

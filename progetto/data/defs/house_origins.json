@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "notes": "Da dove viene la casa reale. La famiglia scelta porta con sé quel che i suoi membri hanno fatto prima della corona: effetti moderati, e soprattutto un nome nella storia del regno. L'origine si deduce dai giorni che i membri hanno passato nei campi, in bottega o in armi; la famiglia che non pende da nessuna parte ma e la piu grande e la piu antica e 'la piu stimata'.",
+  "origins": [
+    { "id": "farmers", "name": "Una casa di contadini",
+      "text": "Viene dai campi: il popolo la sente sua.",
+      "favour": { "people": 8 },
+      "modifiers": [ { "key": "production.grain", "op": "mul", "value": 1.08 } ] },
+    { "id": "artisans", "name": "Una casa di artigiani",
+      "text": "Ha costruito e fatto il pane per tutti: sa cosa vuol dire lavorare le cose.",
+      "favour": { "merchants": 8 },
+      "modifiers": [ { "key": "construction.speed", "op": "mul", "value": 1.08 } ] },
+    { "id": "soldiers", "name": "Una casa d'arme",
+      "text": "Ha portato la lancia per la comunità: l'esercito la riconosce.",
+      "favour": { "army": 8 },
+      "modifiers": [ { "key": "stability.base", "op": "add", "value": 3.0 } ] },
+    { "id": "esteemed", "name": "La famiglia più stimata",
+      "text": "La più numerosa e la più antica fra le famiglie fondatrici: nessuno ne discute il diritto.",
+      "favour": { "people": 3, "clergy": 3 },
+      "modifiers": [ { "key": "legitimacy.base", "op": "add", "value": 6.0 } ] }
+  ]
+}
+

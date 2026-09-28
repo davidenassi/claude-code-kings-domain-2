@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "notes": "I cinque poteri del regno (eredità di Regno). `weight` è quanto conta il loro favore nelle misure della corona; `wants` descrive cosa li rende contenti (usato dalle leggi e, più avanti, dagli eventi).",
+  "items": [
+    { "id": "nobility", "name": "Nobiltà", "weight": 3.2, "rivals": ["people"],
+      "description": "Terre, titoli e guerre vinte. Sopporta male una corona che decide da sola.",
+      "wants": ["terre", "guerre vinte", "corona che ascolta"] },
+    { "id": "people", "name": "Popolo", "weight": 1.0, "rivals": ["nobility", "army"],
+      "description": "Pane, tasse leggere e figli che restano a casa.",
+      "wants": ["pane", "tasse leggere", "pochi arruolamenti"] },
+    { "id": "merchants", "name": "Mercanti e artigiani", "weight": 1.6, "rivals": ["nobility"],
+      "description": "Le botteghe, i mestieri e i traffici: strade sicure, pesi onesti e gilde libere.",
+      "wants": ["strade", "dazi bassi", "gilde libere"] },
+    { "id": "army", "name": "Esercito", "weight": 2.2, "rivals": ["people"],
+      "description": "Paghe puntuali, armi buone e un sovrano che si vede in campo.",
+      "wants": ["paghe", "armi", "campagne"] },
+    { "id": "clergy", "name": "Clero", "weight": 2.0, "rivals": ["merchants"],
+      "description": "Decime, chiese e una corona che si inginocchia quando serve.",
+      "wants": ["decime", "chiese", "devozione"] }
+  ]
+}
+

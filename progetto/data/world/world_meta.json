@@ -1,0 +1,205 @@
+{
+ "world_version": 1,
+ "generator_version": 1,
+ "world_width_m": 112000.0,
+ "world_height_m": 72000.0,
+ "cell_m": 64.0,
+ "fine_cell_m": 32.0,
+ "grid_width": 1750,
+ "grid_height": 1125,
+ "fine_grid_width": 3500,
+ "fine_grid_height": 2250,
+ "rasters": {
+  "height": {
+   "file": "height.bin",
+   "width": 1750,
+   "height": 1125,
+   "dtype": "float32",
+   "uncompressed_bytes": 7875000,
+   "compressed_bytes": 5463769,
+   "cell_m": 64.0,
+   "format": "RF",
+   "unit": "m"
+  },
+  "biome": {
+   "file": "biome.bin",
+   "width": 1750,
+   "height": 1125,
+   "dtype": "uint8",
+   "uncompressed_bytes": 1968750,
+   "compressed_bytes": 77706,
+   "cell_m": 64.0,
+   "format": "R8"
+  },
+  "forest": {
+   "file": "forest.bin",
+   "width": 1750,
+   "height": 1125,
+   "dtype": "uint8",
+   "uncompressed_bytes": 1968750,
+   "compressed_bytes": 652982,
+   "cell_m": 64.0,
+   "format": "R8"
+  },
+  "moisture": {
+   "file": "moisture.bin",
+   "width": 1750,
+   "height": 1125,
+   "dtype": "uint8",
+   "uncompressed_bytes": 1968750,
+   "compressed_bytes": 382513,
+   "cell_m": 64.0,
+   "format": "R8"
+  },
+  "temperature": {
+   "file": "temperature.bin",
+   "width": 1750,
+   "height": 1125,
+   "dtype": "uint8",
+   "uncompressed_bytes": 1968750,
+   "compressed_bytes": 298916,
+   "cell_m": 64.0,
+   "format": "R8"
+  },
+  "water": {
+   "file": "water.bin",
+   "width": 3500,
+   "height": 2250,
+   "dtype": "uint8",
+   "uncompressed_bytes": 7875000,
+   "compressed_bytes": 75189,
+   "cell_m": 32.0,
+   "format": "R8",
+   "values": {
+    "land": 0,
+    "sea": 1,
+    "lake": 2,
+    "river": 3
+   }
+  },
+  "coast": {
+   "file": "coast.bin",
+   "width": 3500,
+   "height": 2250,
+   "dtype": "uint8",
+   "uncompressed_bytes": 7875000,
+   "compressed_bytes": 375886,
+   "cell_m": 32.0,
+   "format": "R8",
+   "encoding": "127.5 + 2*cells to coast (land positive)"
+  },
+  "province": {
+   "file": "province.bin",
+   "width": 1750,
+   "height": 1125,
+   "dtype": "uint16",
+   "uncompressed_bytes": 3937500,
+   "compressed_bytes": 45526,
+   "cell_m": 64.0,
+   "format": "RG8",
+   "none": 65535
+  },
+  "canopy": {
+   "file": "canopy.bin",
+   "width": 1750,
+   "height": 1125,
+   "dtype": "uint8",
+   "uncompressed_bytes": 1968750,
+   "compressed_bytes": 726584,
+   "cell_m": 64.0,
+   "format": "R8"
+  }
+ },
+ "lakes": [
+  {
+   "cells128": 2505,
+   "level_m": 39.8,
+   "x": 67712,
+   "y": 37974
+  },
+  {
+   "cells128": 925,
+   "level_m": 39.0,
+   "x": 24973,
+   "y": 35876
+  },
+  {
+   "cells128": 719,
+   "level_m": 73.6,
+   "x": 71497,
+   "y": 10924
+  },
+  {
+   "cells128": 858,
+   "level_m": 65.0,
+   "x": 23907,
+   "y": 29783
+  },
+  {
+   "cells128": 715,
+   "level_m": 88.1,
+   "x": 29352,
+   "y": 26581
+  },
+  {
+   "cells128": 301,
+   "level_m": 271.6,
+   "x": 18863,
+   "y": 14921
+  },
+  {
+   "cells128": 319,
+   "level_m": 62.4,
+   "x": 34294,
+   "y": 21255
+  },
+  {
+   "cells128": 561,
+   "level_m": 45.8,
+   "x": 59717,
+   "y": 42161
+  },
+  {
+   "cells128": 186,
+   "level_m": 325.2,
+   "x": 38804,
+   "y": 37112
+  },
+  {
+   "cells128": 149,
+   "level_m": 159.7,
+   "x": 82056,
+   "y": 39000
+  },
+  {
+   "cells128": 139,
+   "level_m": 338.5,
+   "x": 35872,
+   "y": 36739
+  },
+  {
+   "cells128": 122,
+   "level_m": 98.0,
+   "x": 26224,
+   "y": 50237
+  },
+  {
+   "cells128": 100,
+   "level_m": 524.0,
+   "x": 49007,
+   "y": 34766
+  }
+ ],
+ "river_count": 192,
+ "river_total_km": 973.2,
+ "land_fraction": 0.546,
+ "province_count": 395,
+ "province_report": {
+  "count": 395,
+  "connected": true,
+  "area_min_km2": 3.23,
+  "area_median_km2": 10.14,
+  "area_max_km2": 58.34,
+  "without_neighbors": 0
+ }
+}

@@ -1,0 +1,71 @@
+{
+  "notes": "Sei fondatori, le loro unioni, la scelta della casa reale (Fase 15). Una coppia prende il cognome del marito; la famiglia d'origine della moglie resta registrata.",
+  "start": {
+    "men": 3,
+    "women": 3,
+    "age": [
+      18,
+      30
+    ]
+  },
+  "pairing": {
+    "min_age": 17,
+    "woman_max_age": 42,
+    "max_age_gap": 12,
+    "monthly_chance": 0.22,
+    "founder_monthly_chance": 0.55
+  },
+  "monarchy": {
+    "notes": "Condizioni per fondare il Regno: un villaggio, stabile, che mangia, con famiglie radicate e una comunità capace di decidere insieme.",
+    "min_people": 30,
+    "min_years": 2,
+    "ruler_min_age": 18,
+    "min_trust": 45.0,
+    "min_food_days": 60.0,
+    "min_families": 2,
+    "family_min_members": 3,
+    "min_authority": 50.0,
+    "legitimacy_from_authority": 0.6, "stability_from_authority": 0.3
+  },
+  "estates": {
+    "notes": "Consolidamento: le famiglie vivono dentro i ceti. Il ceto di una famiglia si deduce ogni volta da cosa ha fatto (origin_jobs) e, dopo la corona, dalla sua influenza e dalle nozze con la casa reale. Il clero non ha ancora famiglie: non esiste un mestiere religioso da cui dedurle.",
+    "origin_estate": { "farmers": "people", "artisans": "merchants", "soldiers": "army", "esteemed": "people" },
+    "noble_influence": 70.0,
+    "noble_people_per_house": 40,
+    "noble_min_houses": 2,
+    "notable_per_estate": 3
+  },
+  "origin_jobs": {
+    "farmers": [
+      "farmer"
+    ],
+    "artisans": [
+      "baker",
+      "smith",
+      "woodcutter",
+      "quarrier",
+      "miner",
+      "builder"
+    ],
+    "soldiers": [
+      "soldier",
+      "recruit"
+    ]
+  },
+  "authority": {
+    "notes": "Autorita della comunita prima della corona: la capacita di decidere insieme. Nasce dai fatti e si muove piano verso il suo bersaglio, ogni mese.",
+    "start": 20.0,
+    "base": 10.0,
+    "trust_weight": 0.35,
+    "per_family": 6.0,
+    "families_cap": 5,
+    "food_weight": 15.0,
+    "food_days_full": 180.0,
+    "per_building": 1.2,
+    "buildings_cap": 15,
+    "per_year": 2.0,
+    "years_cap": 8,
+    "chase_per_month": 0.15
+  }
+}
+

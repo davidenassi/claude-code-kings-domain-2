@@ -1,0 +1,33 @@
+{
+  "notes": "Metadata of modifier keys for UI and validation. A key matching a lower_is_better pattern is beneficial when it decreases.",
+  "lower_is_better_patterns": ["cost", "attrition", "upkeep", "unrest", "decay", "consumption"],
+  "labels": {
+    "production.wood": "Produzione di legname",
+    "production.grain_irrigated": "Resa delle terre irrigue",
+    "production.pasture": "Resa dei pascoli",
+    "production.arid_land": "Resa delle terre aride",
+    "military.infantry_defense": "Difesa della fanteria",
+    "military.levy_size": "Dimensione della leva",
+    "military.levy_cost": "Costo della leva",
+    "military.morale_long_war": "Morale nelle guerre lunghe",
+    "military.winter_attrition": "Logoramento invernale",
+    "trade.income": "Rendita dei commerci",
+    "research.speed": "Velocità della ricerca",
+    "prestige.from_buildings": "Prestigio dagli edifici",
+    "administration.control": "Controllo amministrativo",
+    "government.law_cost": "Costo delle leggi",
+    "government.reform_cost": "Costo delle riforme",
+    "construction.road_cost": "Costo delle strade",
+    "construction.church_cost": "Costo delle chiese",
+    "construction.fortification_cost": "Costo delle fortificazioni",
+    "treasury.tax_income": "Gettito fiscale",
+    "treasury.credit_cost": "Costo del credito",
+    "settlement.urban_growth": "Crescita urbana",
+    "legitimacy.from_clergy": "Legittimità dal clero",
+    "stability.tolerance": "Tolleranza",
+    "trust.base": "Fiducia",
+    "stability.base": "Stabilità",
+    "population.growth": "Crescita della popolazione"
+  }
+}
+

@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "items": [
+    { "id": "wood",    "name": "Legname", "category": "material", "base_price": 1.0, "color": "#B0793C", "icon": "wood",
+      "storage_group": "material",
+      "description": "Tronchi e assi: case, cantieri, attrezzi." },
+    { "id": "stone",   "name": "Pietra",  "category": "material", "base_price": 1.3, "color": "#9AA0A8", "icon": "stone",
+      "storage_group": "material",
+      "description": "Blocchi squadrati dalle cave: mura, torri, strade." },
+    { "id": "iron",    "name": "Ferro",   "category": "material", "base_price": 3.2, "color": "#8FA3B4", "icon": "iron",
+      "storage_group": "material",
+      "description": "Estratto dalle vene delle colline: la materia delle armi." },
+    { "id": "grain",   "name": "Grano",   "category": "food", "base_price": 0.9, "color": "#D8B24E", "icon": "grain",
+      "is_food": true, "food_value": 0.6,
+      "storage_group": "food",
+      "description": "Si mangia anche crudo, ma rende molto di più come pane." },
+    { "id": "bread",   "name": "Pane",    "category": "food", "base_price": 2.0, "color": "#C98A45", "icon": "bread",
+      "is_food": true, "food_value": 1.0,
+      "storage_group": "food",
+      "description": "Il cibo che tiene in piedi il regno." },
+    { "id": "weapons", "name": "Armi",    "category": "military", "base_price": 6.5, "color": "#B9C4CE", "icon": "weapons",
+      "storage_group": "material",
+      "description": "Lame e punte forgiate dal fabbro: senza armi non si arruola nessuno." },
+    { "id": "gold",    "name": "Oro",     "category": "treasury", "base_price": 1.0, "color": "#EFC96F", "icon": "gold",
+      "uses_storage": false,
+      "description": "Il tesoro della corona." }
+  ]
+}
+

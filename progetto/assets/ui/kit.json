@@ -1,0 +1,581 @@
+{
+ "pieces": {
+  "button": {
+   "file": "kit/button.png",
+   "from": "sheet4_buttons#30",
+   "h": 56,
+   "margins": [
+    16,
+    14,
+    16,
+    14
+   ],
+   "w": 146
+  },
+  "button_blue": {
+   "file": "kit/button_blue.png",
+   "from": "sheet4_buttons#83",
+   "h": 47,
+   "margins": [
+    16,
+    14,
+    16,
+    14
+   ],
+   "w": 144
+  },
+  "button_disabled": {
+   "file": "kit/button_disabled.png",
+   "from": "sheet4_buttons#33",
+   "h": 56,
+   "margins": [
+    16,
+    14,
+    16,
+    14
+   ],
+   "w": 157
+  },
+  "button_green": {
+   "file": "kit/button_green.png",
+   "from": "sheet4_buttons#51",
+   "h": 49,
+   "margins": [
+    16,
+    14,
+    16,
+    14
+   ],
+   "w": 143
+  },
+  "button_hover": {
+   "file": "kit/button_hover.png",
+   "from": "sheet4_buttons#31",
+   "h": 56,
+   "margins": [
+    16,
+    14,
+    16,
+    14
+   ],
+   "w": 146
+  },
+  "button_pressed": {
+   "file": "kit/button_pressed.png",
+   "from": "sheet4_buttons#32",
+   "h": 56,
+   "margins": [
+    16,
+    14,
+    16,
+    14
+   ],
+   "w": 147
+  },
+  "button_red": {
+   "file": "kit/button_red.png",
+   "from": "sheet4_buttons#60",
+   "h": 45,
+   "margins": [
+    16,
+    14,
+    16,
+    14
+   ],
+   "w": 144
+  },
+  "check_off": {
+   "file": "kit/check_off.png",
+   "from": "sheet4_buttons#113",
+   "h": 50,
+   "margins": [
+    8,
+    8,
+    8,
+    8
+   ],
+   "w": 50
+  },
+  "check_on": {
+   "file": "kit/check_on.png",
+   "from": "sheet4_buttons#111",
+   "h": 49,
+   "margins": [
+    8,
+    8,
+    8,
+    8
+   ],
+   "w": 50
+  },
+  "close": {
+   "file": "kit/close.png",
+   "from": "sheet4_buttons#88",
+   "h": 51,
+   "margins": [
+    10,
+    10,
+    10,
+    10
+   ],
+   "w": 50
+  },
+  "close_hover": {
+   "file": "kit/close_hover.png",
+   "from": "sheet4_buttons#89",
+   "h": 51,
+   "margins": [
+    10,
+    10,
+    10,
+    10
+   ],
+   "w": 50
+  },
+  "close_pressed": {
+   "file": "kit/close_pressed.png",
+   "from": "sheet4_buttons#90",
+   "h": 51,
+   "margins": [
+    10,
+    10,
+    10,
+    10
+   ],
+   "w": 50
+  },
+  "icon_alert": {
+   "file": "icons/icon_alert.png",
+   "h": 111,
+   "w": 108
+  },
+  "icon_bakery": {
+   "file": "icons/icon_bakery.png",
+   "h": 133,
+   "w": 131
+  },
+  "icon_beds": {
+   "file": "icons/icon_beds.png",
+   "h": 114,
+   "w": 129
+  },
+  "icon_book": {
+   "file": "icons/icon_book.png",
+   "h": 104,
+   "w": 127
+  },
+  "icon_bread": {
+   "file": "icons/icon_bread.png",
+   "h": 107,
+   "w": 121
+  },
+  "icon_build": {
+   "file": "icons/icon_build.png",
+   "h": 133,
+   "w": 109
+  },
+  "icon_camp": {
+   "file": "icons/icon_camp.png",
+   "h": 133,
+   "w": 141
+  },
+  "icon_chronicle": {
+   "file": "icons/icon_chronicle.png",
+   "h": 95,
+   "w": 204
+  },
+  "icon_clergy": {
+   "file": "icons/icon_clergy.png",
+   "h": 136,
+   "w": 99
+  },
+  "icon_consent": {
+   "file": "icons/icon_consent.png",
+   "h": 124,
+   "w": 123
+  },
+  "icon_crown": {
+   "file": "icons/icon_crown.png",
+   "h": 113,
+   "w": 128
+  },
+  "icon_culture": {
+   "file": "icons/icon_culture.png",
+   "h": 131,
+   "w": 109
+  },
+  "icon_development": {
+   "file": "icons/icon_development.png",
+   "h": 116,
+   "w": 116
+  },
+  "icon_diplomacy": {
+   "file": "icons/icon_diplomacy.png",
+   "h": 97,
+   "w": 109
+  },
+  "icon_fire": {
+   "file": "icons/icon_fire.png",
+   "h": 137,
+   "w": 105
+  },
+  "icon_gold": {
+   "file": "icons/icon_gold.png",
+   "h": 116,
+   "w": 104
+  },
+  "icon_gonfalon_bow": {
+   "file": "kit/icon_gonfalon_bow.png",
+   "from": "sheet5_heraldry#44",
+   "h": 103,
+   "margins": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "w": 80
+  },
+  "icon_gonfalon_foot": {
+   "file": "kit/icon_gonfalon_foot.png",
+   "from": "sheet5_heraldry#41",
+   "h": 102,
+   "margins": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "w": 77
+  },
+  "icon_gonfalon_horse": {
+   "file": "kit/icon_gonfalon_horse.png",
+   "from": "sheet5_heraldry#43",
+   "h": 103,
+   "margins": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "w": 80
+  },
+  "icon_grain": {
+   "file": "icons/icon_grain.png",
+   "h": 138,
+   "w": 96
+  },
+  "icon_growth": {
+   "file": "icons/icon_growth.png",
+   "h": 131,
+   "w": 105
+  },
+  "icon_house_arms": {
+   "file": "icons/icon_house_arms.png",
+   "h": 130,
+   "w": 113
+  },
+  "icon_intrigue": {
+   "file": "icons/icon_intrigue.png",
+   "h": 75,
+   "w": 55
+  },
+  "icon_iron": {
+   "file": "icons/icon_iron.png",
+   "h": 102,
+   "w": 116
+  },
+  "icon_justice": {
+   "file": "icons/icon_justice.png",
+   "h": 129,
+   "w": 128
+  },
+  "icon_law": {
+   "file": "icons/icon_law.png",
+   "h": 132,
+   "w": 117
+  },
+  "icon_lily": {
+   "file": "icons/icon_lily.png",
+   "h": 136,
+   "w": 114
+  },
+  "icon_mark_battle": {
+   "file": "kit/icon_mark_battle.png",
+   "from": "sheet5_heraldry#37",
+   "h": 109,
+   "margins": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "w": 89
+  },
+  "icon_mark_siege": {
+   "file": "kit/icon_mark_siege.png",
+   "from": "sheet5_heraldry#38",
+   "h": 109,
+   "margins": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "w": 87
+  },
+  "icon_mine": {
+   "file": "icons/icon_mine.png",
+   "h": 124,
+   "w": 222
+  },
+  "icon_people": {
+   "file": "icons/icon_people.png",
+   "h": 122,
+   "w": 93
+  },
+  "icon_pin_capital": {
+   "file": "kit/icon_pin_capital.png",
+   "from": "sheet5_heraldry#31",
+   "h": 120,
+   "margins": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "w": 91
+  },
+  "icon_pin_city": {
+   "file": "kit/icon_pin_city.png",
+   "from": "sheet5_heraldry#30",
+   "h": 120,
+   "margins": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "w": 87
+  },
+  "icon_pin_town": {
+   "file": "kit/icon_pin_town.png",
+   "from": "sheet5_heraldry#29",
+   "h": 115,
+   "margins": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "w": 86
+  },
+  "icon_pin_village": {
+   "file": "kit/icon_pin_village.png",
+   "from": "sheet5_heraldry#27",
+   "h": 116,
+   "margins": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "w": 84
+  },
+  "icon_ring_enemy": {
+   "file": "kit/icon_ring_enemy.png",
+   "from": "sheet5_heraldry#50",
+   "h": 79,
+   "margins": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "w": 72
+  },
+  "icon_ring_friend": {
+   "file": "kit/icon_ring_friend.png",
+   "from": "sheet5_heraldry#48",
+   "h": 82,
+   "margins": [
+    4,
+    4,
+    4,
+    4
+   ],
+   "w": 75
+  },
+  "icon_road": {
+   "file": "icons/icon_road.png",
+   "h": 100,
+   "w": 125
+  },
+  "icon_shield": {
+   "file": "icons/icon_shield.png",
+   "h": 126,
+   "w": 106
+  },
+  "icon_smith": {
+   "file": "icons/icon_smith.png",
+   "h": 99,
+   "w": 206
+  },
+  "icon_stone": {
+   "file": "icons/icon_stone.png",
+   "h": 121,
+   "w": 117
+  },
+  "icon_storehouse": {
+   "file": "icons/icon_storehouse.png",
+   "h": 68,
+   "w": 74
+  },
+  "icon_trade": {
+   "file": "icons/icon_trade.png",
+   "h": 131,
+   "w": 270
+  },
+  "icon_treasury": {
+   "file": "icons/icon_treasury.png",
+   "h": 133,
+   "w": 108
+  },
+  "icon_village": {
+   "file": "icons/icon_village.png",
+   "h": 66,
+   "w": 67
+  },
+  "icon_war": {
+   "file": "icons/icon_war.png",
+   "h": 123,
+   "w": 124
+  },
+  "icon_wood": {
+   "file": "icons/icon_wood.png",
+   "h": 121,
+   "w": 128
+  },
+  "panel": {
+   "file": "kit/panel.png",
+   "from": "sheet1_hud#16",
+   "h": 455,
+   "margins": [
+    26,
+    22,
+    26,
+    26
+   ],
+   "w": 623
+  },
+  "panel_dark": {
+   "file": "kit/panel_dark.png",
+   "from": "sheet4_buttons#30",
+   "h": 56,
+   "margins": [
+    18,
+    16,
+    18,
+    16
+   ],
+   "w": 146
+  },
+  "panel_gold": {
+   "file": "kit/panel_gold.png",
+   "from": "sheet4_buttons#32",
+   "h": 56,
+   "margins": [
+    18,
+    16,
+    18,
+    16
+   ],
+   "w": 147
+  },
+  "pill": {
+   "file": "kit/pill.png",
+   "from": "sheet4_buttons#95",
+   "h": 49,
+   "margins": [
+    22,
+    12,
+    22,
+    12
+   ],
+   "w": 85
+  },
+  "plate": {
+   "file": "kit/plate.png",
+   "from": "sheet5_heraldry#69",
+   "h": 63,
+   "margins": [
+    20,
+    10,
+    20,
+    10
+   ],
+   "w": 269
+  },
+  "rule_ornate": {
+   "file": "kit/rule_ornate.png",
+   "from": "sheet3_windows#7",
+   "h": 46,
+   "margins": [
+    40,
+    4,
+    40,
+    4
+   ],
+   "w": 372
+  },
+  "section_bar": {
+   "file": "kit/section_bar.png",
+   "from": "sheet3_windows#7",
+   "h": 45,
+   "margins": [
+    46,
+    12,
+    18,
+    12
+   ],
+   "w": 435
+  },
+  "slot": {
+   "file": "kit/slot.png",
+   "from": "sheet4_buttons#104",
+   "h": 49,
+   "margins": [
+    14,
+    12,
+    14,
+    12
+   ],
+   "w": 85
+  },
+  "subsection_bar": {
+   "file": "kit/subsection_bar.png",
+   "from": "sheet3_windows#7",
+   "h": 45,
+   "margins": [
+    40,
+    10,
+    16,
+    10
+   ],
+   "w": 263
+  },
+  "window": {
+   "file": "kit/window.png",
+   "from": "sheet1_hud#16",
+   "h": 485,
+   "margins": [
+    26,
+    46,
+    26,
+    26
+   ],
+   "w": 623
+  }
+ },
+ "version": 1
+}

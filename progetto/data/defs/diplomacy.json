@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "notes": "Patti fra regni. Ognuno ha una durata (0 = finché non viene rotto), una soglia di opinione per essere accettato, ciò che dà a chi lo firma e ciò che costa romperlo. `power_ratio` è quanto deve essere più forte chi propone (1.0 = indifferente).",
+  "pacts": [
+    { "id": "non_aggression", "name": "Non aggressione", "days": 1800, "min_opinion": 0, "cost": 0,
+      "description": "Nessuno dei due varca il confine dell'altro finché il patto dura.",
+      "opinion": 10, "break_opinion": -30, "break_prestige": -6, "blocks_war": true },
+    { "id": "trade", "name": "Patto commerciale", "days": 1800, "min_opinion": 15, "cost": 40,
+      "description": "Pesi e dazi concordati: le carovane passano e pagano poco.",
+      "opinion": 12, "break_opinion": -15, "break_prestige": -2,
+      "modifiers": [ { "key": "trade.income", "op": "mul", "value": 1.08 } ] },
+    { "id": "alliance", "name": "Alleanza", "days": 0, "min_opinion": 40, "cost": 80, "requires": "non_aggression",
+      "description": "Le due corone si chiamano in guerra a vicenda e nessuna tratta da sola.",
+      "opinion": 20, "break_opinion": -45, "break_prestige": -12, "blocks_war": true, "calls_to_war": true },
+    { "id": "tribute", "name": "Tributo", "days": 3600, "min_opinion": -20, "cost": 0, "power_ratio": 1.8,
+      "description": "Il regno più debole paga ogni mese perché il più forte guardi altrove.",
+      "opinion": -8, "break_opinion": -20, "break_prestige": -4, "blocks_war": true,
+      "share_of_income": 0.18, "asymmetric": true },
+    { "id": "vassalage", "name": "Vassallaggio", "days": 0, "min_opinion": 10, "cost": 0, "power_ratio": 2.6,
+      "description": "Il vassallo tiene le sue terre, paga il suo signore, lo segue in guerra e non tratta senza di lui.",
+      "opinion": -4, "break_opinion": -50, "break_prestige": -18, "blocks_war": true, "calls_to_war": true,
+      "share_of_income": 0.3, "asymmetric": true }
+  ],
+  "marriage": {
+    "name": "Matrimonio dinastico", "min_opinion": 10, "cost": 60, "opinion": 18,
+    "description": "Un figlio di una casata sposa un figlio dell'altra: il sangue lega più di una firma."
+  },
+  "memories": {
+    "war_declared": { "name": "Ci ha dichiarato guerra", "value": -40, "years": 25 },
+    "war_won": { "name": "Ci ha battuti", "value": -15, "years": 20 },
+    "pact_broken": { "name": "Ha rotto un patto", "value": -35, "years": 30 },
+    "peace_made": { "name": "Abbiamo fatto la pace", "value": 8, "years": 10 },
+    "marriage": { "name": "Siamo parenti", "value": 20, "years": 40 },
+    "gift": { "name": "Ci ha fatto un dono", "value": 12, "years": 8 },
+    "called_and_came": { "name": "È venuto quando lo abbiamo chiamato", "value": 25, "years": 25 },
+    "called_and_stayed": { "name": "Non è venuto quando lo abbiamo chiamato", "value": -30, "years": 25 }
+  }
+}
+

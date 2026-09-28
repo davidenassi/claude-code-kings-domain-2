@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "notes": "Leggi permanenti a gruppi esclusivi (una sola per gruppo) ed editti revocabili a tempo. Ogni scelta ha vincitori e perdenti politici: `favour` muove il favore dei poteri, `turbulence` scuote l'ordine. I costi sono in oro della corona.",
+  "groups": [
+    { "id": "succession", "name": "Successione",
+      "options": [
+        { "id": "primogeniture", "name": "Primogenitura", "default": true, "cost": 0,
+          "description": "Il primogenito eredita. Semplice, e per questo raramente contestata.",
+          "modifiers": [ { "key": "legitimacy.base", "op": "add", "value": 4.0 } ],
+          "favour": { "nobility": 4, "clergy": 2 } },
+        { "id": "elective", "name": "Elettiva", "cost": 120,
+          "description": "I grandi del regno scelgono fra i membri della casata: più stabilità, meno continuità.",
+          "modifiers": [ { "key": "legitimacy.base", "op": "add", "value": -3.0 }, { "key": "stability.base", "op": "add", "value": 4.0 } ],
+          "favour": { "nobility": 10, "people": 3, "army": -2 }, "turbulence": 6 },
+        { "id": "seniority", "name": "Anzianità", "cost": 90,
+          "description": "Eredita il più anziano della casata: pochi re bambini, molte reggenze brevi.",
+          "modifiers": [ { "key": "legitimacy.base", "op": "add", "value": 3.0 } ],
+          "favour": { "nobility": 5, "army": 3, "people": -2 }, "turbulence": 3 }
+      ] },
+    { "id": "taxation", "name": "Fisco",
+      "options": [
+        { "id": "catasto", "name": "Catasto", "cost": 150, "requires": { "legitimacy": 45 },
+          "description": "Ogni campo è misurato e scritto: il gettito cresce, e con lui il malumore.",
+          "modifiers": [ { "key": "treasury.tax_income", "op": "mul", "value": 1.18 }, { "key": "trust.base", "op": "add", "value": -4.0 } ],
+          "favour": { "nobility": -8, "people": -6, "merchants": -3, "army": 4 }, "turbulence": 8 },
+        { "id": "franchigia", "name": "Franchigia", "cost": 60,
+          "description": "Meno gabelle: le piazze si riempiono e le casse si svuotano.",
+          "modifiers": [ { "key": "treasury.tax_income", "op": "mul", "value": 0.88 }, { "key": "trade.income", "op": "mul", "value": 1.12 },
+                         { "key": "trust.base", "op": "add", "value": 4.0 } ],
+          "favour": { "merchants": 9, "people": 6, "army": -4 } }
+      ] },
+    { "id": "faith", "name": "Fede",
+      "options": [
+        { "id": "decima", "name": "Decima regia", "cost": 80,
+          "description": "La corona trattiene una parte della decima: il clero sopporta, ma ricorda.",
+          "modifiers": [ { "key": "treasury.tax_income", "op": "mul", "value": 1.08 }, { "key": "legitimacy.from_clergy", "op": "mul", "value": 0.9 } ],
+          "favour": { "clergy": -10, "people": -2, "nobility": 3 }, "turbulence": 5 },
+        { "id": "tolleranza", "name": "Tolleranza", "cost": 100,
+          "description": "Si prega come si vuole, purché si paghi come si deve.",
+          "modifiers": [ { "key": "stability.tolerance", "op": "add", "value": 6.0 }, { "key": "trade.income", "op": "mul", "value": 1.06 } ],
+          "favour": { "clergy": -6, "merchants": 6, "people": 3 } }
+      ] },
+    { "id": "guilds", "name": "Gilde e strade",
+      "options": [
+        { "id": "gilde_libere", "name": "Libertà delle gilde", "cost": 110,
+          "description": "Chi sa fare, faccia: i mastri decidono da soli chi entra in bottega.",
+          "modifiers": [ { "key": "trade.income", "op": "mul", "value": 1.1 }, { "key": "construction.speed", "op": "mul", "value": 1.05 } ],
+          "favour": { "merchants": 10, "nobility": -4 } },
+        { "id": "strade_maestre", "name": "Strade maestre", "cost": 140,
+          "description": "La corona paga le strade e ne pretende l'uso: carri più veloci, contadini requisiti.",
+          "modifiers": [ { "key": "construction.road_cost", "op": "mul", "value": 0.8 }, { "key": "trade.income", "op": "mul", "value": 1.06 } ],
+          "favour": { "merchants": 7, "army": 4, "people": -4 }, "turbulence": 3 }
+      ] }
+  ],
+  "edict_rest_days": 180,
+  "notes_edict_rest": "Fase 16: un editto dura una stagione e poi riposa sei mesi; il coprifuoco proclamato ogni mese portava un ceto a 0 e l'ordine a 0 per decenni.",
+  "edicts": [
+    { "id": "granai_aperti", "name": "Granai aperti", "cost": 40, "days": 30,
+      "description": "Si distribuisce il grano della corona: la fame si placa, le scorte calano.",
+      "modifiers": [ { "key": "trust.base", "op": "add", "value": 10.0 }, { "key": "production.grain", "op": "mul", "value": 0.9 } ],
+      "favour": { "people": 8, "nobility": -3 } },
+    { "id": "turni_lunghi", "name": "Turni lunghi", "cost": 20, "days": 30,
+      "description": "Si lavora finché c'è luce: più braccia sui cantieri, meno pazienza nelle case.",
+      "modifiers": [ { "key": "construction.speed", "op": "mul", "value": 1.2 }, { "key": "trust.base", "op": "add", "value": -6.0 } ],
+      "favour": { "people": -6, "merchants": 4 } },
+    { "id": "giorno_di_riposo", "name": "Giorno di riposo", "cost": 15, "days": 30,
+      "description": "Un giorno alla settimana è del Signore e della famiglia.",
+      "modifiers": [ { "key": "trust.base", "op": "add", "value": 7.0 }, { "key": "construction.speed", "op": "mul", "value": 0.92 } ],
+      "favour": { "clergy": 6, "people": 5, "merchants": -3 } },
+    { "id": "coprifuoco", "name": "Coprifuoco", "cost": 25, "days": 30,
+      "description": "Dopo il tramonto si sta in casa: meno disordini, più malumore.",
+      "modifiers": [ { "key": "stability.base", "op": "add", "value": 10.0 }, { "key": "trust.base", "op": "add", "value": -5.0 } ],
+      "favour": { "army": 5, "people": -6 } }
+  ]
+}
+

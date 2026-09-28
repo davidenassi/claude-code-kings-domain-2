@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "notes": "Modalità della mappa: una velatura per provincia sopra la geografia. strength = opacità massima della velatura. Consolidamento: le quattro principali (primary) sono sempre nel menu, le altre in «Altre mappe»; tasti F e M invariati.",
+  "modes": [
+    { "id": "political",   "name": "Politica",    "key": "F1", "strength": 0.26, "close_fade_mpp": [1.5, 6.0], "tier": "primary" },
+    { "id": "terrain",     "name": "Terreno",     "key": "F2", "strength": 0.0, "tier": "primary" },
+    { "id": "resources",   "name": "Risorse",     "key": "F7", "strength": 0.55, "tier": "primary" },
+    { "id": "population",  "name": "Popolazione", "key": "F10", "strength": 0.55, "tier": "primary" },
+    { "id": "culture",     "name": "Culture",     "key": "F4", "strength": 0.55, "tier": "secondary" },
+    { "id": "religion",    "name": "Religioni",   "key": "F6", "strength": 0.55, "tier": "secondary" },
+    { "id": "development", "name": "Sviluppo",    "key": "F8", "strength": 0.55, "tier": "secondary" },
+    { "id": "diplomacy",   "name": "Diplomazia",  "key": "F11", "strength": 0.55, "tier": "secondary" }
+  ],
+  "deposit_colors": { "stone": "#9AA0A8", "iron": "#5E7A96", "gold": "#E3B64A", "salt": "#E8E4D8", "clay": "#B0643C", "horses": "#8A6A3E" },
+  "deposit_priority": ["gold", "iron", "horses", "salt", "clay", "stone"],
+  "names": {
+    "deposits": { "stone": "Pietra", "iron": "Ferro", "gold": "Oro", "salt": "Sale", "clay": "Argilla", "horses": "Cavalli" },
+    "terrain": { "plains": "Pianura", "forest": "Foresta", "hills": "Colline", "mountains": "Montagne", "steppe": "Steppa",
+                 "coast": "Costa", "desert": "Deserto" },
+    "borders": { "land": "terra", "river": "fiume", "pass": "passo", "mountain": "montagna" }
+  },
+  "diplomacy_colors": { "self": "#C9A24A", "ally": "#3E9E5E", "vassal": "#7FC08B", "liege": "#D9A441",
+                        "pact": "#4F86B8", "war": "#9E2B1E", "truce": "#D08A3C",
+                        "neutral_low": "#A83A2A", "neutral_high": "#8E9AA8", "free": "#00000000" },
+  "gradient_low": "#EFE3C0",
+  "gradient_high": "#8E2A1E",
+  "development_max": 6,
+  "population_density_max": 40.0
+}
+

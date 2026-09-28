@@ -1,0 +1,51 @@
+{
+  "notes": "Battaglia, assedio e conquista. Una battaglia dura pochi giorni e si risolve a turni di reggimento: chi ha più ferro e più cuore infligge più perdite, chi resta senza cuore rompe le righe e si ritira. Gli assedi sono lenti e affamano; la conquista non azzera nulla: la provincia cambia padrone con dentro la sua gente.",
+  "battle": {
+    "contact_radius_m": 2600.0,
+    "rounds_per_day": 3,
+    "base_damage": 0.055,
+    "attack_weight": 0.06,
+    "defense_weight": 0.05,
+    "morale_weight": 0.5,
+    "commander_weight": 0.03,
+    "terrain_defense": { "plains": 1.0, "steppe": 1.0, "coast": 1.0, "forest": 1.15, "hills": 1.25, "desert": 0.95, "mountains": 1.4 },
+    "river_defense": 1.2,
+    "cavalry_vs_ranged": 1.5,
+    "ranged_first_strike": 1.3,
+    "halberd_vs_cavalry": 1.6,
+    "morale_loss_per_casualty": 2.2,
+    "rout_below_morale": 22.0,
+    "rout_extra_losses": 0.18,
+    "winner_prestige": 10.0,
+    "loser_prestige": -8.0,
+    "winner_morale": 6.0,
+    "max_days": 6
+  },
+  "siege": {
+    "days_base": 20.0,
+    "days_per_development": 3.0,
+    "days_per_wall_level": 25.0,
+    "progress_per_attacker": 0.9,
+    "starvation_trust_per_day": -0.6,
+    "assault_losses_attacker": 0.28,
+    "assault_losses_defender": 0.18,
+    "assault_min_progress": 0.35
+  },
+  "occupation": {
+    "devastation_per_day": 0.004,
+    "devastation_battle": 0.05,
+    "unrest_per_day": 0.002,
+    "income_share_for_occupier": 0.4,
+    "recover_devastation_per_day": 0.0009
+  },
+  "war_score": {
+    "per_battle_won": 18.0,
+    "per_province_occupied": 22.0,
+    "per_enemy_men_lost": 0.5,
+    "per_year_of_war": -4.0,
+    "cede_province_cost": 35.0,
+    "accept_threshold": 55.0,
+    "max": 100.0
+  }
+}
+

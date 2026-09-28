@@ -1,0 +1,39 @@
+# Godot
+.godot/
+.import/
+*.translation
+export_presets.cfg
+/build/
+/exports/
+
+# Local test / tool output
+/tests/output/
+/tools/worldgen/out_preview/
+/tools/art/out_preview/
+/art_source/ui/cut/
+/tools/worldgen/cache/
+/logs/
+*.log
+
+# OS / editors
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+*.blend1
+*.blend2
+__pycache__/
+
+/art_source/blender/render_tmp/
+/tools/art/out_preview/
+
+# The game built by export_presets.cfg and the local launcher
+/KingsDomain.exe
+/KingsDomain.console.exe
+/KingsDomain.pck
+/Gioca a King's Domain.bat
+
+# The inspection pack built by tools/make_inspection_pack.ps1
+/ISPEZIONE_AI/
+/ISPEZIONE_AI.zip
+

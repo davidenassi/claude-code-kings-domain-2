@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "notes": "Statistiche FISSE. Archetipi ludici, valori contenuti e bilanciati. Tutti i numeri sono bozze da tarare.",
+  "items": [
+    {
+      "id": "germanic", "name": "Germanica", "color": "#6F7F9A",
+      "description": "Popoli delle foreste e dei grandi fiumi del nord-ovest: consuetudini antiche, assemblee di liberi, fanti tenaci.",
+      "modifiers": [
+        { "key": "production.wood", "op": "mul", "value": 1.10 },
+        { "key": "military.infantry_defense", "op": "mul", "value": 1.05 },
+        { "key": "trade.income", "op": "mul", "value": 0.95 }
+      ]
+    },
+    {
+      "id": "hellenic", "name": "Ellenica", "color": "#3F8FB0",
+      "description": "Città di costa e di collina, scuole e botteghe: il sapere e il prestigio contano quanto le lance.",
+      "modifiers": [
+        { "key": "research.speed", "op": "mul", "value": 1.10 },
+        { "key": "prestige.from_buildings", "op": "mul", "value": 1.10 },
+        { "key": "military.levy_size", "op": "mul", "value": 0.95 }
+      ]
+    },
+    {
+      "id": "asian", "name": "Asiatica", "color": "#B0503F",
+      "description": "Grandi valli irrigue dell'estremo est, amministrate da scrivani e registri meticolosi.",
+      "modifiers": [
+        { "key": "administration.control", "op": "add", "value": 0.05 },
+        { "key": "production.grain_irrigated", "op": "mul", "value": 1.08 },
+        { "key": "government.law_cost", "op": "mul", "value": 1.10 }
+      ]
+    },
+    {
+      "id": "latin", "name": "Latina", "color": "#B08A3F",
+      "description": "Eredi di strade lastricate e di un diritto scritto: città, gabelle e cantieri ordinati.",
+      "modifiers": [
+        { "key": "construction.road_cost", "op": "mul", "value": 0.85 },
+        { "key": "treasury.tax_income", "op": "mul", "value": 1.05 },
+        { "key": "military.morale_long_war", "op": "mul", "value": 0.95 }
+      ]
+    },
+    {
+      "id": "slavic", "name": "Slava", "color": "#5F9A6A",
+      "description": "Pianure sconfinate, inverni lunghi e cavalli robusti: popoli che resistono.",
+      "modifiers": [
+        { "key": "military.winter_attrition", "op": "mul", "value": 0.75 },
+        { "key": "production.pasture", "op": "mul", "value": 1.10 },
+        { "key": "settlement.urban_growth", "op": "mul", "value": 0.95 }
+      ]
+    },
+    {
+      "id": "arab", "name": "Araba", "color": "#C9A55A",
+      "description": "Carovane, oasi fluviali e cavalieri leggeri: il commercio attraversa il deserto.",
+      "modifiers": [
+        { "key": "trade.income", "op": "mul", "value": 1.10 },
+        { "key": "production.arid_land", "op": "mul", "value": 1.15 },
+        { "key": "construction.fortification_cost", "op": "mul", "value": 1.10 }
+      ]
+    }
+  ]
+}
+

@@ -1,0 +1,68 @@
+{
+  "notes": "Come nasce l'opinione fra due regni e come decidono i sovrani dell'IA. L'opinione insegue ogni giorno il suo bersaglio: i fatti pesano subito, i ricordi svaniscono con gli anni.",
+  "opinion": {
+    "base": 0.0,
+    "same_culture": 14.0,
+    "same_culture_group": 6.0,
+    "other_culture": -6.0,
+    "same_religion": 12.0,
+    "other_religion": -10.0,
+    "neighbour": -8.0,
+    "distant": 4.0,
+    "stronger_neighbour_max": -14.0,
+    "small_realm_pity": 4.0,
+    "legitimacy_weight": 0.08,
+    "prestige_weight": 0.15,
+    "at_war": -60.0,
+    "truce": 6.0,
+    "chase_per_day": 0.10,
+    "opinion_spread_days": 7,
+    "min": -100.0,
+    "max": 100.0
+  },
+  "truce_days": 1800,
+  "war": {
+    "prestige_declaring": -3.0,
+    "prestige_winner": 12.0,
+    "turbulence_declaring": 6.0,
+    "min_days_before_peace": 180,
+    "weariness_per_year": 8.0
+  },
+  "ai": {
+    "turn_days": 30,
+    "personality_base": { "aggression": 0.25, "greed": 0.3, "piety": 0.25, "caution": 0.3, "trade": 0.3, "authority": 0.3 },
+    "skill_weight": 0.04,
+    "min_treasury_reserve": 60.0,
+    "develop_province_cost": 120.0,
+    "develop_province_max": 8,
+    "law_min_treasury": 260.0,
+    "edict_min_treasury": 140.0,
+    "pact_min_utility": 0.35,
+    "offer_again_days": 720,
+    "war_min_utility": 0.55,
+    "war_power_margin": 1.15,
+    "land_hunger": 0.12,
+    "peace_after_years": 3.0,
+    "marriage_min_opinion": 20.0,
+    "log_size": 120
+  },
+  "claim": {
+    "notes": "Annessione pacifica di una terra libera confinante (Fase 16): oro per i villaggi, di più per una terra popolosa e per un regno già vasto; una corona creduta; qualche anno perché le terre nuove si quietino.",
+    "base_gold": 150.0,
+    "gold_per_person": 0.2,
+    "per_province_held": 0.12,
+    "min_legitimacy": 40.0,
+    "cooldown_days": 720,
+    "unrest_foreign": 0.25,
+    "prestige": 3.0,
+    "ai_min_utility": 0.4
+  },
+  "acceptance": {
+    "opinion_weight": 0.012,
+    "power_weight": 0.25,
+    "personality_weight": 0.35,
+    "threshold": 0.5,
+    "ally_of_my_enemy": -0.4
+  }
+}
+

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "notes": "Regole di colore condivise fra shader del terreno/vegetazione (vista vicina) e albedo precalcolato (vista lontana): stessi numeri = stesso mondo a ogni zoom.",
+  "moisture_dry": 0.36,
+  "moisture_wet": 0.74,
+  "foliage_dry": [1.10, 1.04, 0.78],
+  "foliage_lush": [0.82, 0.95, 0.88],
+  "ground_dry": [1.10, 1.01, 0.76],
+  "ground_dry_amount": 0.32,
+  "ground_wet": [0.86, 1.00, 0.90],
+  "ground_wet_amount": 0.32,
+  "valley_depth_m": 220.0,
+  "valley_light": 0.12,
+  "valley_cool": [0.90, 0.96, 1.02],
+  "crest_warm": [1.06, 1.03, 0.94],
+  "forest_far_color": [0.29, 0.42, 0.18],
+  "forest_far_light": [0.56, 0.67, 0.30]
+}
+

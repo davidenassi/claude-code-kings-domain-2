@@ -1,0 +1,29 @@
+{
+  "start_year": 1230,
+  "start_month": 3,
+  "start_day": 1,
+  "months_per_year": 12,
+  "days_per_month": 30,
+  "month_names": ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
+                  "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"],
+  "seasons": [
+    { "name": "Primavera", "months": [3, 4, 5],  "agriculture": 1.0,  "regrowth": 1.4 },
+    { "name": "Estate",    "months": [6, 7, 8],  "agriculture": 1.25, "regrowth": 1.0 },
+    { "name": "Autunno",   "months": [9, 10, 11], "agriculture": 0.85, "regrowth": 0.6 },
+    { "name": "Inverno",   "months": [12, 1, 2], "agriculture": 0.0,  "regrowth": 0.0 }
+  ],
+  "ticks_per_day": 24,
+  "max_ticks_per_frame": 240,
+  "default_speed": 1,
+  "speeds": [
+    { "name": "Pausa",        "seconds_per_day": 0.0 },
+    { "name": "Lenta",        "seconds_per_day": 4.0 },
+    { "name": "Normale",      "seconds_per_day": 1.5 },
+    { "name": "Veloce",       "seconds_per_day": 0.5 },
+    { "name": "Molto veloce", "seconds_per_day": 0.15 },
+    { "name": "Massima",      "seconds_per_day": 0.05 }
+  ],
+  "observation_seconds_per_day": 120.0,
+  "campaign_length_years": 160
+}
+

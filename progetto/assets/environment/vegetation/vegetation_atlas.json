@@ -1,0 +1,750 @@
+{
+ "version": 3,
+ "atlas": "vegetation_atlas.png",
+ "width": 1024,
+ "height": 512,
+ "style": "painterly_3q",
+ "sprites": [
+  {
+   "species": "pine",
+   "variant": 0,
+   "kind": "tree",
+   "rect": [
+    0,
+    0,
+    65,
+    112
+   ],
+   "pivot": [
+    25.0,
+    100.0
+   ],
+   "size_m": [
+    8.125,
+    14.0
+   ]
+  },
+  {
+   "species": "spruce",
+   "variant": 1,
+   "kind": "tree",
+   "rect": [
+    67,
+    0,
+    56,
+    109
+   ],
+   "pivot": [
+    22.0,
+    99.0
+   ],
+   "size_m": [
+    7.0,
+    13.625
+   ]
+  },
+  {
+   "species": "spruce",
+   "variant": 0,
+   "kind": "tree",
+   "rect": [
+    125,
+    0,
+    55,
+    107
+   ],
+   "pivot": [
+    22.0,
+    97.0
+   ],
+   "size_m": [
+    6.875,
+    13.375
+   ]
+  },
+  {
+   "species": "pine",
+   "variant": 1,
+   "kind": "tree",
+   "rect": [
+    182,
+    0,
+    58,
+    101
+   ],
+   "pivot": [
+    22.0,
+    90.0
+   ],
+   "size_m": [
+    7.25,
+    12.625
+   ]
+  },
+  {
+   "species": "oak",
+   "variant": 2,
+   "kind": "tree",
+   "rect": [
+    242,
+    0,
+    82,
+    97
+   ],
+   "pivot": [
+    35.0,
+    85.0
+   ],
+   "size_m": [
+    10.25,
+    12.125
+   ]
+  },
+  {
+   "species": "cypress",
+   "variant": 0,
+   "kind": "tree",
+   "rect": [
+    326,
+    0,
+    31,
+    94
+   ],
+   "pivot": [
+    12.0,
+    88.0
+   ],
+   "size_m": [
+    3.875,
+    11.75
+   ]
+  },
+  {
+   "species": "pine",
+   "variant": 2,
+   "kind": "tree",
+   "rect": [
+    359,
+    0,
+    54,
+    92
+   ],
+   "pivot": [
+    22.0,
+    82.0
+   ],
+   "size_m": [
+    6.75,
+    11.5
+   ]
+  },
+  {
+   "species": "oak",
+   "variant": 0,
+   "kind": "tree",
+   "rect": [
+    415,
+    0,
+    69,
+    85
+   ],
+   "pivot": [
+    28.0,
+    73.0
+   ],
+   "size_m": [
+    8.625,
+    10.625
+   ]
+  },
+  {
+   "species": "oak",
+   "variant": 1,
+   "kind": "tree",
+   "rect": [
+    486,
+    0,
+    69,
+    85
+   ],
+   "pivot": [
+    29.0,
+    73.0
+   ],
+   "size_m": [
+    8.625,
+    10.625
+   ]
+  },
+  {
+   "species": "cl_conifer",
+   "variant": 1,
+   "kind": "cluster",
+   "rect": [
+    557,
+    0,
+    83,
+    85
+   ],
+   "pivot": [
+    38.0,
+    68.0
+   ],
+   "size_m": [
+    20.75,
+    21.25
+   ]
+  },
+  {
+   "species": "autumn",
+   "variant": 0,
+   "kind": "tree",
+   "rect": [
+    642,
+    0,
+    71,
+    82
+   ],
+   "pivot": [
+    32.0,
+    71.0
+   ],
+   "size_m": [
+    8.875,
+    10.25
+   ]
+  },
+  {
+   "species": "cl_conifer",
+   "variant": 0,
+   "kind": "cluster",
+   "rect": [
+    715,
+    0,
+    80,
+    80
+   ],
+   "pivot": [
+    34.0,
+    62.0
+   ],
+   "size_m": [
+    20.0,
+    20.0
+   ]
+  },
+  {
+   "species": "cl_conifer",
+   "variant": 2,
+   "kind": "cluster",
+   "rect": [
+    797,
+    0,
+    74,
+    80
+   ],
+   "pivot": [
+    28.0,
+    62.0
+   ],
+   "size_m": [
+    18.5,
+    20.0
+   ]
+  },
+  {
+   "species": "cl_mixed",
+   "variant": 1,
+   "kind": "cluster",
+   "rect": [
+    873,
+    0,
+    83,
+    80
+   ],
+   "pivot": [
+    46.0,
+    63.0
+   ],
+   "size_m": [
+    20.75,
+    20.0
+   ]
+  },
+  {
+   "species": "beech",
+   "variant": 0,
+   "kind": "tree",
+   "rect": [
+    958,
+    0,
+    63,
+    79
+   ],
+   "pivot": [
+    26.0,
+    68.0
+   ],
+   "size_m": [
+    7.875,
+    9.875
+   ]
+  },
+  {
+   "species": "cl_mixed",
+   "variant": 2,
+   "kind": "cluster",
+   "rect": [
+    0,
+    114,
+    86,
+    79
+   ],
+   "pivot": [
+    44.0,
+    58.0
+   ],
+   "size_m": [
+    21.5,
+    19.75
+   ]
+  },
+  {
+   "species": "cl_mediterranean",
+   "variant": 2,
+   "kind": "cluster",
+   "rect": [
+    88,
+    114,
+    84,
+    77
+   ],
+   "pivot": [
+    41.0,
+    61.0
+   ],
+   "size_m": [
+    21.0,
+    19.25
+   ]
+  },
+  {
+   "species": "beech",
+   "variant": 1,
+   "kind": "tree",
+   "rect": [
+    174,
+    114,
+    62,
+    76
+   ],
+   "pivot": [
+    26.0,
+    65.0
+   ],
+   "size_m": [
+    7.75,
+    9.5
+   ]
+  },
+  {
+   "species": "cl_scrub",
+   "variant": 1,
+   "kind": "cluster",
+   "rect": [
+    238,
+    114,
+    85,
+    74
+   ],
+   "pivot": [
+    41.0,
+    58.0
+   ],
+   "size_m": [
+    21.25,
+    18.5
+   ]
+  },
+  {
+   "species": "olive",
+   "variant": 0,
+   "kind": "tree",
+   "rect": [
+    325,
+    114,
+    60,
+    73
+   ],
+   "pivot": [
+    25.0,
+    63.0
+   ],
+   "size_m": [
+    7.5,
+    9.125
+   ]
+  },
+  {
+   "species": "cl_broadleaf",
+   "variant": 0,
+   "kind": "cluster",
+   "rect": [
+    387,
+    114,
+    82,
+    73
+   ],
+   "pivot": [
+    35.0,
+    54.0
+   ],
+   "size_m": [
+    20.5,
+    18.25
+   ]
+  },
+  {
+   "species": "cl_broadleaf",
+   "variant": 1,
+   "kind": "cluster",
+   "rect": [
+    471,
+    114,
+    93,
+    71
+   ],
+   "pivot": [
+    43.0,
+    51.0
+   ],
+   "size_m": [
+    23.25,
+    17.75
+   ]
+  },
+  {
+   "species": "birch",
+   "variant": 0,
+   "kind": "tree",
+   "rect": [
+    566,
+    114,
+    55,
+    69
+   ],
+   "pivot": [
+    22.0,
+    59.0
+   ],
+   "size_m": [
+    6.875,
+    8.625
+   ]
+  },
+  {
+   "species": "cl_broadleaf",
+   "variant": 2,
+   "kind": "cluster",
+   "rect": [
+    623,
+    114,
+    87,
+    69
+   ],
+   "pivot": [
+    42.0,
+    50.0
+   ],
+   "size_m": [
+    21.75,
+    17.25
+   ]
+  },
+  {
+   "species": "cl_mixed",
+   "variant": 0,
+   "kind": "cluster",
+   "rect": [
+    712,
+    114,
+    81,
+    67
+   ],
+   "pivot": [
+    42.0,
+    49.0
+   ],
+   "size_m": [
+    20.25,
+    16.75
+   ]
+  },
+  {
+   "species": "cl_scrub",
+   "variant": 2,
+   "kind": "cluster",
+   "rect": [
+    795,
+    114,
+    89,
+    63
+   ],
+   "pivot": [
+    34.0,
+    47.0
+   ],
+   "size_m": [
+    22.25,
+    15.75
+   ]
+  },
+  {
+   "species": "olive",
+   "variant": 1,
+   "kind": "tree",
+   "rect": [
+    886,
+    114,
+    51,
+    61
+   ],
+   "pivot": [
+    21.0,
+    52.0
+   ],
+   "size_m": [
+    6.375,
+    7.625
+   ]
+  },
+  {
+   "species": "cl_mediterranean",
+   "variant": 0,
+   "kind": "cluster",
+   "rect": [
+    0,
+    195,
+    85,
+    61
+   ],
+   "pivot": [
+    39.0,
+    43.0
+   ],
+   "size_m": [
+    21.25,
+    15.25
+   ]
+  },
+  {
+   "species": "birch",
+   "variant": 1,
+   "kind": "tree",
+   "rect": [
+    87,
+    195,
+    49,
+    57
+   ],
+   "pivot": [
+    22.0,
+    49.0
+   ],
+   "size_m": [
+    6.125,
+    7.125
+   ]
+  },
+  {
+   "species": "cl_scrub",
+   "variant": 0,
+   "kind": "cluster",
+   "rect": [
+    138,
+    195,
+    84,
+    56
+   ],
+   "pivot": [
+    42.0,
+    42.0
+   ],
+   "size_m": [
+    21.0,
+    14.0
+   ]
+  },
+  {
+   "species": "cl_mediterranean",
+   "variant": 1,
+   "kind": "cluster",
+   "rect": [
+    224,
+    195,
+    87,
+    54
+   ],
+   "pivot": [
+    39.0,
+    36.0
+   ],
+   "size_m": [
+    21.75,
+    13.5
+   ]
+  },
+  {
+   "species": "boulder",
+   "variant": 1,
+   "kind": "rock",
+   "rect": [
+    313,
+    195,
+    60,
+    36
+   ],
+   "pivot": [
+    24.0,
+    28.0
+   ],
+   "size_m": [
+    7.5,
+    4.5
+   ]
+  },
+  {
+   "species": "boulder",
+   "variant": 0,
+   "kind": "rock",
+   "rect": [
+    375,
+    195,
+    60,
+    35
+   ],
+   "pivot": [
+    24.0,
+    27.0
+   ],
+   "size_m": [
+    7.5,
+    4.375
+   ]
+  },
+  {
+   "species": "bush",
+   "variant": 0,
+   "kind": "bush",
+   "rect": [
+    437,
+    195,
+    30,
+    27
+   ],
+   "pivot": [
+    13.0,
+    21.0
+   ],
+   "size_m": [
+    3.75,
+    3.375
+   ]
+  },
+  {
+   "species": "bush",
+   "variant": 1,
+   "kind": "bush",
+   "rect": [
+    469,
+    195,
+    29,
+    26
+   ],
+   "pivot": [
+    12.0,
+    20.0
+   ],
+   "size_m": [
+    3.625,
+    3.25
+   ]
+  },
+  {
+   "species": "rock",
+   "variant": 1,
+   "kind": "rock",
+   "rect": [
+    500,
+    195,
+    33,
+    23
+   ],
+   "pivot": [
+    11.0,
+    16.0
+   ],
+   "size_m": [
+    4.125,
+    2.875
+   ]
+  },
+  {
+   "species": "rock",
+   "variant": 0,
+   "kind": "rock",
+   "rect": [
+    535,
+    195,
+    36,
+    22
+   ],
+   "pivot": [
+    14.0,
+    15.0
+   ],
+   "size_m": [
+    4.5,
+    2.75
+   ]
+  },
+  {
+   "species": "stump",
+   "variant": 0,
+   "kind": "stump",
+   "rect": [
+    573,
+    195,
+    17,
+    10
+   ],
+   "pivot": [
+    5.2,
+    6.2
+   ],
+   "size_m": [
+    2.125,
+    1.25
+   ]
+  },
+  {
+   "species": "stump",
+   "variant": 1,
+   "kind": "stump",
+   "rect": [
+    592,
+    195,
+    17,
+    10
+   ],
+   "pivot": [
+    5.2,
+    6.2
+   ],
+   "size_m": [
+    2.125,
+    1.25
+   ]
+  }
+ ]
+}

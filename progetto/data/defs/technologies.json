@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "notes": "Il sapere del regno: quattro rami, e in ogni ramo si sceglie una strada sola. Il punteggio di ricerca cresce ogni mese con lo sviluppo delle province, gli edifici e la testa di chi regna. Ogni tecnologia entra nella formula del regno come fonte nominata.",
+  "branches": [
+    { "id": "agriculture", "name": "La terra",
+      "items": [
+        { "id": "rotazione", "name": "Rotazione dei campi", "cost": 400,
+          "description": "Un campo su tre riposa: meno fame negli anni cattivi, più grano negli altri.",
+          "modifiers": [ { "key": "production.grain", "op": "mul", "value": 1.15 } ] },
+        { "id": "bonifica", "name": "Bonifica delle paludi", "cost": 400,
+          "description": "Fossi, argini e terre strappate all'acqua: più gente può vivere sulla stessa provincia.",
+          "modifiers": [ { "key": "population.growth", "op": "mul", "value": 1.12 },
+                         { "key": "production.grain_irrigated", "op": "add", "value": 0.1 } ] }
+      ] },
+    { "id": "crafts", "name": "Le botteghe",
+      "items": [
+        { "id": "mulini", "name": "Mulini ad acqua", "cost": 500,
+          "description": "La forza dell'acqua macina, sega e batte il ferro al posto delle braccia.",
+          "modifiers": [ { "key": "production.bread", "op": "mul", "value": 1.2 },
+                         { "key": "production.wood", "op": "mul", "value": 1.1 } ] },
+        { "id": "altoforno", "name": "Forni alti", "cost": 500,
+          "description": "Più calore, più ferro, più lame: le armi costano meno fatica.",
+          "modifiers": [ { "key": "production.iron", "op": "mul", "value": 1.18 },
+                         { "key": "production.weapons", "op": "mul", "value": 1.15 } ] }
+      ] },
+    { "id": "government", "name": "La corona",
+      "items": [
+        { "id": "cancelleria", "name": "Cancelleria", "cost": 600,
+          "description": "Scrivani, registri e copie: la corona sa cosa possiede e lo riscuote.",
+          "modifiers": [ { "key": "administration.control", "op": "add", "value": 0.08 },
+                         { "key": "treasury.tax_income", "op": "mul", "value": 1.08 } ] },
+        { "id": "curia_regia", "name": "Curia regia", "cost": 600,
+          "description": "Una corte che giudica in nome del re: la legge vale uguale da un capo all'altro.",
+          "modifiers": [ { "key": "stability.base", "op": "add", "value": 8 },
+                         { "key": "legitimacy.base", "op": "add", "value": 5 } ] }
+      ] },
+    { "id": "war", "name": "Le armi",
+      "items": [
+        { "id": "mura_di_pietra", "name": "Mura di pietra", "cost": 700,
+          "description": "Pietra squadrata al posto della palizzata: un assedio diventa questione di mesi.",
+          "modifiers": [ { "key": "military.fortification", "op": "mul", "value": 1.6 },
+                         { "key": "construction.fortification_cost", "op": "mul", "value": 0.9 } ] },
+        { "id": "leva_regia", "name": "Leva regia", "cost": 700,
+          "description": "Ogni villaggio deve i suoi uomini alla corona, e li addestra prima che servano.",
+          "modifiers": [ { "key": "military.levy_size", "op": "mul", "value": 1.25 },
+                         { "key": "military.infantry_defense", "op": "mul", "value": 1.08 } ] }
+      ] }
+  ]
+}
+

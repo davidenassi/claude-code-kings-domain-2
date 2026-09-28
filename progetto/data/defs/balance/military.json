@@ -1,0 +1,47 @@
+{
+  "notes": "Marcia, rifornimenti, morale e vista degli eserciti. Un esercito è fatto di persone vere: quando parte, il villaggio perde quelle braccia; quando si scioglie in casa, tornano.",
+  "march": {
+    "hours_per_day": 9.0,
+    "terrain_speed": { "plains": 1.0, "steppe": 1.0, "coast": 0.95, "forest": 0.75, "hills": 0.7, "desert": 0.8, "mountains": 0.45 },
+    "river_crossing_penalty_km": 6.0,
+    "pass_penalty_km": 10.0,
+    "arrive_radius_m": 260.0
+  },
+  "supply": {
+    "carried_days": 12.0,
+    "friendly_refill_per_day": 2.5,
+    "forage_per_day": 1.1,
+    "own_province_refill_per_day": 1.2,
+    "hungry_attrition_per_day": 0.015,
+    "hungry_morale_per_day": 3.0,
+    "food_from_settlement_radius_m": 900.0
+  },
+  "morale": {
+    "recover_per_day": 0.8,
+    "max": 100.0,
+    "unpaid_per_day": 2.5,
+    "desertion_below": 25.0,
+    "desertion_chance_per_day": 0.06,
+    "home_recover_bonus": 0.6
+  },
+  "recruitment": {
+    "min_age": 16,
+    "max_age": 45,
+    "keep_workers": 2,
+    "training_speed_per_barracks": 1.0
+  },
+  "vision": {
+    "army_radius_m": 9000.0,
+    "province_own": true,
+    "settlement_radius_m": 12000.0
+  },
+  "ai": {
+    "want_army_power": 2.0,
+    "recruit_min_treasury": 150.0,
+    "enough_men": 24,
+    "men_per_province": 3.0,
+    "standing_army_treasury": 4000.0,
+    "march_min_men": 8
+  }
+}
+

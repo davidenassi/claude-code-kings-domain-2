@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "notes": "index = value stored in data/world/biome.bin. Shared by the world generator (tools/worldgen) and the game.",
+  "items": [
+    { "id": "ocean",         "index": 0,  "name": "Mare",                 "color": "#23517F", "fertility": 0.0,  "forest": 0.0,  "move_cost": 99.0, "local_terrain": "water" },
+    { "id": "lake",          "index": 1,  "name": "Lago",                 "color": "#2F6590", "fertility": 0.0,  "forest": 0.0,  "move_cost": 99.0, "local_terrain": "water" },
+    { "id": "beach",         "index": 2,  "name": "Spiaggia",             "color": "#DCC99A", "fertility": 0.1,  "forest": 0.0,  "move_cost": 1.2,  "local_terrain": "shore" },
+    { "id": "grassland",     "index": 3,  "name": "Prateria",             "color": "#A2A75C", "fertility": 0.7,  "forest": 0.08, "move_cost": 1.0,  "local_terrain": "grass" },
+    { "id": "floodplain",    "index": 4,  "name": "Piana fluviale",       "color": "#93A857", "fertility": 1.0,  "forest": 0.05, "move_cost": 1.0,  "local_terrain": "fertile" },
+    { "id": "deciduous",     "index": 5,  "name": "Bosco di latifoglie",  "color": "#6E8C45", "fertility": 0.6,  "forest": 0.85, "move_cost": 1.6,  "local_terrain": "forest" },
+    { "id": "mixed",         "index": 6,  "name": "Bosco misto",          "color": "#61804A", "fertility": 0.5,  "forest": 0.9,  "move_cost": 1.7,  "local_terrain": "forest" },
+    { "id": "taiga",         "index": 7,  "name": "Foresta di conifere",  "color": "#4F6F48", "fertility": 0.3,  "forest": 0.85, "move_cost": 1.8,  "local_terrain": "forest" },
+    { "id": "hills",         "index": 8,  "name": "Colline",              "color": "#ADA668", "fertility": 0.45, "forest": 0.25, "move_cost": 1.35, "local_terrain": "hill" },
+    { "id": "mountain",      "index": 9,  "name": "Montagna",             "color": "#A39C7C", "fertility": 0.05, "forest": 0.1,  "move_cost": 2.6,  "local_terrain": "rock" },
+    { "id": "snow",          "index": 10, "name": "Nevai",                "color": "#C9C6B8", "fertility": 0.0,  "forest": 0.0,  "move_cost": 4.0,  "local_terrain": "mountain" },
+    { "id": "marsh",         "index": 11, "name": "Palude",               "color": "#768559", "fertility": 0.25, "forest": 0.3,  "move_cost": 2.2,  "local_terrain": "marsh" },
+    { "id": "steppe",        "index": 12, "name": "Steppa",               "color": "#C3B271", "fertility": 0.35, "forest": 0.03, "move_cost": 1.0,  "local_terrain": "grass" },
+    { "id": "desert",        "index": 13, "name": "Deserto",              "color": "#D8C089", "fertility": 0.05, "forest": 0.0,  "move_cost": 1.5,  "local_terrain": "scree" },
+    { "id": "mediterranean", "index": 14, "name": "Macchia mediterranea", "color": "#AAA464", "fertility": 0.55, "forest": 0.35, "move_cost": 1.2,  "local_terrain": "grass" },
+    { "id": "tundra",        "index": 15, "name": "Tundra",               "color": "#B0B197", "fertility": 0.1,  "forest": 0.05, "move_cost": 1.4,  "local_terrain": "grass" }
+  ]
+}
+

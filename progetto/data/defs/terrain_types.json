@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "items": [
+    { "id": "water",     "name": "Acqua",          "walkable": false, "buildable": false, "move_cost": 99.0, "color": "#4E8CC4" },
+    { "id": "shore",     "name": "Riva",           "walkable": true,  "buildable": true,  "move_cost": 1.2,  "color": "#D9C594" },
+    { "id": "grass",     "name": "Prato",          "walkable": true,  "buildable": true,  "move_cost": 1.0,  "color": "#75A84E" },
+    { "id": "fertile",   "name": "Terra fertile",  "walkable": true,  "buildable": true,  "move_cost": 1.0,  "color": "#8E7040" },
+    { "id": "forest",    "name": "Bosco",          "walkable": true,  "buildable": false, "move_cost": 1.7,  "color": "#3F7A44", "clearing": "clear_trees" },
+    { "id": "rock",      "name": "Roccia",         "walkable": false, "buildable": false, "move_cost": 99.0, "color": "#8B9096", "clearing": "quarry_rock" },
+    { "id": "iron_vein", "name": "Vena di ferro",  "walkable": false, "buildable": false, "move_cost": 99.0, "color": "#7E858E", "clearing": "mine_vein" },
+    { "id": "hill",      "name": "Collina",        "walkable": true,  "buildable": true,  "move_cost": 1.35, "color": "#8FA157" },
+    { "id": "scree",     "name": "Pietraia",       "walkable": true,  "buildable": true,  "move_cost": 1.25, "color": "#A79E8E" },
+    { "id": "marsh",     "name": "Palude",         "walkable": true,  "buildable": false, "move_cost": 2.2,  "color": "#6B7A4A", "clearing": "drain_marsh" },
+    { "id": "mountain",  "name": "Parete di montagna", "walkable": false, "buildable": false, "move_cost": 99.0, "color": "#8A8578" }
+  ]
+}
+

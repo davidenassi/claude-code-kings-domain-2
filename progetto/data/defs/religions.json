@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "notes": "Statistiche FISSE, separate dalla cultura. Numeri da tarare.",
+  "items": [
+    {
+      "id": "catholic", "name": "Cattolica", "color": "#D8C9A0",
+      "description": "Una Chiesa universale con i suoi vescovi e le sue decime: benedice le corone e chiede obbedienza.",
+      "modifiers": [
+        { "key": "legitimacy.from_clergy", "op": "mul", "value": 1.15 },
+        { "key": "construction.church_cost", "op": "mul", "value": 0.90 },
+        { "key": "stability.tolerance", "op": "add", "value": -3.0 }
+      ]
+    },
+    {
+      "id": "orthodox", "name": "Ortodossa", "color": "#C9A24A",
+      "description": "Chiese autocefale strette alla corona: il trono e l'altare si sostengono a vicenda.",
+      "modifiers": [
+        { "key": "trust.base", "op": "add", "value": 5.0 },
+        { "key": "government.reform_cost", "op": "mul", "value": 1.10 }
+      ]
+    },
+    {
+      "id": "muslim", "name": "Musulmana", "color": "#3E8A5E",
+      "description": "La legge religiosa regola anche i mercati e le carovane; le comunità protette pagano un tributo.",
+      "modifiers": [
+        { "key": "trade.income", "op": "mul", "value": 1.05 },
+        { "key": "stability.tolerance", "op": "add", "value": 3.0 },
+        { "key": "treasury.credit_cost", "op": "mul", "value": 1.10 }
+      ]
+    },
+    {
+      "id": "hindu", "name": "Induista", "color": "#D07A3A",
+      "description": "Un ordine sociale antico e riti che scandiscono l'anno agricolo.",
+      "modifiers": [
+        { "key": "stability.base", "op": "add", "value": 4.0 },
+        { "key": "population.growth", "op": "mul", "value": 1.05 },
+        { "key": "military.levy_cost", "op": "mul", "value": 1.05 }
+      ]
+    }
+  ]
+}
+

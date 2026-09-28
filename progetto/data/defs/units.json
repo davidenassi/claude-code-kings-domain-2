@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "notes": "Reparti reclutabili. `men` è quanti abitanti veri servono; `weapons` e `gold` si pagano al reclutamento, `upkeep_gold_day` e `food_day` ogni giorno di servizio. `speed_kmh` è la marcia su terreno buono. Attacco e difesa serviranno alla battaglia (Fase 10); qui pesano già sulla forza che gli altri regni vedono.",
+  "items": [
+    { "id": "lancieri", "name": "Lancieri", "category": "infantry", "men": 4, "gold": 20, "weapons": 3,
+      "description": "Contadini con una lancia e poche settimane di addestramento: la spina dorsale di ogni leva.",
+      "train_days": 20, "upkeep_gold_day": 0.28, "food_day": 8, "speed_kmh": 4.0,
+      "attack": 6, "defense": 8, "morale": 55, "requires": {} },
+    { "id": "alabardieri", "name": "Alabardieri", "category": "infantry", "men": 6, "gold": 50, "weapons": 6,
+      "description": "Ferro lungo e mani esperte: tengono la linea e fermano i cavalli.",
+      "train_days": 35, "upkeep_gold_day": 0.42, "food_day": 8, "speed_kmh": 3.8,
+      "attack": 10, "defense": 14, "morale": 65, "requires": { "building": "barracks", "weapons_made": 40 } },
+    { "id": "balestrieri", "name": "Balestrieri", "category": "ranged", "men": 5, "gold": 60, "weapons": 7,
+      "description": "Lenti a ricaricare, ma un quadrello passa una cotta a cento passi.",
+      "train_days": 40, "upkeep_gold_day": 0.46, "food_day": 6, "speed_kmh": 4.0,
+      "attack": 13, "defense": 6, "morale": 60, "requires": { "building": "barracks", "weapons_made": 60 } },
+    { "id": "cavalieri", "name": "Cavalieri", "category": "cavalry", "men": 4, "gold": 130, "weapons": 10,
+      "description": "Uomini a cavallo, armati a spese loro e orgogliosi come la nobiltà che li manda.",
+      "train_days": 55, "upkeep_gold_day": 0.9, "food_day": 12, "speed_kmh": 7.0,
+      "attack": 18, "defense": 12, "morale": 75, "requires": { "building": "barracks", "weapons_made": 120, "favour": { "nobility": 45 } } }
+  ],
+  "captain": {
+    "notes": "Un membro della corte può prendere il comando: la sua abilità in guerra muove morale e passo.",
+    "morale_per_skill": 2.0,
+    "speed_per_skill": 0.02
+  }
+}
+
