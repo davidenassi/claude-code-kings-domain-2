@@ -66,13 +66,16 @@ static func place_starter_village(session: GameSession, settlement_id: int) -> A
 	for def_id: StringName in [&"woodcutter", &"farm", &"house", &"bakery", &"well"]:
 		# Rebirth: the valley's woods are masses with open ground between them, not a stipple everywhere — the
 		# woodcutter goes to the edge of the wood and the fields to the open side, as the careful lord does
-		var near := keep.pos
-		var min_r := 36.0
-		if def_id in [&"woodcutter", &"farm"]:
-			var zone := zone_of(session, st, def_id)
-			near = zone["near"]
-			min_r = float(zone["min_r"])
-		var spot := find_spot(session, settlement_id, def_id, near, min_r)
+		# Rebirth, Phase 4: every building where the village would put it (Siting), the same as for the lord
+		var spot := site_for(session, st, def_id)
+		if spot == Vector2.INF:
+			var near := keep.pos
+			var min_r := 36.0
+			if def_id in [&"woodcutter", &"farm"]:
+				var zone := zone_of(session, st, def_id)
+				near = zone["near"]
+				min_r = float(zone["min_r"])
+			spot = find_spot(session, settlement_id, def_id, near, min_r)
 		if spot == Vector2.INF:
 			continue
 		var res := session.submit(PlaceBuildingCommand.create(settlement_id, def_id, spot))
@@ -160,11 +163,34 @@ static func lord_month(session: GameSession, settlement_id: int, max_people: int
 		tried[want] = true
 		if not affordable(world, st, Defs.building(want)):
 			continue
-		var zone := zone_of(session, st, want)
-		var spot := find_spot(session, st.id, want, zone["near"], float(zone["min_r"]), false,
-			900.0 if want == &"quarry" else 600.0, false, true)
+		var spot := site_for(session, st, want)
+		if spot == Vector2.INF:
+			var zone := zone_of(session, st, want)
+			spot = find_spot(session, st.id, want, zone["near"], float(zone["min_r"]), false,
+				900.0 if want == &"quarry" else 600.0, false, true)
 		if spot != Vector2.INF and session.submit(PlaceBuildingCommand.create(st.id, want, spot)).success:
 			return
+
+
+## Where a careful lord builds (Rebirth, Phase 4): the area of the kind of building (zone_of), and in it the spot the
+## village would choose (Siting.refine) — the houses round the square and along its ways, the fields side by side on
+## the good soil, the woodcutter at the edge of the wood. The area widens twice before giving up (Vector2.INF).
+static func site_for(session: GameSession, st: SettlementState, def_id: StringName) -> Vector2:
+	var def := Defs.building(def_id)
+	if def == null or not affordable(session.world, st, def):
+		return Vector2.INF
+	var zone := zone_of(session, st, def_id)
+	var role := Siting.role(def)
+	var radius := Siting.radius_for(def)
+	if role in [Siting.HOME, Siting.SERVICE, Siting.CRAFT, Siting.STORE, Siting.MILITARY]:
+		# the whole ring of the role round the square
+		var band := Siting.ring(role, session.world.people_of(st.id).size(), Nucleus.square_radius())
+		radius = maxf(radius, minf(band.y, 110.0))
+	for k in 3:
+		var res := Siting.refine(session.world, st, def, zone["near"], radius * (1.0 + float(k)), true)
+		if bool(res["ok"]):
+			return res["pos"]
+	return Vector2.INF
 
 
 ## Where a careful lord puts each kind of building (world art pass): the houses around the square, the well on

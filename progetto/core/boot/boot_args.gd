@@ -8,7 +8,9 @@ extends RefCounted
 ##                              domain[,mpp] (the whole valley) on the local map; player[,mpp] / global[,mpp] (the
 ##                              homeland on the map of the world); army,mpp (the first army of the crown)
 ##   --kd-debug                 show the developer's box (F3) from the start
+##   --kd-seed=N                the campaign seed of the new game (the same world and the same people every time)
 ##   --kd-frames=N              frames to wait before the screenshot (default 30)
+##   --kd-build=def,dx,dy       hold the ghost of a building over (dx, dy) metres from the home fire (screenshots)
 ##   --kd-speed=N               initial simulation speed index
 ##   --kd-days=N                simulate N days instantly before rendering
 ##   --kd-hours=N               then N hours more, with the valley watched (the new game starts at 8 in the morning)

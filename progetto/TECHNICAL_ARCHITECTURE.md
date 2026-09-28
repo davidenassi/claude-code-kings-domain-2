@@ -59,6 +59,18 @@ Documento di riferimento per ogni scelta tecnica; aggiornarlo quando una scelta 
   bagliore.
 - Salvataggi: versione 8; `SaveMigrator._v7_to_v8` aggiunge focolare e punto d'acqua alle comunità che ne erano prive.
 
+### 1.3 La crescita organica (Rebirth, Fase 4)
+- `Siting.refine(world, settlement, def, cursor, radius)` sceglie il posto di un edificio attorno a un punto: griglia
+  di candidati (2 m, più rada per i raggi grandi; i campi un poco fuori griglia), scarto rapido (sovrapposizioni,
+  piazzola, acqua), punteggio per **ruolo** (`Siting.role`: casa, bottega, magazzino, servizio, campo, bosco,
+  pietra, miniera, militare) e **anello** attorno al focolare (`Siting.ring`, più largo con la popolazione), poi
+  `Placement.check` sui migliori 16. Deterministico. Non cambia le regole né i comandi: il posto scelto va a
+  `PlaceBuildingCommand` come prima.
+- Le **vie** (`Siting.ways_of`): strade, sentiero dell'acqua, primi sentieri, sentieri battuti tra le porte
+  (`SettlementLayer.footpaths`, ora in cache per `buildings_version`).
+- Chi la usa: `BuildController` (il fantasma; Alt = posto esatto) e `SettlementPlanner.site_for` (villaggio di
+  partenza e signore prudente; la ricerca ad anelli resta solo come ripiego).
+
 ---
 
 ## 2. Struttura del progetto

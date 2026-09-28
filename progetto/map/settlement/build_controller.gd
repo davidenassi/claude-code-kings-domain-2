@@ -1,8 +1,12 @@
 class_name BuildController
 extends Node2D
-## Build mode: a ghost of the chosen building follows the mouse (snapped to 1 m), green when it can stand there,
-## red with the reason when it cannot. Left click opens the construction site (Shift keeps the mode on),
-## right click or Esc leaves build mode. Lives inside WorldView so it draws in world coordinates.
+## Build mode: a ghost of the chosen building follows the mouse, green when it can stand there, red with the reason
+## when it cannot. Left click opens the construction site (Shift keeps the mode on), right click or Esc leaves build
+## mode. Lives inside WorldView so it draws in world coordinates.
+##
+## Rebirth, Phase 4: the mouse chooses the AREA, the game the spot (Siting.refine): the ghost settles where a
+## villager would build — the door on a way, beside the neighbours, in its ring round the square, the field on good
+## soil against the others — and a thin line joins it to the pointer. Hold Alt to put it exactly under the pointer.
 
 signal mode_changed(def_id: StringName)
 signal hint_changed(text: String, ok: bool, screen_pos: Vector2)
@@ -15,6 +19,11 @@ var def_id: StringName = &""
 var _camera: WorldCamera
 var _pos := Vector2.INF
 var _check: Dictionary = {}
+## Where the pointer is (the area chosen), and the last pointer the spot was chosen for.
+var _cursor := Vector2.INF
+var _refined_for := Vector2.INF
+var _refined_pos := Vector2.INF
+var _exact := false
 var _right_press := Vector2.INF
 ## Road mode: first end already chosen (INF while waiting for it).
 var _road_start := Vector2.INF
@@ -39,6 +48,8 @@ func active() -> bool:
 func start(new_def: StringName) -> void:
 	def_id = new_def
 	_pos = Vector2.INF
+	_cursor = Vector2.INF
+	_refined_for = Vector2.INF
 	_road_start = Vector2.INF
 	_check = {}
 	mode_changed.emit(def_id)
@@ -68,7 +79,9 @@ func player_settlement() -> SettlementState:
 
 func _recheck() -> void:
 	if active() and _pos != Vector2.INF:
-		_update(_pos, _camera.world_to_screen(_pos))
+		_refined_for = Vector2.INF   # the village changed: the spot is chosen again
+		var at := _cursor if _cursor != Vector2.INF else _pos
+		_update(at, _camera.world_to_screen(at))
 
 
 func is_road_mode() -> bool:
@@ -91,11 +104,27 @@ func _update(world_pos: Vector2, screen_pos: Vector2) -> void:
 			if bool(_check["ok"]) and int(_check["trees"]) > 0:
 				text += " — alberi da abbattere: %d" % int(_check["trees"])
 	else:
-		_check = Placement.check(Session.current.world, s, def, _pos)
+		_cursor = world_pos.snapped(Vector2.ONE)
+		_exact = Input.is_key_pressed(KEY_ALT)
+		if _exact:
+			_check = Placement.check(Session.current.world, s, def, _cursor)
+			_pos = _cursor
+			_refined_for = Vector2.INF   # letting Alt go chooses again
+		elif _refined_for == Vector2.INF or _refined_for.distance_to(_cursor) >= 1.0 or _check.is_empty():
+			# the spot is chosen again only when the pointer has really moved (a search is a few hundred candidates)
+			var r := Siting.refine(Session.current.world, s, def, _cursor)
+			_refined_for = _cursor
+			_refined_pos = r["pos"]
+			_pos = _refined_pos
+			_check = r["check"]
+		else:
+			_pos = _refined_pos
 		if bool(_check["ok"]):
 			text = def.display_name
 			if int(_check["trees"]) > 0:
 				text += " — alberi da abbattere: %d" % int(_check["trees"])
+			if not _exact and _pos.distance_to(_cursor) > 0.5:
+				text += "\nIl posto lo sceglie il villaggio · Alt: esattamente qui"
 		else:
 			text = String(_check["reason"])
 	hint_changed.emit(text, bool(_check["ok"]), screen_pos)
@@ -111,6 +140,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.button_index == MOUSE_BUTTON_LEFT and mb.pressed:
+			_refined_for = Vector2.INF
 			_update(_camera.screen_to_world(mb.position), mb.position)
 			var s := player_settlement()
 			if is_road_mode():
@@ -166,6 +196,12 @@ func _draw() -> void:
 		return
 	var rect := Rect2(_pos - def.footprint * 0.5, def.footprint)
 	var col := Color(0.45, 0.85, 0.35) if ok else Color(0.9, 0.3, 0.2)
+	if not _exact and _cursor != Vector2.INF and _cursor.distance_to(_pos) > 0.5:
+		# the area the pointer chose, and the spot the village chose in it
+		var lw := maxf(_camera.meters_per_pixel() * 1.5, 0.1)
+		draw_arc(_cursor, Siting.radius_for(def), 0.0, TAU, 48, Color(1, 1, 1, 0.18), lw)
+		draw_line(_cursor, _pos, Color(1, 1, 1, 0.45), lw)
+		draw_circle(_cursor, lw * 2.0, Color(1, 1, 1, 0.6))
 	draw_rect(rect, Color(col, 0.22))
 	var s: Dictionary = _sprites.get(String(def.sprite if def.work_type() != &"farm" else &"farm_green"), {})
 	if not s.is_empty():

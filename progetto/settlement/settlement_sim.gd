@@ -168,9 +168,14 @@ static func _eat(world: WorldState, s: SettlementState) -> void:
 	# eat whole units, bread first (keeps the leftover fraction as credit)
 	for res: StringName in [&"bread", &"grain"]:
 		var fv := Defs.resource(res).food_value
-		while have < need and s.amount(res) > 0:
-			s.take(res, 1, &"food")
+		# counted unit by unit as before (the same sums to the last decimal), taken from the store in one go
+		var units := 0
+		var avail := s.amount(res)
+		while have < need and units < avail:
 			have += fv
+			units += 1
+		if units > 0:
+			s.take(res, units, &"food")
 	var shortfall := maxf(need - have, 0.0)
 	s.food_credit = maxf(have - need, 0.0)
 	var per_person := shortfall / float(people.size()) / float(bal().get("food_per_person_day", 0.25))

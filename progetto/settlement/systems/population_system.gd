@@ -166,20 +166,30 @@ func _deaths(session: GameSession, s: SettlementState, day: int) -> void:
 	var world := session.world
 	var cfg: Dictionary = bal()["death"]
 	var rng := world.rng.stream(&"population")
+	# the rules read once for the day, not once per person (Rebirth check: a large village spent a good part of its
+	# day looking the same numbers up in the balance tables)
+	var adult_annual := float(cfg.get("adult_annual", 0.012))
+	var child_annual := float(cfg.get("child_annual", 0.02))
+	var adult_age := int(bal().get("adult_age", 16))
+	var elder_age := int(bal().get("elder_age", 62))
+	var elder_62 := float(cfg.get("elder_annual_at_62", 0.06))
+	var elder_80 := float(cfg.get("elder_annual_at_80", 0.22))
+	var starve_days := float(cfg.get("starvation_days", 12.0))
+	var starve_daily := float(cfg.get("starvation_daily", 0.02))
+	var misery := float(cfg.get("misery_daily", 0.002)) if s.trust < float(cfg.get("misery_trust", 20.0)) else 0.0
+	var max_age := int(bal().get("max_age", 92))
 	for p in world.people_of(s.id):
 		var age := p.age_years(day)
-		var annual := float(cfg.get("adult_annual", 0.012))
-		if age < int(bal().get("adult_age", 16)):
-			annual = float(cfg.get("child_annual", 0.02))
-		elif age >= int(bal().get("elder_age", 62)):
-			var t := clampf(float(age - int(bal().get("elder_age", 62))) / 18.0, 0.0, 1.6)
-			annual = lerpf(float(cfg.get("elder_annual_at_62", 0.06)), float(cfg.get("elder_annual_at_80", 0.22)), t)
+		var annual := adult_annual
+		if age < adult_age:
+			annual = child_annual
+		elif age >= elder_age:
+			annual = lerpf(elder_62, elder_80, clampf(float(age - elder_age) / 18.0, 0.0, 1.6))
 		var chance := annual / 360.0
-		if p.hunger > float(cfg.get("starvation_days", 12.0)):
-			chance += float(cfg.get("starvation_daily", 0.02)) * clampf((p.hunger - float(cfg.get("starvation_days", 12.0))) / 10.0, 0.2, 2.0)
-		if s.trust < float(cfg.get("misery_trust", 20.0)):
-			chance += float(cfg.get("misery_daily", 0.002))
-		if age > int(bal().get("max_age", 92)):
+		if p.hunger > starve_days:
+			chance += starve_daily * clampf((p.hunger - starve_days) / 10.0, 0.2, 2.0)
+		chance += misery
+		if age > max_age:
 			chance = 1.0
 		if rng.randf() < chance:
 			_die(session, s, p, day)
@@ -578,14 +588,13 @@ func _trust(session: GameSession, s: SettlementState, day: int) -> void:
 			clampf((days_of_food - float(cfg.get("food_days_bad", 5.0))) / maxf(float(cfg.get("food_days_good", 30.0)) - float(cfg.get("food_days_bad", 5.0)), 1.0), 0.0, 1.0))
 	parts["Cibo"] = food_part
 	var hunger := 0.0
-	for p in people:
-		hunger = maxf(hunger, p.hunger)
-	if hunger > 0.5:
-		parts["Fame"] = float(cfg.get("hunger_malus_per_day", -2.2)) * minf(hunger, 10.0)
 	var homeless := 0
 	for p in people:
-		if p.home < 0 or world.building(p.home) == null:
+		hunger = maxf(hunger, p.hunger)
+		if p.home < 0 or not world.buildings.has(p.home):
 			homeless += 1
+	if hunger > 0.5:
+		parts["Fame"] = float(cfg.get("hunger_malus_per_day", -2.2)) * minf(hunger, 10.0)
 	if homeless > 0:
 		parts["Senzatetto"] = float(cfg.get("homeless_malus_per_person", -6.0)) * homeless
 	elif free_beds(world, s) > 0:

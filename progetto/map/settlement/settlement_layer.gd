@@ -238,8 +238,10 @@ func _draw_ground() -> void:
 		_trails = {}
 		for s in world.settlements:
 			_trails[s.id] = Nucleus.trails(world, s)
-	# the open square at the heart of each settlement, the first trails out of it, then the worn footpaths and
-	# the roads: all on the ground
+	# the ground the village lives on (Rebirth, Phase 4), then the open square at the heart of each settlement, the
+	# first trails out of it, the worn footpaths and the roads: all on the ground
+	for s in world.settlements:
+		_draw_lived_ground(world, s)
 	for s in world.settlements:
 		_draw_square(s, world.people_of(s.id).size(), Nucleus.hearth_of(world, s) != null)
 	for s in world.settlements:
@@ -384,7 +386,23 @@ func _draw_track(a: Vector2, b: Vector2, half: float, fill: Color, edge: Color, 
 ## The paths people wear between the doors of a settlement: the shortest net that links every door to the
 ## others and to the common fire (a minimum spanning tree), never across the river and never too long. Only
 ## drawn: walking speed still comes from the roads the player lays.
+static var _footpaths_cache: Dictionary = {}
+
+
 static func footpaths(world: WorldState, s: SettlementState) -> Array:
+	# the same network is asked for by the ground of the map and by the choice of a spot (Siting, Rebirth Phase 4):
+	# in a town of five hundred buildings it takes a third of a second, so it is worked out once per change
+	var key := "%d:%d:%d" % [world.get_instance_id(), s.id, world.buildings_version]
+	if _footpaths_cache.has(key):
+		return (_footpaths_cache[key] as Array).duplicate()
+	var out := _footpaths(world, s)
+	if _footpaths_cache.size() > 8:
+		_footpaths_cache.clear()
+	_footpaths_cache[key] = out
+	return out.duplicate()
+
+
+static func _footpaths(world: WorldState, s: SettlementState) -> Array:
 	var nodes := PackedVector2Array([s.center])
 	var wd := SettlementSim.ground(world)
 	for b in world.buildings_of(s.id):
@@ -545,6 +563,24 @@ func _draw_square(s: SettlementState, people: int, has_hearth: bool = false) -> 
 		Color(0.64, 0.55, 0.39, 0.45))
 
 
+## The ground of the lived-in part of a settlement (Rebirth, Phase 4): the grass between the doors worn thin, the
+## earth showing through. A wide, faint stain round every building that is lived or worked in (not the fields), so
+## that neighbours' stains run together into one place instead of each house sitting on its own lawn.
+const LIVED := Color(0.50, 0.44, 0.29, 0.26)
+
+
+func _draw_lived_ground(world: WorldState, s: SettlementState) -> void:
+	var blob := NucleusLayer.soft_blob()
+	for b in world.buildings_of(s.id):
+		if b.is_road() or not b.is_active() or b.def().work_type() == &"farm" or b.def_id == Nucleus.WATER_POINT:
+			continue
+		var fp := b.def().footprint
+		var r := maxf(fp.x, fp.y) * 1.5 + 9.0
+		var jitter := Vector2(KDRng.hash01(b.id, 71, 7009) - 0.5, KDRng.hash01(b.id, 72, 7009) - 0.5) * r * 0.3
+		var at := b.pos + jitter + Vector2(0.0, fp.y * 0.3)
+		_ci.draw_texture_rect(blob, Rect2(at - Vector2(r, r * 0.85), Vector2(r * 2.0, r * 1.7)), false, LIVED)
+
+
 ## The path the settlement wore down to the water: from the square to the nearest point of the river bank, if the
 ## river is close (people fetch water, wash, water the animals). Returns [from, to] or [].
 static func river_path(world: WorldState, s: SettlementState) -> Array:
@@ -587,6 +623,10 @@ static func segment_hits_rect(a: Vector2, b: Vector2, r: Rect2) -> bool:
 
 
 static func _crosses_river(wd: WorldData, a: Vector2, b: Vector2) -> bool:
+	# the river farther from one end than the segment is long cannot be reached by it: one lookup instead of one
+	# every three metres (the footpaths of a large village are tens of thousands of such pairs)
+	if wd.river_clearance(a) > a.distance_to(b) + 0.5:
+		return false
 	var n := int(ceil(a.distance_to(b) / 3.0))
 	for i in n + 1:
 		if wd.river_clearance(a.lerp(b, float(i) / float(maxi(n, 1)))) < 0.5:

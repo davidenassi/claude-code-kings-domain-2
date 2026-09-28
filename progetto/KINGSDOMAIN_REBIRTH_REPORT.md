@@ -246,3 +246,96 @@ metà mattina: qualcuno riempie i secchi), `p3_medium` (1,1 m/px), `p3_far` (tut
   del mondo i giorni si risolvono in forma chiusa, come prima.
 - La migrazione v7→v8 è provata su un salvataggio v7 sintetico: i salvataggi reali delle versioni vecchie non sono nel
   pacchetto (vedi Fase 2).
+
+---
+
+## FASE 4 — Nuova logica di crescita urbana ✅
+
+**Obiettivo**: eliminare la sensazione «Minecraft su un mondo piatto»: gli edifici non devono sembrare oggetti sparsi a
+caso. Il giocatore decide **cosa** costruire e **l'area generale**; il gioco rifinisce posizione precisa, piccolo
+spostamento, accesso, cortile, sentiero. Gerarchia: NUCLEO → ABITAZIONI → ATTIVITÀ → AREE AGRICOLE → PERIFERIA →
+NATURA.
+
+**Prima** (`docs/rebirth/phase3/p3_community.jpg`): il signore prudente e il giocatore mettevano ogni edificio nel
+primo punto libero di anelli concentrici attorno a un centro; le case a distanze casuali, i campi a scacchiera
+rigida o sparsi, nessun rapporto tra una porta e un sentiero.
+
+**Fatto**
+- **`settlement/siting.gd` (classe `Siting`)**: sceglie, attorno al punto indicato, il posto che un abitante avrebbe
+  scelto. Ogni edificio ha un **ruolo** (casa, bottega, magazzino, servizio, campo, bosco, cava, miniera, militare) e
+  il suo **anello** attorno al focolare, che si allarga con la popolazione (case: fino a 26 m + 3,2·√abitanti;
+  botteghe e magazzini più in là; campi oltre le case; bosco, pietra e ferro dove sono). Il punteggio guarda:
+  - la **distanza dal punto scelto dal giocatore** (0,12 per metro: l'area resta sua; raggio 14–40 m secondo il
+    ruolo);
+  - la **porta su una via**: strade, il sentiero dell'acqua, i primi sentieri dei fondatori, i sentieri battuti tra
+    le porte; mai una via sotto il tetto;
+  - i **vicini**: né addosso (almeno 1,5 m) né sparsi (bonus fino a 8 m), la **stessa linea di facciata** del vicino;
+  - i **campi**: terra fertile, **uno accanto all'altro** (patchwork), lontani dalle porte, fuori dal borgo, e un poco
+    fuori griglia (una scacchiera perfetta non è un paesaggio);
+  - il **taglialegna** al margine del bosco (bosco attorno, cortile sgombro), la **cava** e la **miniera** sulle loro
+    rocce, il **pozzo** tra le porte.
+  Deterministico: lo stesso punto dà sempre lo stesso posto. Le regole del terreno restano quelle di
+  `Placement.check`; il comando resta `PlaceBuildingCommand`.
+- **Costruire** (`BuildController`): il fantasma dell'edificio si posa dove lo mette il villaggio; un cerchio
+  tenue mostra l'area e una linea il punto scelto. **Alt** mette l'edificio esattamente sotto il puntatore. Il
+  suggerimento dice «Il posto lo sceglie il villaggio · Alt: esattamente qui».
+- **Il signore prudente e il villaggio di partenza** (`SettlementPlanner.site_for`) usano la stessa scelta: l'area del
+  ruolo (`zone_of`), poi `Siting.refine` su tutto l'anello, allargato due volte prima di rinunciare (e solo allora la
+  vecchia ricerca ad anelli).
+- Accesso, cortile e sentiero vengono dagli strumenti già esistenti, ora con edifici al posto giusto: gli orti dietro
+  le case, i sentieri battuti tra le porte (albero minimo), le strade del giocatore.
+- **La terra abitata** (`SettlementLayer._draw_lived_ground`): attorno a ogni edificio abitato o di lavoro (non i
+  campi) una macchia ampia e tenue di erba consumata; le macchie dei vicini si fondono, così il villaggio sta su una
+  terra sua invece che ogni casa sul suo prato.
+- **Costo**: una scelta costa 5–18 ms in un villaggio e ~23 ms in una città di 530 edifici (misurato); la rete dei
+  sentieri tra le porte (300 ms a quella scala) ora è calcolata una volta per cambiamento e condivisa tra il disegno
+  del terreno e la scelta del posto (`SettlementLayer.footpaths` in cache).
+- Strumenti per le schermate: `--kd-seed=N` (la stessa campagna ogni volta: prima/dopo sullo stesso villaggio) e
+  `--kd-build=casa,dx,dy` (il fantasma di un edificio tenuto sopra un punto).
+
+**Prove**
+- Nuovo `tests/unit/test_growth.gd` (4 prove): una casa cliccata nel prato si sposta verso le vie e verso il
+  villaggio, resta nell'area, non tocca la piazzola, la scelta è sempre la stessa, la seconda casa si mette accanto
+  alla prima; il giocatore tiene la sua area (casa, forno, campo); i campi fanno un patchwork su terra buona, oltre le
+  case; **un villaggio di 30–50 abitanti cresciuto dal signore prudente** ha le case vicine (distanza mediana dal
+  vicino tra 1,5 e 12 m), le porte sulle vie (almeno il 70%), i campi oltre le case, il taglialegna al margine del
+  bosco, la piazzola libera.
+- **Esito** (suite completa sullo snapshot della Fase 4, 29 min): 234 prove, 10 377 asserzioni, **1 fallimento**, 2
+  saltate (i salvataggi della Fase 18). Il fallimento era vero e non l'ho nascosto:
+  `test_stress::test_sixty_years_of_the_whole_world_and_a_village_that_grows` ha superato il suo limite di 400 s
+  (420 s nella suite, **405 s da solo**; il progetto originale in questo ambiente impiega 358 s). Profilato (20 anni,
+  stesso carico, fianco a fianco): 54,2 s l'originale, 60,8 s la Fase 4 — ma il villaggio della prova nella valle
+  fertile cresce di più (163 abitanti e 128 edifici contro 125 e 104 a vent'anni; 336 contro 301 a sessanta), e il
+  lavoro del giorno cresce con la gente; la scelta del posto aggiunge ~1,6 s in vent'anni. Corretto senza toccare la
+  soglia né un risultato:
+  - `Siting`: gli edifici e le vie vicini indicizzati su una griglia di 20 m (ogni candidato guarda solo ciò che ha
+    attorno);
+  - `SettlementLayer._crosses_river`: un segmento non può toccare un fiume più lontano della sua lunghezza (la rete
+    dei sentieri: 47 → 14 ms a 143 edifici);
+  - `PopulationSystem._deaths/_trust` e `SettlementSim._eat`: le regole lette una volta al giorno invece che per
+    persona, il cibo preso dal deposito in una volta sola (contato unità per unità come prima: stesse somme).
+  Dopo: **367 s** da solo, con gli **stessi identici esiti** (336 abitanti, 296 edifici, 160 personaggi, 305 righe di
+  cronaca: il determinismo è intatto). Riverificate `test_economy`, `test_founders`, `test_settlement`, `test_balance`,
+  `test_growth`, `test_nucleus`, `test_identity`, `test_river`, `test_visual`: 69 prove, 0 fallimenti; i vent'anni del
+  villaggio di `test_economy` danno gli stessi numeri di prima dell'ottimizzazione.
+
+**Schermate** (`docs/rebirth/phase4/`, stessa campagna `--kd-seed=4104`, stesso momento, stesso punto di vista):
+`p4_before_village` (Fase 3: la vecchia ricerca ad anelli «organica») e `p4_after_village` (Fase 4); `p4_after_core`
+(il cuore del villaggio da vicino: case con l'orto, porte sui sentieri, pozzo e gonfalone sulla piazzola, campi
+oltre); `p4_build_ghost` (il giocatore indica un punto nel prato: il fantasma va 14 m più in là, in fila con la casa
+vicina e con la porta sul sentiero; il cerchio è l'area, la linea il posto scelto).
+
+**Confronto onesto con prima**: la ricerca della Fase 3 era già «organica» (anelli ruotati e spostati), quindi la
+differenza non è da un caos a un ordine. Il villaggio della Fase 4 è **più raccolto** attorno alla piazzola, con le
+case **in fila** lungo le vie e l'orto dietro, i campi **uno accanto all'altro** oltre le case invece che sparsi a
+ventaglio, e la terra consumata che lega le case tra loro. È la differenza tra oggetti ben distribuiti e un luogo.
+
+**Limiti dichiarati**
+- **Orientamento**: gli sprite degli edifici sono disegnati di fronte (vista 3/4 da sud); un edificio non può
+  voltarsi verso una via che corre da nord a sud. Il gioco rifinisce posizione, allineamento e porta, non la
+  rotazione: servono gli sprite in più angolazioni della Fase 12.
+- Le vie sono sentieri che nascono dalle porte e strade tracciate dal giocatore: non c'è ancora una rete di strade
+  pianificata (lotti lungo una strada maestra); arriverà con i quartieri (Fase 5).
+- Un edificio indicato in pieno prato, lontano da tutto, resta dove indicato: è la scelta del giocatore, e il
+  villaggio ci farà arrivare un sentiero.
+- I campi restano rettangoli di 26 × 30 m (con le loro strisce): niente siepi e alberi di confine per ora.

@@ -30,7 +30,8 @@ func _ready() -> void:
 		if loaded:
 			Session.adopt_loaded(loaded)
 	if not Session.has_game():
-		Session.start_new()
+		# --kd-seed: the same campaign every time (before/after screenshots of the same village)
+		Session.start_new({"campaign_seed": String(_args["seed"]).to_int()} if _args.has("seed") else {})
 	var sess := Session.current
 	Scenarios.apply(sess, _args, func() -> void: Scenarios.crown_first_family(Session.current))
 	if _args.has("save-to"):
@@ -246,8 +247,22 @@ func _process(delta: float) -> void:
 	if _frames_left < 0:
 		return
 	_frames_left -= 1
+	if _frames_left == 10 and _args.has("build"):
+		_show_build_ghost(String(_args["build"]))
 	if _frames_left == 0:
 		_take_screenshot(String(_args["screenshot"]))
+
+
+## --kd-build=house,dx,dy: the ghost of a building held over the point (dx, dy) metres from the home fire, as the
+## pointer would hold it (screenshots of the choice of the spot, Rebirth Phase 4).
+func _show_build_ghost(arg: String) -> void:
+	var parts := arg.split(",")
+	if parts.size() < 3 or local_view.build == null:
+		return
+	var at := local_view.home_point() + Vector2(parts[1].to_float(), parts[2].to_float())
+	local_view.build.start(StringName(parts[0]))
+	local_view.build._update(at, local_view.camera.world_to_screen(at))
+	print("[KD:build] the ghost of %s over %s stands at %s" % [parts[0], str(at), str(local_view.build._pos)])
 
 
 func _take_screenshot(path: String) -> void:
