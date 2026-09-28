@@ -46,7 +46,7 @@ func refresh() -> void:
 	var beds := 0
 	for b in world.buildings_of(s.id):
 		if b.is_active():
-			beds += b.def().beds
+			beds += b.beds()
 	_summary.text = "%s — %s\n%d abitanti · %d letti · fiducia %d%% · cibo per %d giorni" % [
 		s.name, s.tier_name(people.size()), people.size(), beds, roundi(s.trust),
 		roundi(PopulationSystem.food_days(world, s))]

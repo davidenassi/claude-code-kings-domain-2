@@ -123,7 +123,7 @@ func test_twenty_years_of_a_prosperous_village() -> void:
 	assert_true(w.provinces[w.kingdoms[1].capital].population > 0, "the provinces of the other realms live on")
 	assert_true(ms < 200000, "twenty years simulated in %d ms" % ms)
 	assert_true(w.player().treasury > 0.0, "the crown is not in debt (%.0f)" % w.player().treasury)
-	assert_true(st.tier_name(people.size()) != "Insediamento", "the settlement became a village (%s)" % st.tier_name(people.size()))
+	assert_true(SettlementState.tier(people.size())["index"] >= 1, "the settlement became a village (%s)" % st.tier_name(people.size()))
 
 
 func test_watched_and_unwatched_villages_agree() -> void:

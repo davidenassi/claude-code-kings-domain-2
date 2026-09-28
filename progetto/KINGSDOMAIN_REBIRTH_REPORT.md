@@ -339,3 +339,102 @@ ventaglio, e la terra consumata che lega le case tra loro. È la differenza tra 
 - Un edificio indicato in pieno prato, lontano da tutto, resta dove indicato: è la scelta del giocatore, e il
   villaggio ci farà arrivare un sentiero.
 - I campi restano rettangoli di 26 × 30 m (con le loro strisce): niente siepi e alberi di confine per ora.
+
+---
+
+## FASE 5 — Scala della città e quartieri ✅
+
+**Obiettivo**: poter arrivare a una grande città senza costruire migliaia di case singole. Prime fasi: edifici
+individuali; fasi avanzate: **quartieri**. Progressione 6 → nucleo, 20–50 → villaggio, 100–300 → villaggio sviluppato,
+500–1500 → borgo, migliaia → città, grande capitale → quartieri e monumenti. Non 10 000 abitanti con 10 000 sprite, non
+2 000 case con 2 000 case singole: aggregazione.
+
+**Prima**: i gradi erano quattro (insediamento, villaggio da 30, borgo da 120, città da 400); una città si faceva solo
+casa per casa (lo scenario di prova della Fase 19: 1 500 abitanti = 529 edifici, ~380 case); tutti gli abitanti erano
+seguiti ora per ora quando la valle era sotto gli occhi; la folla era disegnata persona per persona.
+
+**Fatto**
+- **Gradi** (`settlement.json → tiers`, `SettlementState.tier`): Nucleo (0), Villaggio (20), Villaggio sviluppato
+  (100), Borgo (500), Città (2 000), Grande capitale (8 000). Il passaggio a un grado dal villaggio sviluppato in su è
+  scritto nella cronaca una volta (`DistrictSystem`).
+- **Sette quartieri** (`buildings.json`, categoria `district`): un solo edificio del mondo — un isolato di circa
+  40 × 40 m — che vale decine di case o di botteghe, con **tre livelli**:
+  - *Quartiere di case* (60 / 140 / 240 letti);
+  - *Quartiere artigiano* (forni e botteghe: 6 / 12 / 20 fornai, e i loro letti);
+  - *Quartiere del mercato* (portata 260–520 m, rendita del commercio per abitante);
+  - *Quartiere militare* (caserme: addestramento più rapido);
+  - *Quartiere della chiesa* (portata 320–640 m, fiducia +3 / +5 / +8, la chiesa nuova negli sprite);
+  - *Quartiere dei magazzini* (1 200 / 2 400 / 4 200 di deposito);
+  - *Borgata agricola* (casali e campi ai margini: 8 / 14 / 20 contadini che ci abitano).
+  Si costruiscono dal **villaggio sviluppato** (case, botteghe, mercato, borgata) o dal **borgo** (chiesa, magazzini,
+  militare) — `Placement` dice perché no: «Serve almeno un Borgo (500 abitanti): ora è un Villaggio sviluppato».
+- **I quartieri crescono da soli** (`DistrictSystem`, una volta al mese): un quartiere pieno (letti occupati, mani
+  tutte al lavoro, magazzino quasi pieno; mercato, chiesa e caserme crescono con la città attorno), in una città che
+  ha il grado del livello (livello 2: borgo; 3: città), prende dai depositi il materiale della crescita e sale di
+  livello — più letti, più mani, portata più ampia. Il livello viaggia nel salvataggio.
+- **Chi abita nei quartieri non è seguito ora per ora** (`SettlementSim.in_quarter`): anche con la valle sotto gli
+  occhi il suo giorno è risolto in forma chiusa (`SettlementAggregate.day(…, quarters_only)`), come per una città che
+  nessuno guarda; il resto del paese cammina. Il lavoro, il pane, le costruzioni restano gli stessi.
+- **Sulla mappa** (`DistrictPainter`): il quartiere è disegnato come l'isolato che rappresenta — una via di traverso e
+  una lungo, file di case con la porta sulle vie, sempre più piene e più di pietra a ogni livello, e ciò che lo
+  distingue: forni e fucine, la piazza con i banchi, la chiesa con il sagrato, le caserme attorno al cortile d'armi, i
+  magazzini con i carri, i casali in testa ai campi. Da lontano (`SettlementMarks`) le stesse vie e gli stessi tetti a
+  blocchi. La gente dei quartieri è una **folla** che percorre le vie del quartiere (qualche figura per isolato, di
+  più se è pieno); le figure disegnate sono al massimo 900 (un campione fisso di chi è in vista).
+- **Dove vanno** (`Siting`): i quartieri si chiudono attorno al vecchio villaggio, **uno accanto all'altro e in linea**
+  (condividono le vie), oltre l'anello delle case; la borgata agricola va con i campi.
+- Accoglienza di molti viandanti: i letti occupati sono contati una volta per gruppo (prima, per ogni nuovo arrivato
+  si contavano tutti i letti della città).
+- Strumenti: `--kd-scenario=district_city --kd-people=N` (una città di N abitanti cresciuta per quartieri, con la stessa
+  scelta del posto del giocatore; `tests/stress/stress_worlds.gd → grow_district_city`).
+- **Il quartiere è un isolato** (la seconda versione, dopo le prime schermate): nella prima ogni quartiere era una croce
+  di vie con quattro gruppi di case, e la città sembrava un arcipelago di isole separate dal prato. Ora le vie
+  corrono **attorno** all'isolato e sono condivise con quello accanto (la città è una rete di strade), le case ne
+  fiancheggiano i lati, dentro c'è la corte degli orti — o la piazza, il sagrato, il cortile d'armi; dal secondo
+  livello un passaggio lo attraversa. Nella scelta del posto un quartiere vuole stare **a ridosso** di un altro (meno
+  di 6 m) e **in linea** con lui.
+- In un paese di più di 60 persone chi non ha lavoro resta davanti alla sua porta invece che sulla piazzola del
+  fuoco (nella città di prova la piazzola si riempiva di centinaia di sfaccendati).
+
+**Prove**
+- Nuovo `tests/unit/test_districts.gd` (5 prove): i gradi (nucleo → grande capitale); i quartieri arrivano con la città
+  (sei fondatori non ne costruiscono, un villaggio sviluppato sì, la chiesa vuole un borgo; un quartiere di case vale
+  sessanta letti; non tocca la piazzola); un quartiere pieno cresce quando la città diventa borgo, prende il suo
+  materiale, e il livello viaggia nel salvataggio; **una città di tremila persone fatta di quartieri** (≥ 12 e ≤ 60
+  quartieri, meno di 40 case, meno di 150 edifici; case, borgate, botteghe, mercato e chiesa; più dell'80% della gente
+  nei quartieri; tre giorni osservati ora per ora in meno di 60 s, e nessuno dei quartieri camminato; il mercato
+  rende, la chiesa si sente; la città passa per un salvataggio con tutta la sua gente); il disegno di un quartiere è il
+  suo isolato (vie su ogni lato, orti nella corte, case dentro l'isolato, più piene a ogni livello, sempre uguali).
+- **Esito** (suite completa sullo snapshot della Fase 5, 30 min): 239 prove, 10 438 asserzioni, **1 fallimento**, 2
+  saltate (i salvataggi della Fase 18). Il fallimento era vero e non l'ho nascosto:
+  `test_stress::test_sixty_years_of_the_whole_world_and_a_village_that_grows` ha superato il suo limite di 400 s
+  (**428 s**). Profilato (20 anni, stesso carico, fianco a fianco): 57,6 s la Fase 4, 65,8 s la Fase 5, quasi tutto nel
+  giorno della popolazione (1,71 → 2,50 ms): letti, mani, deposito e portata di un edificio ora dipendono dal livello
+  del quartiere, e ogni lettura cercava la definizione due volte e ne scorreva i livelli — anche nel ciclo «ogni casa
+  × ogni servizio» della copertura dei servizi, ogni giorno, per ogni insediamento. Corretto senza toccare la soglia
+  né un risultato:
+  - `BuildingDef.levels/has_levels`: le righe dei livelli risolte una volta al caricamento; un edificio senza livelli
+    (quasi tutti) risponde con il numero della sua definizione, con una sola ricerca;
+  - `PopulationSystem.service_coverage`: posizioni e portate dei servizi lette una volta al giorno, non una volta per
+    casa;
+  - `DistrictSystem` (chiesa, caserme, mercato): una ricerca di definizione per edificio.
+  Dopo: 20 anni in 58,2 s (popolazione 1,83 ms/giorno); `test_stress` da solo **366 s**, con gli **stessi
+  identici esiti** (336 abitanti, 296 edifici, 160 personaggi, 306 righe di cronaca).
+  Riverificate `test_districts`, `test_economy`, `test_founders`, `test_settlement`, `test_growth`, `test_nucleus`,
+  `test_balance`, `test_save`: 63 prove, 0 fallimenti, 2 saltate (le stesse).
+
+**Schermate** (`docs/rebirth/phase5/`): `p5_borough_900` (un borgo di 900: il vecchio villaggio attorno alla piazzola,
+un anello di isolati, le borgate agricole oltre), `p5_city_3000_far` (una città di 3 000 vista a 0,9 m/px nella sua
+valle: il centro, gli isolati, la campagna delle borgate verso il fiume), `p5_city_3000_close` (0,3 m/px: le vie
+condivise, le corti degli orti, la chiesa, il mercato, la gente nelle vie). Tutte con `--kd-scenario=district_city`.
+
+**Limiti dichiarati**
+- La gente dei quartieri resta fatta di persone vere (nomi, famiglie, età) nel salvataggio: una città di diecimila è
+  diecimila schede. È lecito (la simulazione aggregata le tratta in forma chiusa e il disegno non le mostra una per
+  una), ma i salvataggi crescono con la città; una rappresentazione per «famiglie di quartiere» è un lavoro più
+  profondo, non fatto qui.
+- I quartieri non si formano ancora da soli dalle case esistenti (il vecchio villaggio resta di case singole); e non
+  c'è ancora una grande strada maestra pianificata: gli isolati si accostano, le vie sono i loro margini.
+- I quartieri sono stati tarati per essere plausibili (letti, mani, costi), non ancora bilanciati in una campagna
+  lunga: la Fase 14 li misurerà con il pilota delle campagne.
+- Il castello e i monumenti della grande capitale sono la Fase 6.

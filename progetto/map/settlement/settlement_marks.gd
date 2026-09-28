@@ -108,6 +108,23 @@ func _draw_block(b: BuildingState, min_m: float, mpp: float) -> void:
 	var size := Vector2(maxf(fp.x, min_m), maxf(fp.y, min_m))
 	var rect := Rect2(b.pos - size * 0.5, size)
 	var unfinished := not b.is_active()
+	if b.is_district() and not unfinished and def.work_type() != &"farm":
+		# a quarter seen from afar: its lanes and the roofs along them, not one big slab (Rebirth, Phase 5)
+		var lay := DistrictPainter.layout(b)
+		for lane: Array in lay["lanes"]:
+			draw_line(lane[0], lane[1], ROAD, maxf(2.4, mpp * 1.2))
+		var k := 0
+		for piece: Array in lay["pieces"]:
+			k += 1
+			var big := String(piece[0]) in ["church", "barracks", "barracks_1", "storehouse", "storehouse_1", "granary", "granary_1"]
+			var roof_size := Vector2(maxf(9.0 if big else 5.6, min_m * 0.8), maxf(6.0 if big else 4.6, min_m * 0.7)) * float(piece[2])
+			var at: Vector2 = (piece[1] as Vector2) - Vector2(0.0, roof_size.y * 0.6)
+			var colour: Color = STONE if String(piece[0]) in ["church", "house_4"] else ROOFS[int(KDRng.hash01(b.id, k, 771) * ROOFS.size()) % ROOFS.size()]
+			var box := Rect2(at - roof_size * 0.5, roof_size)
+			draw_rect(Rect2(box.position + Vector2(mpp * 0.8, mpp * 0.8), box.size), Color(0.1, 0.08, 0.05, 0.35))
+			draw_rect(box, colour.darkened(0.18))
+			draw_rect(Rect2(box.position, Vector2(box.size.x, box.size.y * 0.5)), colour.lightened(0.08))
+		return
 	if def.work_type() == &"farm":
 		# the same strips the close zoom draws (FieldPainter), in flat colours, and the farmstead as a roof
 		FieldPainter.draw_flat(self, b, _month, 0.5 if unfinished else 1.0)

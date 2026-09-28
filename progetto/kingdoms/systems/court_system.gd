@@ -351,7 +351,7 @@ static func _ensure_king_person(session: GameSession, k: KingdomState, ruler: Ch
 		return
 	var keep: BuildingState = null
 	for b in world.buildings_of(settlement.id):
-		if b.is_active() and b.def().beds > 0:
+		if b.is_active() and b.beds() > 0:
 			keep = b
 			break
 	var p := PersonState.new()

@@ -17,6 +17,8 @@ const CATEGORIES: Array = [
 	[&"processing", "Produzione", &"smith"],
 	[&"infrastructure", "Infrastrutture", &"road"],
 	[&"military", "Militari", &"war"],
+	# Rebirth, Phase 5: the quarters of a town (dimmed with the reason until the town has the grade for them)
+	[&"district", "Quartieri", &"growth"],
 ]
 const DATA_TO_TAB := {&"storage": &"infrastructure"}
 const LIST_MAX_HEIGHT := 430.0
@@ -147,6 +149,8 @@ func show_category(cat: StringName) -> void:
 		if cat != &"" and entry[0] != cat:
 			continue
 		for d: BuildingDef in by_cat.get(entry[0], []):
+			if cat == &"" and d.is_district() and _locked(d) != "":
+				continue   # the whole list shows what can be built now; the Quartieri tab shows what is to come
 			_list.add_child(_entry(d))
 	refresh()
 	call_deferred("_fit")
@@ -289,12 +293,21 @@ func refresh() -> void:
 				label.add_theme_color_override("font_color", Color("#FF9A8A") if short else KDTheme.TEXT_LIGHT)
 		var btn: Button = _buttons[id]
 		var chosen := _build != null and _build.def_id == id
+		var locked := _locked(d)
+		if locked != "":
+			missing.append(locked)
 		btn.modulate = Color(1, 1, 1, 1) if missing.is_empty() else Color(0.85, 0.8, 0.76, 0.85)
 		# the hammer is lit when the building can be raised now, dim when something is missing
 		(btn.find_child("Hammer", true, false) as Control).modulate = Color(1, 1, 1, 1) if missing.is_empty() else Color(1, 1, 1, 0.35)
 		(btn.find_child("Name", true, false) as Label).add_theme_color_override("font_color",
 			Color("#FFE9A8") if chosen else KDTheme.TEXT_LIGHT)
 		btn.tooltip_text = tooltip_for(d, missing)
+
+
+## Why the settlement cannot have this building yet (its grade), or "".
+func _locked(d: BuildingDef) -> String:
+	var s := _settlement()
+	return Placement.tier_lock(Session.current.world, s, d) if s and Session.has_game() else ""
 
 
 ## What a building does, what it costs and where it can stand, in the rich tooltip.
@@ -312,6 +325,11 @@ static func tooltip_for(d: BuildingDef, missing: PackedStringArray) -> String:
 	for res: StringName in d.cost.keys():
 		facts.append([Defs.resource(res).display_name, "%d" % int(d.cost[res])])
 	out += KDTip.rows(facts)
+	if d.is_district():
+		var top := d.max_level()
+		var beds_top := int(d.level_value(&"beds", top, d.beds))
+		out += KDTip.note("Un isolato intero. Cresce da sé quando è pieno e la città ha il grado: fino al livello %d%s." % [
+			top, (", %d letti" % beds_top) if beds_top > 0 else ""])
 	var needs: Dictionary = d.requires
 	if needs.has("rocks_within_m"):
 		out += KDTip.note("Va costruita entro %d m da rocce affioranti%s." % [int(needs["rocks_within_m"]),

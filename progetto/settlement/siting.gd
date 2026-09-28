@@ -23,10 +23,12 @@ const STONE := &"stone"
 const MINE := &"mine"
 const MILITARY := &"military"
 const SEAT := &"seat"
+## A quarter of a town (Rebirth, Phase 5): a block of houses, workshops, stores… at the edge of what is built.
+const DISTRICT := &"district"
 
 ## How far from the chosen point the game may move a building, by role (metres).
 const RADIUS := {HOME: 20.0, CRAFT: 22.0, STORE: 22.0, SERVICE: 14.0, FIELD: 40.0, WOOD: 36.0, STONE: 36.0,
-	MINE: 36.0, MILITARY: 26.0, SEAT: 30.0}
+	MINE: 36.0, MILITARY: 26.0, SEAT: 30.0, DISTRICT: 50.0}
 const STEP_M := 2.0
 ## How much the player's point weighs: every metre away costs this much of the score.
 const W_CURSOR := 0.12
@@ -35,6 +37,8 @@ const CHECKED := 16
 
 
 static func role(def: BuildingDef) -> StringName:
+	if def.is_district():
+		return FIELD if def.district_kind() == &"farming" else DISTRICT
 	match def.id:
 		&"house":
 			return HOME
@@ -230,6 +234,9 @@ static func ring(role_id: StringName, people: int, square: float) -> Vector2:
 			return Vector2(30.0, 70.0 + 4.0 * grow)
 		FIELD:
 			return Vector2(45.0 + 1.5 * grow, 240.0 + 8.0 * grow)
+		DISTRICT:
+			# the quarters close round the old village, ring after ring (measured to their middle: a block is 40 m)
+			return Vector2(square + 45.0, 95.0 + 9.0 * grow)
 	return Vector2(0.0, 100000.0)
 
 
@@ -270,6 +277,29 @@ static func score(ctx: Dictionary, p: Vector2) -> float:
 		if n[1] == HOME and g < 12.0:
 			homes_near += 1
 	match r:
+		DISTRICT:
+			# a quarter shares its streets with the next one: blocks side by side and in line make a town, blocks
+			# with meadow between them make a scatter of islands
+			if gap < 2.5:
+				sc -= 1.2 * (2.5 - gap)
+			elif gap < 6.0:
+				sc += 2.2
+			elif gap < 14.0:
+				sc += 0.6
+			else:
+				sc -= 0.8
+			for i: int in around:
+				var nr: Rect2 = near[i][0]
+				if near[i][1] == DISTRICT or near[i][1] == FIELD:
+					if absf(nr.position.y - rect.position.y) < 2.0 or absf(nr.end.y - rect.end.y) < 2.0:
+						sc += 0.9
+						break
+			for i: int in around:
+				var nr: Rect2 = near[i][0]
+				if near[i][1] == DISTRICT and (absf(nr.position.x - rect.position.x) < 2.0 or absf(nr.end.x - rect.end.x) < 2.0):
+					sc += 0.7
+					break
+			sc -= 0.01 * dh   # the town stays round its heart
 		HOME, CRAFT, STORE, SERVICE, MILITARY, SEAT:
 			# the door on a way, never a way under the roof
 			var door := p + Vector2(0.0, fp.y * 0.5 + 0.8)

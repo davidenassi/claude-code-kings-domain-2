@@ -13,18 +13,24 @@ static func work_hours(session: GameSession) -> float:
 	return (float(bal.get("work_end_hour", 19)) - float(bal.get("work_start_hour", 6))) * TRAVEL_OVERHEAD
 
 
-static func day(session: GameSession, s: SettlementState) -> void:
+## With `quarters_only` only the people who live in the quarters of the town are counted (Rebirth, Phase 5: under
+## the eyes of the player everybody else walks their day hour by hour).
+static func day(session: GameSession, s: SettlementState, quarters_only: bool = false) -> void:
 	var world := session.world
 	var hours := work_hours(session)
 	var workers := {}      # building id -> [people]
 	var builders: Array[PersonState] = []
 	for p in world.people_of(s.id):
+		if quarters_only and not SettlementSim.in_quarter(world, p):
+			continue
 		if p.job == &"builder":
 			builders.append(p)
 		elif p.workplace >= 0:
 			var list: Array = workers.get(p.workplace, [])
 			list.append(p)
 			workers[p.workplace] = list
+	if quarters_only and workers.is_empty() and builders.is_empty():
+		return
 	for b in world.buildings_of(s.id):
 		if b.is_active():
 			_produce(session, s, b, workers.get(b.id, []), hours)

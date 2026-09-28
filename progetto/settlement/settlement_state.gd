@@ -46,7 +46,7 @@ func capacity(world: WorldState, group: StringName) -> int:
 		for b in world.buildings_of(id):
 			if b.is_active() and b.def().is_storage:
 				var g := b.def().storage_group
-				_capacity[g] = int(_capacity.get(g, 0)) + b.def().storage
+				_capacity[g] = int(_capacity.get(g, 0)) + b.storage()
 	var total := int(_capacity.get(&"all", 0))
 	if group != &"all":
 		total += int(_capacity.get(group, 0))
@@ -79,14 +79,29 @@ func space_for(world: WorldState, res: StringName) -> int:
 
 
 ## Label derived from the real population (never a button: it changes when the place changes).
+## The grade of a settlement by its people (Rebirth, Phase 5: balance settlement.json → tiers): nucleus, village,
+## large village, borough, city, great capital. {"id", "name", "from", "index"}.
+static func tier(people: int) -> Dictionary:
+	var tiers: Array = Defs.balance("settlement").get("tiers", [])
+	var out := {"id": &"nucleus", "name": "Nucleo", "from": 0, "index": 0}
+	for i in tiers.size():
+		var t: Dictionary = tiers[i]
+		if people >= int(t.get("from", 0)):
+			out = {"id": StringName(t["id"]), "name": String(t["name"]), "from": int(t["from"]), "index": i}
+	return out
+
+
+## The index of a tier id in the order of the grades (-1 when unknown).
+static func tier_index(id: StringName) -> int:
+	var tiers: Array = Defs.balance("settlement").get("tiers", [])
+	for i in tiers.size():
+		if StringName((tiers[i] as Dictionary).get("id", "")) == id:
+			return i
+	return -1
+
+
 func tier_name(people: int) -> String:
-	if people >= 400:
-		return "Città"
-	if people >= 120:
-		return "Borgo"
-	if people >= 30:
-		return "Villaggio"
-	return "Insediamento"
+	return String(tier(people)["name"])
 
 
 func amount(res: StringName) -> int:

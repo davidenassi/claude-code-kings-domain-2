@@ -182,7 +182,7 @@ static func site_for(session: GameSession, st: SettlementState, def_id: StringNa
 	var zone := zone_of(session, st, def_id)
 	var role := Siting.role(def)
 	var radius := Siting.radius_for(def)
-	if role in [Siting.HOME, Siting.SERVICE, Siting.CRAFT, Siting.STORE, Siting.MILITARY]:
+	if role in [Siting.HOME, Siting.SERVICE, Siting.CRAFT, Siting.STORE, Siting.MILITARY, Siting.DISTRICT]:
 		# the whole ring of the role round the square
 		var band := Siting.ring(role, session.world.people_of(st.id).size(), Nucleus.square_radius())
 		radius = maxf(radius, minf(band.y, 110.0))
@@ -199,6 +199,11 @@ static func site_for(session: GameSession, st: SettlementState, def_id: StringNa
 ## grows rings of use instead of a mix of house, field, house, field.
 static func zone_of(session: GameSession, st: SettlementState, def_id: StringName) -> Dictionary:
 	var fields := fields_direction(session.world, st)
+	var def := Defs.building(def_id)
+	if def and def.is_district() and def.district_kind() == &"farming":
+		# the farming hamlets go out with the fields, further as the town grows (Rebirth, Phase 5)
+		var grow := sqrt(float(maxi(session.world.people_of(st.id).size(), 6)))
+		return {"near": st.center + fields * (140.0 + 6.0 * grow), "min_r": 0.0}
 	match def_id:
 		&"well":
 			return {"near": st.center, "min_r": 12.0}

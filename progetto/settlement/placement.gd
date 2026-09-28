@@ -20,6 +20,11 @@ static func check(world: WorldState, settlement: SettlementState, def: BuildingD
 	if settlement == null:
 		out["reason"] = "Nessun insediamento."
 		return out
+	# Rebirth, Phase 5: the quarters of a town come with the town (settlement.json → tiers)
+	var locked := tier_lock(world, settlement, def)
+	if locked != "":
+		out["reason"] = locked
+		return out
 	var rect := Rect2(pos - def.footprint * 0.5, def.footprint)
 	# ground: land, own territory, gentle slope
 	var hmin := INF
@@ -103,6 +108,21 @@ static func check(world: WorldState, settlement: SettlementState, def: BuildingD
 	out["trees"] = trees
 	out["ok"] = true
 	return out
+
+
+## "" when the settlement is grown enough for the building, else why not ("Serve un Borgo: ora è un Villaggio").
+static func tier_lock(world: WorldState, settlement: SettlementState, def: BuildingDef) -> String:
+	var need := StringName(def.requires.get("tier", ""))
+	if need == &"" or settlement == null:
+		return ""
+	var people := world.people_of(settlement.id).size()
+	var now := SettlementState.tier(people)
+	var wanted := SettlementState.tier_index(need)
+	if int(now["index"]) >= wanted:
+		return ""
+	var tiers: Array = Defs.balance("settlement").get("tiers", [])
+	var t: Dictionary = tiers[wanted] if wanted >= 0 and wanted < tiers.size() else {}
+	return "Serve almeno un %s (%d abitanti): ora è un %s." % [String(t.get("name", need)), int(t.get("from", 0)), String(now["name"])]
 
 
 const ROAD_MIN_M := 4.0

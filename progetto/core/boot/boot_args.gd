@@ -22,6 +22,7 @@ extends RefCounted
 ##   --kd-load=<path>           start from that saved world instead of a new game
 ##   --kd-years=N               years of the pilot in the kingdom_grown scenario (default 20)
 ##   --kd-scenario=stress_city  a town of --kd-people=N inhabitants (default 1500) built at once (Phase 19)
+##   --kd-scenario=district_city  a town of --kd-people=N (default 3000) grown by quarters (Rebirth, Phase 5)
 ##   --kd-scenario=stress_war   every realm in arms and at war with its neighbours (Phase 19)
 ##   --kd-no-autosave           never write the automatic save of the year (screenshots and benchmarks never do)
 ##   --kd-benchmark=S           fly the camera for S seconds and print fps, draw calls and memory

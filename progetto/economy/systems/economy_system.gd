@@ -109,6 +109,7 @@ func run(session: GameSession, step: SimStep) -> void:
 			if s.kingdom == k.id:
 				trade += sell_surplus(session, k, s)
 				imports += buy_shortage(session, k, s)
+				trade += DistrictSystem.market_income(world, s)   # the markets of a town (Rebirth, Phase 5)
 		trade = KingdomModifiers.value(session, k.id, &"trade.income", trade)
 		var total := taxes + rents + trade - imports - wages - upkeep
 		k.treasury += total

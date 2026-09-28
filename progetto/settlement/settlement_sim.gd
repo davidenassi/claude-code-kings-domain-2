@@ -60,12 +60,24 @@ static func tick(session: GameSession) -> void:
 		var s := world.settlement(p.settlement)
 		if s == null or not is_detailed(session, s.id):
 			continue
+		if in_quarter(world, p):
+			continue   # the quarters live in closed form (SettlementAggregate, day by day)
 		var guard := 0
 		while p.busy_until <= now and guard < 10:
 			guard += 1
 			var t := maxf(p.busy_until, now - 1.0)
 			if not _finish(session, s, p, t):
 				_plan(session, s, p, t)
+
+
+## True when the person's home is a quarter of the town (Rebirth, Phase 5): thousands of people are not walked one by
+## one — their work is resolved day by day as for a town nobody watches, and the map shows the life of the quarter
+## as a crowd in its lanes (PeopleLayer).
+static func in_quarter(world: WorldState, p: PersonState) -> bool:
+	if p.home < 0:
+		return false
+	var h := world.building(p.home)
+	return h != null and h.is_district()
 
 
 ## True when at least one settlement is being watched hour by hour.
@@ -90,6 +102,9 @@ static func day(session: GameSession, abs_day: int) -> void:
 	for s in world.settlements:
 		if is_detailed(session, s.id):
 			_wake_people(session, s)
+			# who lives in a quarter of the town is not followed hour by hour even under the eyes of the player
+			# (Rebirth, Phase 5): their day is resolved in closed form, the rest of the town walks
+			SettlementAggregate.day(session, s, true)
 		else:
 			session.runtime["aggregated_%d" % s.id] = true
 			SettlementAggregate.day(session, s)
@@ -899,7 +914,9 @@ static func _plan_idle(world: WorldState, p: PersonState, t: float, home: Buildi
 	var anchor := home.pos if home else p.seg_to
 	# Rebirth, Phase 3: who has nothing to do lingers on the square of the fire, or goes to draw water
 	var hearth := Nucleus.hearth_of(world, s)
-	if hearth and (home == null or home.pos.distance_to(hearth.pos) <= float(Nucleus.balance().get("gather_home_m", 160.0))):
+	# the square of a small community is where its idle hands are; in a town they stay by their own door
+	if hearth and world.people_of(s.id).size() <= 60 \
+			and (home == null or home.pos.distance_to(hearth.pos) <= float(Nucleus.balance().get("gather_home_m", 160.0))):
 		anchor = hearth.pos + Vector2(0.0, -8.0)
 		var wp := Nucleus.water_point_of(world, s)
 		if wp and p.job != &"child" and _rand(p, t, 11) < float(Nucleus.balance().get("water_errand_chance", 0.18)):

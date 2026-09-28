@@ -155,3 +155,94 @@ static func weave_pacts(session: GameSession) -> Dictionary:
 				out[pact_id] = int(out.get(pact_id, 0)) + 1
 	return out
 
+
+
+## Rebirth, Phase 5: the player's settlement grown to about `people` inhabitants BY QUARTERS, as a town of the
+## Rebirth grows: the starter village, then, as the grades of the town allow them, quarters of houses for the
+## people, craftsmen, a market, a church, warehouses, soldiers and farming hamlets for the bread, each placed by the
+## same choice of the spot as the player's (Siting) and grown to the level the town allows. Returns
+## {"districts", "buildings", "people", "ms"}.
+const DISTRICT_MIX := [[&"district_farming", 380], [&"district_craft", 900], [&"district_production", 1300],
+	[&"district_market", 1600], [&"district_religious", 2200], [&"district_military", 3200]]
+
+
+static func grow_district_city(session: GameSession, people: int) -> Dictionary:
+	var world := session.world
+	var s := world.settlements[0]
+	var t0 := Time.get_ticks_usec()
+	s.add(&"wood", 5000000, &"other")
+	s.add(&"stone", 5000000, &"other")
+	SettlementPlanner.place_starter_village(session, s.id)
+	for b in world.buildings_of(s.id):
+		if not b.is_active():
+			b.status = BuildingState.Status.ACTIVE
+	world.buildings_changed()
+	var counts := {}
+	var districts := 0
+	var guard := 0
+	while world.people_of(s.id).size() < people and guard < 400:
+		guard += 1
+		var now := world.people_of(s.id).size()
+		# the next people arrive; when their beds run out quarters of houses are opened (nobody left in the square)
+		var batch := mini(people - now, 40 if now < 100 else 120)
+		var tries := 0
+		while PopulationSystem.free_beds(world, s) < batch and SettlementState.tier(now)["index"] >= 2 and tries < 4:
+			tries += 1
+			if _open_district(session, s, &"district_residential"):
+				districts += 1
+			_grow_districts(session, s)
+		for entry: Array in DISTRICT_MIX:
+			var id: StringName = entry[0]
+			var want := now / int(entry[1])
+			if int(counts.get(id, 0)) < want and _open_district(session, s, id):
+				counts[id] = int(counts.get(id, 0)) + 1
+				districts += 1
+		if SettlementState.tier(now)["index"] < 2:
+			# the village before its quarters: houses (the lord's own choice of the spot)
+			while PopulationSystem.free_beds(world, s) < batch:
+				var spot := SettlementPlanner.site_for(session, s, &"house")
+				if spot == Vector2.INF:
+					break
+				SettlementSetup._add_building(world, s, &"house", spot)
+		PopulationSystem.welcome(session, s, batch, world.day, "stress")
+		_grow_districts(session, s)
+	s.take(&"wood", maxi(s.amount(&"wood") - s.capacity(world, &"material") / 3, 0), &"other")
+	s.take(&"stone", maxi(s.amount(&"stone") - s.capacity(world, &"material") / 3, 0), &"other")
+	s.add(&"grain", s.space_for(world, &"grain") / 2, &"other")
+	s.add(&"bread", s.space_for(world, &"bread"), &"other")
+	s.add(&"bread", people * 100, &"other")
+	SettlementSim.mark_assignment_dirty(session, s.id)
+	return {"districts": districts, "buildings": world.buildings_of(s.id).size(), "people": world.people_of(s.id).size(),
+		"ms": (Time.get_ticks_usec() - t0) / 1000.0}
+
+
+static func _open_district(session: GameSession, s: SettlementState, id: StringName) -> bool:
+	var world := session.world
+	if Placement.tier_lock(world, s, Defs.building(id)) != "":
+		return false
+	var spot := SettlementPlanner.site_for(session, s, id)
+	if spot == Vector2.INF:
+		return false
+	var b := SettlementSetup._add_building(world, s, id, spot)
+	for t in b.trees_on_ground(SettlementSim.ground(world)):
+		world.terrain.fell(t, world.day, true)
+	return true
+
+
+## Every quarter at the level its town allows (as if the years had passed): full or not.
+static func _grow_districts(session: GameSession, s: SettlementState) -> void:
+	var world := session.world
+	var tier_now := int(SettlementState.tier(world.people_of(s.id).size())["index"])
+	for b in world.buildings_of(s.id):
+		if not b.is_active() or not b.is_district():
+			continue
+		var tiers: Array = b.def().district.get("tier_for_level", [])
+		var level := 1
+		for l in range(2, b.def().max_level() + 1):
+			var need := StringName(tiers[l - 1]) if l - 1 < tiers.size() else &""
+			if need == &"" or tier_now >= SettlementState.tier_index(need):
+				level = l
+		if level != b.level:
+			b.level = level
+			b.workers_wanted = b.workers()
+			world.buildings_changed()

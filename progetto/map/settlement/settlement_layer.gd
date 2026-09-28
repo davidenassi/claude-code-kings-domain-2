@@ -191,6 +191,11 @@ func _draw() -> void:
 	for b: BuildingState in list:
 		var def := b.def()
 		var look := visual_of(b)
+		if b.is_active() and b.is_district():
+			# a quarter of the town: the block it stands for (Rebirth, Phase 5)
+			for piece: Array in DistrictPainter.layout(b)["pieces"]:
+				_draw_sprite(StringName(piece[0]), piece[1], 1.0, 1.0, {"offset": Vector2.ZERO, "turn": 0.0, "scale": float(piece[2])})
+			continue
 		if b.is_active():
 			_draw_sprite(sprite_for(b, _month), b.pos, 1.0, 1.0, look)
 			continue
@@ -281,6 +286,9 @@ func _draw_ground() -> void:
 	if _fields_mesh and _fields_mesh.get_surface_count() > 0:
 		_ground.draw_mesh(_fields_mesh, null)
 	for b: BuildingState in list:
+		if b.is_active() and b.is_district():
+			_draw_district_ground(b)
+			continue
 		_draw_ground_patch(b)
 		if _stands_up(b):
 			var look := visual_of(b)
@@ -561,6 +569,30 @@ func _draw_square(s: SettlementState, people: int, has_hearth: bool = false) -> 
 	# the trodden middle, lighter and dustier
 	_ci.draw_texture_rect(blob, Rect2(s.center - Vector2(r * 0.7, r * 0.55), Vector2(r * 1.4, r * 1.1)), false,
 		Color(0.64, 0.55, 0.39, 0.45))
+
+
+## The ground of a quarter (Rebirth, Phase 5): its lanes of beaten earth, its square or yard, the shadows of its
+## buildings.
+func _draw_district_ground(b: BuildingState) -> void:
+	var lay := DistrictPainter.layout(b)
+	var blob := NucleusLayer.soft_blob()
+	var yard: Rect2 = lay["yard"]
+	if yard.has_area():
+		_ci.draw_texture_rect(blob, yard.grow(3.0), false, Color(0.60, 0.52, 0.37, 0.75))
+	for g: Rect2 in lay["gardens"]:
+		_draw_yard(g)
+	var style: Dictionary = ROAD_STYLES[mini(b.level, ROAD_STYLES.size() - 1)]
+	for lane: Array in lay["lanes"]:
+		_draw_track(lane[0], lane[1], 1.5, style["fill"], style["edge"], float(style["jitter"]), b.id + int((lane[0] as Vector2).x),
+			bool(style["ruts"]), 0.02)
+	for piece: Array in lay["pieces"]:
+		var s: Dictionary = _sprites.get(String(piece[0]), {})
+		if s.is_empty():
+			continue
+		var size: Array = s.get("size_m", [8.0, 8.0])
+		var sc := float(piece[2])
+		_draw_shadow((piece[1] as Vector2) + Vector2(0.0, -float(size[1]) * sc * 0.18), float(size[0]) * sc * 0.8,
+			float(size[1]) * sc * 0.8)
 
 
 ## The ground of the lived-in part of a settlement (Rebirth, Phase 4): the grass between the doors worn thin, the

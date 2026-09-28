@@ -108,6 +108,13 @@ static func props(world: WorldState) -> Array:
 				out.append([spot.y, String(want[0]), spot, KDRng.hash01(b.id, k, 5513) < 0.5])
 				break
 			k += 1
+	# the props of the quarters (Rebirth, Phase 5): the stalls of the market, the carts of the warehouses
+	for id: int in ids:
+		var b: BuildingState = world.buildings[id]
+		if b.is_road() or not b.is_active() or not b.is_district():
+			continue
+		for pr: Array in DistrictPainter.layout(b)["props"]:
+			out.append([(pr[1] as Vector2).y, String(pr[0]), pr[1], false])
 	# the market: stalls around the square of a settlement big enough to have one
 	for s in world.settlements:
 		var people := world.people_of(s.id).size()

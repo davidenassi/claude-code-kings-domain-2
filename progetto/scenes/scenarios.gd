@@ -81,12 +81,15 @@ static func apply(sess: GameSession, args: Dictionary, crown: Callable) -> void:
 		sess.world.player().treasury = 900.0
 		sess.submit(RecruitUnitCommand.create(village.id, &"lancieri"))
 		sess.advance_days(Military.unit(&"lancieri").train_days + 1)
-	if scenario.begins_with("stress_") and not sess.world.settlements.is_empty():
+	if (scenario.begins_with("stress_") or scenario == "district_city") and not sess.world.settlements.is_empty():
 		# Phase 19: worlds pushed past a normal campaign, for the frame rate under load (dev tooling, loaded
 		# only here): a town of --kd-people inhabitants, or every realm in arms and at war with its neighbours
 		var stress: GDScript = load("res://tests/stress/stress_worlds.gd")
 		if scenario == "stress_city":
 			stress.grow_city(sess, String(args.get("people", "1500")).to_int())
+		elif scenario == "district_city":
+			# Rebirth, Phase 5: a town of --kd-people grown by quarters
+			stress.grow_district_city(sess, String(args.get("people", "3000")).to_int())
 		elif scenario == "stress_war":
 			SettlementPlanner.place_starter_village(sess, sess.world.settlements[0].id)
 			stress.raise_wars(sess, 6)

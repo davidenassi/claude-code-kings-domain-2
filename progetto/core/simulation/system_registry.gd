@@ -12,6 +12,7 @@ static func register_all(session: GameSession) -> void:
 	sch.register(FamilySystem.new())
 	sch.register(PopulationSystem.new())
 	sch.register(CommunityMilestonesSystem.new())
+	sch.register(DistrictSystem.new())
 	sch.register(EconomySystem.new())
 	sch.register(ProvinceGrowthSystem.new())
 	sch.register(NationalSpiritSystem.new())

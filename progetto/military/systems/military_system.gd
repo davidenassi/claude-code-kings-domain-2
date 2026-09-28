@@ -43,6 +43,7 @@ func _train(session: GameSession, s: SettlementState, day: int) -> void:
 	for b in world.buildings_of(s.id):
 		if b.def().id == &"barracks" and b.is_active():
 			speed += float(cfg.get("training_speed_per_barracks", 1.0)) - 1.0 + 0.35
+	speed += DistrictSystem.training_bonus(world, s)   # the quarter of the soldiers (Rebirth, Phase 5)
 	var still: Array[Dictionary] = []
 	for t in s.training:
 		t["days_left"] = float(t["days_left"]) - speed

@@ -450,9 +450,9 @@ func _refresh_inspector() -> void:
 		lines.append("Costruttori al lavoro: %d" % builders.size())
 	else:
 		lines.append(def.description)
-		if def.beds > 0:
+		if b.beds() > 0:
 			var sleepers := world.people_of(b.settlement).filter(func(p: PersonState) -> bool: return p.home == b.id)
-			lines.append("Letti: %d/%d" % [sleepers.size(), def.beds])
+			lines.append("Letti: %d/%d" % [sleepers.size(), b.beds()])
 		match def.work_type():
 			&"farm":
 				lines.append("Grano nei campi: %d" % int(b.crop))

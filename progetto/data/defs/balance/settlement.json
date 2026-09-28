@@ -24,6 +24,15 @@
   "outcrop_rocks": [6, 14],
   "max_slope_m": 2.5,
   "site_clear_radius_m": 26.0,
+  "notes_tiers": "Rinascita, Fase 5: i gradi di un insediamento dal nucleo alla grande capitale (da quante persone). Dal villaggio sviluppato in su si costruiscono i quartieri (buildings.json, categoria district: requires.tier).",
+  "tiers": [
+    { "id": "nucleus", "name": "Nucleo", "from": 0 },
+    { "id": "village", "name": "Villaggio", "from": 20 },
+    { "id": "large_village", "name": "Villaggio sviluppato", "from": 100 },
+    { "id": "borough", "name": "Borgo", "from": 500 },
+    { "id": "city", "name": "Città", "from": 2000 },
+    { "id": "capital", "name": "Grande capitale", "from": 8000 }
+  ],
   "notes_nucleus": "Rinascita, Fase 3: il nucleo della comunità. La piazzola intorno al focolare resta libera; la sera chi abita vicino si siede attorno al fuoco (al massimo gather_max persone, scelte ogni sera); di giorno chi non ha lavoro va a prendere l'acqua al punto d'acqua, se il fiume è entro water_reach_m.",
   "nucleus": { "square_radius_m": 9.0, "store_back_m": 13.0, "gather_hours": 2.0, "gather_max": 12, "gather_home_m": 160.0,
                "water_reach_m": 260.0, "water_errand_chance": 0.18 },

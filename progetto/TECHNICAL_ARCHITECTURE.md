@@ -71,6 +71,23 @@ Documento di riferimento per ogni scelta tecnica; aggiornarlo quando una scelta 
 - Chi la usa: `BuildController` (il fantasma; Alt = posto esatto) e `SettlementPlanner.site_for` (villaggio di
   partenza e signore prudente; la ricerca ad anelli resta solo come ripiego).
 
+### 1.4 Gradi e quartieri (Rebirth, Fase 5)
+- `SettlementState.tier(people)` legge `settlement.json → tiers` (nucleo, villaggio, villaggio sviluppato, borgo, città,
+  grande capitale). `Placement.tier_lock` rifiuta un edificio con `requires.tier` finché la città non ha il grado.
+- **Quartieri**: edifici con `category: district` e un blocco `district` (`kind`, `levels` con beds / workers /
+  storage / service_radius_m / valori propri del tipo, `grow` = costo di ogni livello, `tier_for_level`).
+  `BuildingState.level` (salvato, 1 per ogni altro edificio) e `beds() / storage() / workers() / service_radius()`
+  sostituiscono i valori della definizione ovunque si contano letti, depositi, mani e portate.
+- `DistrictSystem` (mensile, ordine 27): crescita dei quartieri pieni (`try_grow`), cronaca dei gradi; espone
+  `trust_bonus` (chiesa → `PopulationSystem._trust`), `training_bonus` (→ `MilitarySystem._train`), `market_income`
+  (→ `EconomySystem`).
+- **Simulazione ibrida**: `SettlementSim.in_quarter(p)` (la casa è un quartiere) → la persona non è pianificata ora per
+  ora; `SettlementSim.day` risolve il loro giorno con `SettlementAggregate.day(session, s, quarters_only = true)` anche
+  quando la valle è osservata.
+- **Disegno**: `DistrictPainter.layout(b)` (vie, pezzi, cortile, orti, oggetti; in cache per id e livello) usato da
+  `SettlementLayer` (sprite e terreno), `SettlementMarks` (da lontano), `SettlementProps` (banchi, carri) e
+  `PeopleLayer` (la folla nelle vie; al massimo `MAX_FIGURES` figure disegnate).
+
 ---
 
 ## 2. Struttura del progetto

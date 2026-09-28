@@ -15,6 +15,12 @@ const DOT_PX := 7.0
 const FIGURE_M := 1.9
 const JOB_DOTS := {&"farmer": Color(0.85, 0.72, 0.35), &"woodcutter": Color(0.50, 0.36, 0.22),
 	&"builder": Color(0.80, 0.55, 0.30), &"quarrier": Color(0.66, 0.64, 0.60), &"child": Color(0.93, 0.86, 0.72)}
+## Rebirth, Phase 5: a town of thousands is not drawn person by person. At most this many figures are drawn (a
+## steady sample of the people in view), and the people of the quarters are shown as the life of their lanes: a
+## few figures per quarter, more for a fuller one.
+const MAX_FIGURES := 900
+const CROWD_PER_RESIDENTS := 8
+const CROWD_MAX := 12
 
 @export var camera_path: NodePath
 
@@ -120,7 +126,11 @@ func _draw() -> void:
 		var h := Nucleus.hearth_of(world, s)
 		if h:
 			fires[s.id] = h.pos
+	var in_quarters := {}   # district id -> how many live there
 	for p: PersonState in world.people.values():
+		if p.home >= 0 and SettlementSim.in_quarter(world, p):
+			in_quarters[p.home] = int(in_quarters.get(p.home, 0)) + 1
+			continue   # the crowd of the quarter stands for them (below)
 		if p.action == &"sleep" or p.action == &"bake":
 			continue   # indoors
 		if p.settlement < 0:
@@ -131,21 +141,37 @@ func _draw() -> void:
 			people.append(p)
 			spots.append(pos)
 	order.sort()
+	if order.size() > MAX_FIGURES:
+		# a steady sample: the same people every frame, spread over the whole view
+		var step := ceili(float(order.size()) / float(MAX_FIGURES))
+		order = order.filter(func(item: Array) -> bool: return int(item[1]) % step == 0)
+	var crowd := _crowd(world, in_quarters, hours, view)
+	for c: Array in crowd:
+		order.append([(c[0] as Vector2).y, -1, -1 - order.size(), c])
+	order.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
 	if as_dots:
 		for item: Array in order:
 			var i: int = item[2]
-			var pos := spots[i]
+			var pos: Vector2 = spots[i] if i >= 0 else (item[3][0] as Vector2)
 			draw_texture_rect(_disk, Rect2(pos - Vector2(1.4, 1.4) * mpp, Vector2(2.8, 2.8) * mpp), false, Color(0.12, 0.09, 0.06, 0.5))
 			draw_texture_rect(_disk, Rect2(pos - Vector2(1.0, 1.0) * mpp, Vector2(2.0, 2.0) * mpp), false,
-				JOB_DOTS.get(people[i].job, Color(0.78, 0.30, 0.24)))
+				JOB_DOTS.get(people[i].job, Color(0.78, 0.30, 0.24)) if i >= 0 else Color(0.70, 0.55, 0.40))
 		return
 	# every shadow first, then every figure: two batches instead of two per person
 	var shadow_size := Vector2(1.04, 0.40) * scale
 	for item: Array in order:
-		var feet := spots[int(item[2])] + Vector2(0.28, 0.06) * scale
+		var at: Vector2 = spots[int(item[2])] if int(item[2]) >= 0 else (item[3][0] as Vector2)
+		var feet := at + Vector2(0.28, 0.06) * scale
 		draw_texture_rect(_disk, Rect2(feet - shadow_size * 0.5, shadow_size), false, Color(0.10, 0.09, 0.06, 0.22))
+	var walk_looks := _looks(&"idle")
 	for item: Array in order:
 		var i: int = item[2]
+		if i < 0:
+			# somebody of a quarter, on its lanes
+			var c: Array = item[3]
+			var frame: String = walk_looks["walk"][int(_anim_time * 5.0 + float(c[2])) % 2]
+			_draw_one(frame, c[0], scale, float(c[1]), Color(0.95 + 0.1 * fmod(float(c[2]) * 0.37, 1.0), 0.95, 0.92))
+			continue
 		var p := people[i]
 		var pos := spots[i]
 		var dx := p.seg_to.x - p.seg_from.x
@@ -162,6 +188,34 @@ func _draw() -> void:
 		elif p.action == &"carry_water" and _src.has("load_water"):
 			# the bucket from the water point to the fire (Rebirth, Phase 3), carried at the side
 			_draw_one("load_water", pos + Vector2(0.42 * face, -0.55) * scale, scale * 0.9, face)
+
+
+## The people of the quarters in view, as figures walking up and down the lanes of their quarter: [[feet, facing,
+## seed], ...]. A few per quarter, more for a fuller one; their places come from the clock, not from the simulation.
+func _crowd(world: WorldState, in_quarters: Dictionary, hours: float, view: Rect2) -> Array:
+	var out: Array = []
+	for id: int in in_quarters.keys():
+		var b := world.building(id)
+		if b == null or not view.grow(40.0).intersects(b.rect()):
+			continue
+		var lanes := DistrictPainter.lanes(b)
+		if lanes.is_empty():
+			continue
+		var n := mini(2 + int(in_quarters[id]) / CROWD_PER_RESIDENTS, CROWD_MAX)
+		for k in n:
+			var lane: Array = lanes[k % lanes.size()]
+			var speed := 0.018 + 0.012 * KDRng.hash01(id, k, 6203)
+			var t := fposmod(hours * speed * 60.0 + KDRng.hash01(id, k, 6204), 2.0)
+			var going := t < 1.0
+			var u := t if going else 2.0 - t
+			var a: Vector2 = lane[0]
+			var z: Vector2 = lane[1]
+			var side := Vector2(-(z - a).normalized().y, (z - a).normalized().x) * (KDRng.hash01(id, k, 6205) - 0.5) * 2.0
+			var feet := a.lerp(z, u) + side
+			if view.has_point(feet):
+				var dir := (z - a).x * (1.0 if going else -1.0)
+				out.append([feet, 1.0 if dir >= 0.0 else -1.0, float(id * 31 + k)])
+	return out
 
 
 func _tint_of(p: PersonState) -> Color:

@@ -26,6 +26,13 @@ var requires: Dictionary = {}
 @export var sprite: StringName = &""
 ## Line buildings (roads) are placed with two points instead of a footprint.
 @export var is_line: bool = false
+## Districts (Rebirth, Phase 5): {"kind", "levels": [{beds, workers, storage, service_radius_m, ...}, ...],
+## "grow": [{} , {cost of level 2}, {cost of level 3}], "tier_for_level": ["", "borough", "city"]}.
+var district: Dictionary = {}
+## The rows of the levels, resolved once at load: the accessors of a building (beds, hands, reach…) run in the
+## daily loops of every town, and most buildings have no levels at all.
+var levels: Array = []
+var has_levels: bool = false
 
 
 func load_from(d: Dictionary, errors: PackedStringArray) -> void:
@@ -50,6 +57,9 @@ func load_from(d: Dictionary, errors: PackedStringArray) -> void:
 	service_radius_m = float(d.get("service_radius_m", 0.0))
 	sprite = StringName(d.get("sprite", String(id)))
 	is_line = String(d.get("shape", "")) == "line"
+	district = d.get("district", {})
+	levels = district.get("levels", [])
+	has_levels = not levels.is_empty()
 	if footprint.x <= 0.0 or footprint.y <= 0.0:
 		errors.append("building %s: invalid footprint" % id)
 	if job != &"" and not JOBS.has(job):
@@ -64,6 +74,27 @@ func load_from(d: Dictionary, errors: PackedStringArray) -> void:
 
 func work_type() -> StringName:
 	return StringName(work.get("type", ""))
+
+
+func is_district() -> bool:
+	return not district.is_empty()
+
+
+func district_kind() -> StringName:
+	return StringName(district.get("kind", ""))
+
+
+func max_level() -> int:
+	return maxi(levels.size(), 1)
+
+
+## A number of this building at a level of its district (beds, workers, storage…), or `fallback` when the
+## definition does not change it by level.
+func level_value(key: StringName, level: int, fallback: Variant) -> Variant:
+	if not has_levels:
+		return fallback
+	var row: Dictionary = levels[clampi(level, 1, levels.size()) - 1]
+	return row.get(String(key), fallback)
 
 
 ## Footprint size after a rotation of 0/90/180/270 degrees (quarter turns).

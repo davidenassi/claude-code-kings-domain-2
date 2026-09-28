@@ -270,6 +270,38 @@ def house_stone():
     return house(h=2.7, rise=3.0, wall="#9C958A", roof_col="#5E6670", kind="shingle", extra=extra, front_gable=True)
 
 
+def church():
+    """The church of a borough (Rebirth, Phase 5): a stone nave with a slate roof, a bell tower at the front, a round
+    window over the door. Footprint 16 x 10 m, the tower on the left."""
+    fw, fd = 16.0, 10.0
+    b = B(fw, fd, 15.5 * ZK + 3.0)
+    b.ground("#8B8067", 0.8, 0.8)
+    c = b.c
+    # the nave: long walls along x, gable roof
+    nx0, nx1, yb, yf = b.x0 + 4.4, b.x1 - 0.6, b.y0 + 1.6, b.y1 - 1.2
+    b.shadow(b.x0 + 0.6, yb, nx1, yf, 9.0, 0.32)
+    b.wall(nx0, nx1, yf, 4.6, "#A39C8E", planks=False)
+    for wx in np.linspace(nx0 + 1.6, nx1 - 1.6, 4):
+        # tall narrow windows with round heads
+        b.window(wx, yf - 4.6 * ZK * 0.55, 0.55, 1.3)
+    b.roof(nx0, nx1, yb, yf, 4.6, 3.4, "#5C6168", "shingle", 0.4)
+    # the tower at the front left, taller, with its pointed roof and the bell opening
+    tx0, tx1, ty1 = b.x0 + 0.8, b.x0 + 4.8, b.y1 - 0.6
+    b.wall(tx0, tx1, ty1, 10.5, "#9A9384", planks=False)
+    b.window((tx0 + tx1) * 0.5, ty1 - 10.5 * ZK * 0.82, 1.0, 1.1)   # the bell chamber
+    b.window((tx0 + tx1) * 0.5, ty1 - 10.5 * ZK * 0.45, 0.45, 1.0)
+    b.door((tx0 + tx1) * 0.5, ty1, 1.5, 2.6, "#4A3524")
+    top = ty1 - 10.5 * ZK
+    spire = poly_mask(c, [(tx0 - 0.3, top + 0.2), (tx1 + 0.3, top + 0.2), ((tx0 + tx1) * 0.5, top - 4.6)])
+    shade_sp = np.clip(1.15 - 0.6 * (c.x - tx0) / max(tx1 - tx0, 0.1), 0.6, 1.15)
+    c.over(spire, hexc("#565B62")[None, None, :] * shade_sp[..., None])
+    # the cross on the spire
+    cx = (tx0 + tx1) * 0.5
+    c.over(poly_mask(c, [(cx - 0.06, top - 4.5), (cx + 0.06, top - 4.5), (cx + 0.06, top - 5.6), (cx - 0.06, top - 5.6)]), hexc("#3A2E24"))
+    c.over(poly_mask(c, [(cx - 0.35, top - 5.15), (cx + 0.35, top - 5.15), (cx + 0.35, top - 5.27), (cx - 0.35, top - 5.27)]), hexc("#3A2E24"))
+    return b
+
+
 def keep():
     fw = fd = 14.0
     b = B(fw, fd, 13.0 * ZK + 3.0)
@@ -557,6 +589,7 @@ def site(fw, fd):
 
 SPRITES = {
     "keep": keep, "shelter": shelter, "camp_store": camp_store, "house": house, "woodcutter": woodcutter,
+    "church": church,
     "quarry": quarry, "bakery": bakery,
     # the same house three ways, on the same 8x8 footprint: a village of identical clones reads as a prototype
     "house_1": lambda: house(wall="#A08560", roof_col="#8E4E36", kind="shingle", front_gable=False),

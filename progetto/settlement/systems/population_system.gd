@@ -113,27 +113,30 @@ static func free_beds(world: WorldState, s: SettlementState) -> int:
 	var beds := 0
 	for b in world.buildings_of(s.id):
 		if b.is_active():
-			beds += b.def().beds
+			beds += b.beds()
 	return beds - world.people_of(s.id).size()
 
 
 ## Share of the homes that have a service (a well, a chapel, a bakery…) within its reach.
 static func service_coverage(world: WorldState, s: SettlementState) -> float:
-	var services: Array[BuildingState] = []
-	var homes: Array[BuildingState] = []
+	var spots := PackedVector2Array()
+	var reach := PackedFloat32Array()   # the reach of every service, read once (not once per home)
+	var homes := PackedVector2Array()
 	for b in world.buildings_of(s.id):
 		if not b.is_active():
 			continue
-		if b.def().service_radius_m > 0.0:
-			services.append(b)
-		if b.def().beds > 0:
-			homes.append(b)
-	if homes.is_empty() or services.is_empty():
+		var r := b.service_radius()
+		if r > 0.0:
+			spots.append(b.pos)
+			reach.append(r)
+		if b.beds() > 0:
+			homes.append(b.pos)
+	if homes.is_empty() or spots.is_empty():
 		return 0.0
 	var served := 0
-	for b in homes:
-		for w in services:
-			if w.pos.distance_to(b.pos) <= w.def().service_radius_m:
+	for h in homes:
+		for i in spots.size():
+			if h.distance_to(spots[i]) <= reach[i]:
 				served += 1
 				break
 	return float(served) / float(homes.size())
@@ -305,7 +308,10 @@ static func welcome(session: GameSession, s: SettlementState, n: int, day: int, 
 	var names: Dictionary = (Defs.read_json("res://data/defs/person_names.json") as Dictionary)["cultures"]
 	var realm := world.kingdom(s.kingdom)
 	var pool: Dictionary = names.get(String(realm.culture), names["latin"])
-	var home := _free_home(world, s)
+	# who sleeps where, counted once for the whole batch (Rebirth, Phase 5: a town of thousands welcomed one by one
+	# counted every bed of the town for every newcomer)
+	var used := _beds_used(world, s)
+	var home := _free_home(world, s, used)
 	var arrived := PackedStringArray()
 	for i in n:
 		var p := PersonState.new()
@@ -335,7 +341,9 @@ static func welcome(session: GameSession, s: SettlementState, n: int, day: int, 
 			p.born_family = f.id
 		world.add_person(p)
 		arrived.append(SettlementSetup.full_name(world, p))
-		home = _free_home(world, s)
+		if home:
+			used[home.id] = int(used.get(home.id, 0)) + 1
+		home = _free_home(world, s, used)
 	if arrived.is_empty():
 		return 0
 	EventBus.notify_local("Viandanti a %s" % s.name, "%s %s." % [", ".join(arrived), why], &"travellers", s.center)
@@ -553,13 +561,19 @@ static func _room_elsewhere(world: WorldState, from: SettlementState, min_food_d
 ## The first house (in the order of the buildings) with a bed nobody sleeps in. The beds in use are counted once,
 ## not once per house (Phase 19: every house walked every inhabitant — in a town of a thousand the newcomers of
 ## one caravan cost a second and more).
-static func _free_home(world: WorldState, s: SettlementState) -> BuildingState:
+static func _beds_used(world: WorldState, s: SettlementState) -> Dictionary:
 	var used := {}
 	for p in world.people_of(s.id):
 		if p.home >= 0:
 			used[p.home] = int(used.get(p.home, 0)) + 1
+	return used
+
+
+static func _free_home(world: WorldState, s: SettlementState, used: Dictionary = {}) -> BuildingState:
+	if used.is_empty():
+		used = _beds_used(world, s)
 	for b in world.buildings_of(s.id):
-		if b.is_active() and b.def().beds > 0 and int(used.get(b.id, 0)) < b.def().beds:
+		if b.is_active() and b.beds() > 0 and int(used.get(b.id, 0)) < b.beds():
 			return b
 	return null
 
@@ -602,6 +616,9 @@ func _trust(session: GameSession, s: SettlementState, day: int) -> void:
 	var coverage := service_coverage(world, s)
 	if coverage > 0.0:
 		parts["Servizi"] = float(cfg.get("service_bonus", 8.0)) * coverage
+	var faith := DistrictSystem.trust_bonus(world, s)   # the church of the town (Rebirth, Phase 5)
+	if faith > 0.0:
+		parts["Chiesa"] = faith
 	var memory := int(cfg.get("death_memory_days", 60))
 	var recent := PackedInt32Array()
 	for d in s.recent_deaths:

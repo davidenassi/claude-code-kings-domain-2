@@ -26,10 +26,37 @@ var work_required: float = 0.0
 ## Roads only: the two ends of the segment (pos is the midpoint).
 var a: Vector2 = Vector2.ZERO
 var b: Vector2 = Vector2.ZERO
+## Districts (Rebirth, Phase 5): how far the quarter has grown, 1 to the last level of its definition.
+var level: int = 1
 
 
 func def() -> BuildingDef:
 	return Defs.building(def_id)
+
+
+## Beds, storage and hands of this building at its level (a district grows; any other building is its definition).
+func beds() -> int:
+	var d := def()
+	return int(d.level_value(&"beds", level, d.beds)) if d.has_levels else d.beds
+
+
+func storage() -> int:
+	var d := def()
+	return int(d.level_value(&"storage", level, d.storage)) if d.has_levels else d.storage
+
+
+func workers() -> int:
+	var d := def()
+	return int(d.level_value(&"workers", level, d.workers)) if d.has_levels else d.workers
+
+
+func service_radius() -> float:
+	var d := def()
+	return float(d.level_value(&"service_radius_m", level, d.service_radius_m)) if d.has_levels else d.service_radius_m
+
+
+func is_district() -> bool:
+	return def().is_district()
 
 
 func is_road() -> bool:
@@ -101,7 +128,8 @@ func to_dict() -> Dictionary:
 		dl[String(k)] = delivered[k]
 	return {"id": id, "def": String(def_id), "settlement": settlement, "x": pos.x, "y": pos.y,
 		"status": "active" if status == Status.ACTIVE else "site", "delivered": dl, "work_done": work_done,
-		"workers_wanted": workers_wanted, "crop": crop, "placed_day": placed_day, "work_required": work_required, "a": [a.x, a.y], "b": [b.x, b.y]}
+		"workers_wanted": workers_wanted, "crop": crop, "placed_day": placed_day, "work_required": work_required, "a": [a.x, a.y], "b": [b.x, b.y],
+		"level": level}
 
 
 static func from_dict(d: Dictionary) -> BuildingState:
@@ -122,5 +150,6 @@ static func from_dict(d: Dictionary) -> BuildingState:
 	var pb: Array = d.get("b", [0, 0])
 	b.a = Vector2(float(pa[0]), float(pa[1]))
 	b.b = Vector2(float(pb[0]), float(pb[1]))
+	b.level = int(d.get("level", 1))
 	return b
 
