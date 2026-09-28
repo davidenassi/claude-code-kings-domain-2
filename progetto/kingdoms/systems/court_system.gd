@@ -783,7 +783,7 @@ static func _raise_royal_seat(session: GameSession, k: KingdomState, home: Settl
 	if spot == Vector2.INF:
 		return
 	var keep := SettlementSetup._add_building(world, home, &"keep", spot)
-	for t in LocalFeatures.trees_in_rect(WorldData.get_instance(), keep.rect().grow(1.0)):
+	for t in LocalFeatures.trees_in_rect(SettlementSim.ground(session.world), keep.rect().grow(1.0)):
 		world.terrain.fell(t, world.day, true)
 	ruler_person.home = keep.id
 	var spouse := world.person(ruler_person.spouse) if ruler_person.spouse >= 0 else null

@@ -15,7 +15,12 @@ signal year_passed(day: int, year: int)
 signal speed_changed(speed_index: int)
 
 # --- notifications for the UI ---
-signal notification(title: String, text: String, kind: StringName, world_pos: Vector2)
+## `world_pos` is Vector2.INF when the news has no place; `space` says which map the place is on (Rebirth: the
+## valley of the homeland, SPACE_LOCAL, or the continent, SPACE_GLOBAL).
+signal notification(title: String, text: String, kind: StringName, world_pos: Vector2, space: StringName)
+
+const SPACE_GLOBAL := &"global"
+const SPACE_LOCAL := &"local"
 
 # --- world facts (extended in later phases) ---
 signal province_owner_changed(province_id: int, old_owner: int, new_owner: int, reason: StringName)
@@ -37,6 +42,12 @@ signal battle_changed(battle_id: int)
 signal event_raised(event_id: String)
 
 
-func notify(title: String, text: String, kind: StringName = &"info", world_pos: Vector2 = Vector2.INF) -> void:
-	notification.emit(title, text, kind, world_pos)
+func notify(title: String, text: String, kind: StringName = &"info", world_pos: Vector2 = Vector2.INF,
+		space: StringName = SPACE_GLOBAL) -> void:
+	notification.emit(title, text, kind, world_pos, space)
+
+
+## News from the valley: the place is in the local metres of the homeland.
+func notify_local(title: String, text: String, kind: StringName, local_pos: Vector2) -> void:
+	notification.emit(title, text, kind, local_pos, SPACE_LOCAL)
 

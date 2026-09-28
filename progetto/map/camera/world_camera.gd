@@ -1,11 +1,16 @@
 class_name WorldCamera
 extends Camera2D
-## Continuous-zoom camera over the single world. Zoom is expressed in metres per screen pixel.
+## Continuous-zoom camera over one map. Zoom is expressed in metres per screen pixel.
+## Rebirth: each map has its own camera and its own limits (LocalView: from the people to the whole valley, never
+## the continent; GlobalView: from the provinces to the continent, never the houses). With `keep_view_inside` the
+## whole visible rectangle stays inside `world_bounds` (plus `edge_margin_m`), not only its centre.
 ## Wheel zooms towards the cursor; WASD/arrows pan; middle or right mouse button drags.
 ## Positions exposed by this class are WORLD coordinates; the node itself is placed relative to the
 ## WorldView floating origin.
 
 signal view_changed
+## The player asked for more distance than this map allows (the local map never becomes the world map).
+signal zoom_out_blocked
 
 @export var min_meters_per_pixel: float = 0.04
 @export var max_meters_per_pixel: float = 80.0
@@ -16,6 +21,17 @@ signal view_changed
 ## World rectangle the camera centre is kept inside (metres).
 var world_bounds: Rect2 = Rect2(0, 0, 112000, 72000)
 var world_view: WorldView = null
+## Keep the whole view inside world_bounds (grown by edge_margin_m) instead of only its centre.
+var keep_view_inside := false
+var edge_margin_m := 0.0
+
+
+## The zoom range of this map (metres per pixel).
+func set_limits(min_mpp: float, max_mpp: float) -> void:
+	min_meters_per_pixel = min_mpp
+	max_meters_per_pixel = max_mpp
+	_target_mpp = clampf(_target_mpp, min_mpp, max_mpp)
+	_mpp = clampf(_mpp, min_mpp, max_mpp)
 
 var _target_mpp: float = 30.0
 var _mpp: float = 30.0
@@ -49,6 +65,7 @@ func focus_on(world_pos: Vector2, mpp: float = -1.0, instant: bool = false) -> v
 	_zoom_anchor_world = Vector2.INF
 	if instant:
 		_mpp = _target_mpp
+		_target_pos = _clamp_center(_target_pos)
 		_pos = _target_pos
 		_apply()
 		view_changed.emit()
@@ -75,6 +92,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		var mb := event as InputEventMouseButton
 		if mb.pressed and (mb.button_index == MOUSE_BUTTON_WHEEL_UP or mb.button_index == MOUSE_BUTTON_WHEEL_DOWN):
 			var factor := 1.0 / wheel_step if mb.button_index == MOUSE_BUTTON_WHEEL_UP else wheel_step
+			if factor > 1.0 and _target_mpp >= max_meters_per_pixel * 0.999:
+				zoom_out_blocked.emit()
 			_zoom_by(factor, mb.position)
 			get_viewport().set_input_as_handled()
 		elif mb.button_index == MOUSE_BUTTON_MIDDLE or mb.button_index == MOUSE_BUTTON_RIGHT:
@@ -131,13 +150,27 @@ func _process(delta: float) -> void:
 			_pos = _target_pos
 		moved = true
 
-	var clamped := _pos.clamp(world_bounds.position, world_bounds.end)
+	var clamped := _clamp_center(_pos)
 	if clamped != _pos:
 		_pos = clamped
-		_target_pos = _target_pos.clamp(world_bounds.position, world_bounds.end)
+		_target_pos = _clamp_center(_target_pos)
 	if moved:
 		_apply()
 		view_changed.emit()
+
+
+## Where the centre may be: inside the bounds, or — keeping the view inside — far enough from their edges.
+func _clamp_center(p: Vector2) -> Vector2:
+	if not keep_view_inside:
+		return p.clamp(world_bounds.position, world_bounds.end)
+	var half := get_viewport_rect().size * _mpp * 0.5
+	var area := world_bounds.grow(edge_margin_m)
+	var out := p
+	for axis in 2:
+		var lo := area.position[axis] + half[axis]
+		var hi := area.end[axis] - half[axis]
+		out[axis] = (area.position[axis] + area.end[axis]) * 0.5 if lo > hi else clampf(p[axis], lo, hi)
+	return out
 
 
 func _apply() -> void:

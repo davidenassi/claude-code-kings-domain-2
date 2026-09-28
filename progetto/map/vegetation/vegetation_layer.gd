@@ -18,6 +18,9 @@ const MAX_DIRTY_PER_FRAME := 2
 const TYPICAL_SIZE_M := {"singles": 8.0, "clusters": 22.0}
 
 @export var camera_path: NodePath
+## Which map these woods belong to (Rebirth). LOCAL: the valley, with its felled trees, its outcrops and the
+## clearings around the buildings; GLOBAL: the continent, woods only (no buildings, no rocks: they are the valley's).
+@export var space: StringName = MapSpace.GLOBAL
 
 var _camera: WorldCamera
 var _wd: WorldData
@@ -38,7 +41,7 @@ var _boulders: Array = []
 
 func _ready() -> void:
 	_camera = get_node_or_null(camera_path) as WorldCamera
-	_wd = WorldData.get_instance()
+	_wd = MapSpace.data(space)
 	_cfg = Defs.read_json("res://data/defs/vegetation.json")
 	var meta: Dictionary = Defs.read_json(ATLAS_DIR + "/vegetation_atlas.json")
 	_atlas = load(ATLAS_DIR + "/" + String(meta["atlas"]))
@@ -69,7 +72,8 @@ func _ready() -> void:
 		_bands.append({"cfg": band_cfg, "node": node, "material": mat, "chunks": {}, "dirty": {}, "base": {}})
 	_stumps = _by_species.get(&"stump", [])
 	_boulders = _by_species.get(&"boulder", [])
-	EventBus.terrain_changed.connect(_on_terrain_changed)
+	if MapSpace.is_local(space):
+		EventBus.terrain_changed.connect(_on_terrain_changed)
 	EventBus.session_started.connect(func(_s: GameSession) -> void: _clear_all())
 	EventBus.session_loaded.connect(func(_s: GameSession) -> void: _clear_all())
 
@@ -87,6 +91,7 @@ func _on_terrain_changed(pos: Vector2) -> void:
 
 
 func _clear_all() -> void:
+	_wd = MapSpace.data(space)   # another campaign can be another valley
 	for band in _bands:
 		for key in (band["chunks"] as Dictionary).keys():
 			var n: Node = band["chunks"][key]
@@ -94,6 +99,7 @@ func _clear_all() -> void:
 				n.queue_free()
 		(band["chunks"] as Dictionary).clear()
 		(band["dirty"] as Dictionary).clear()
+		(band["base"] as Dictionary).clear()
 
 
 func _weight_table(src: Dictionary) -> Dictionary:
@@ -129,7 +135,7 @@ static func make_quad() -> ArrayMesh:
 
 
 func _process(_delta: float) -> void:
-	if _camera == null:
+	if _camera == null or _wd == null:
 		return
 	var mpp := _camera.meters_per_pixel()
 	var view := _camera.visible_world_rect()
@@ -274,18 +280,19 @@ func _base_items(band: Dictionary, key: Vector2i) -> Array:
 					continue
 				var h3 := KDRng.hash01(gx, gy, salt + 2)
 				var jitter := Vector2(KDRng.hash01(gx, gy, salt + 3) - 0.5, KDRng.hash01(gx, gy, salt + 4) - 0.5) * 70.0
-				var dens := _wd.canopy_smooth(pos + jitter) + LocalFeatures.margin_noise(pos)
+				var npos := pos + _wd.feature_origin   # the woods have the continent's shape (LocalFeatures)
+				var dens := _wd.canopy_smooth(pos + jitter) + LocalFeatures.margin_noise(npos)
 				# a wood has glades, thick cores and ragged margins: the same shape the single trees of the close
 				# zoom follow (LocalFeatures), so nothing jumps when the camera comes down
-				var p := smoothstep(0.10, 0.55, dens) * bias * LocalFeatures.glade_factor(pos) \
-					+ LocalFeatures.grove_chance(pos) * 0.5
+				var p := smoothstep(0.10, 0.55, dens) * bias * LocalFeatures.glade_factor(npos) \
+					+ LocalFeatures.grove_chance(npos) * 0.5
 				if h3 >= p:
 					continue
 				var sprite := _pick_sprite(table, _wd.biome_at(pos), KDRng.hash01(gx, gy, salt + 5), KDRng.hash01(gx, gy, salt + 6))
 				if sprite < 0:
 					continue
 				# and its crowns come in stands of one tone, darker or lighter, not one tint per tree
-				var stand := value_noise(pos, 260.0, 457)
+				var stand := value_noise(npos, 260.0, 457)
 				var shade := 0.35 * KDRng.hash01(gx, gy, salt + 9) + 0.40 * stand + 0.25 * clampf(1.2 - dens * 1.3, 0.0, 1.0)
 				out.append([pos, sprite, shade, _wd.moisture_smooth(pos)])
 	cache[key] = out
@@ -299,7 +306,8 @@ func _build_chunk(band: Dictionary, key: Vector2i) -> Node2D:
 	var close := String(cfg.get("sprites", "singles")) == "singles"
 	var origin := Vector2(key) * cs
 	var chunk_rect := Rect2(origin, Vector2(cs, cs))
-	var world: WorldState = Session.current.world if Session.has_game() else null
+	# only the valley knows its buildings, its felled trees and its quarried rocks (they are in its metres)
+	var world: WorldState = Session.current.world if Session.has_game() and MapSpace.is_local(space) else null
 	var footprints: Array[Rect2] = []
 	# the woods keep away from the houses: clusters are drawn bigger than the trees they stand for, and one
 	# of them next to a village covered it whole at mid zoom (Phase 18 audit). Yards, gardens and pastures
@@ -348,8 +356,8 @@ func _build_chunk(band: Dictionary, key: Vector2i) -> Node2D:
 					continue
 			items.append([pos.y, pos, base[1], base[2], base[3], 1.0])
 	# quarriable outcrops (close and mid zoom), smaller as they are worked
-	if spacing <= 64.0 and not _boulders.is_empty():
-		for r in LocalFeatures.outcrops_in_rect(chunk_rect):
+	if spacing <= 64.0 and not _boulders.is_empty() and MapSpace.is_local(space):
+		for r in LocalFeatures.outcrops_in_rect(_wd, chunk_rect):
 			var left := int(r["charges"]) if world == null else world.terrain.rock_charges_left(r)
 			if left <= 0:
 				continue

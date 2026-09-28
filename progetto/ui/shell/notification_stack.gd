@@ -29,14 +29,16 @@ const KIND_ICONS := {
 ## News of the village that does not need a card of its own.
 const MINOR_KINDS := [&"birth", &"building", &"travellers"]
 
-var _camera: WorldCamera
+## Takes the player to a place: goto(position, space), where space is EventBus.SPACE_LOCAL (the valley) or
+## EventBus.SPACE_GLOBAL (the continent). Empty when nobody can move the camera (tests).
+var _goto: Callable = Callable()
 ## [{card, age (real seconds, for the fade in), day, life, when (Label)}]
 var _cards: Array[Dictionary] = []
 var _tick := 0.0
 
 
-func setup(camera: WorldCamera) -> void:
-	_camera = camera
+func setup(goto: Callable) -> void:
+	_goto = goto
 
 
 func _ready() -> void:
@@ -79,7 +81,7 @@ static func when_text(days: int) -> String:
 	return "un mese fa" if months == 1 else "%d mesi fa" % months
 
 
-func _on_notification(title: String, text: String, kind: StringName, world_pos: Vector2) -> void:
+func _on_notification(title: String, text: String, kind: StringName, world_pos: Vector2, space: StringName) -> void:
 	var minor := kind in MINOR_KINDS
 	var colour := Color.html(String(KIND_COLORS.get(kind, "#E9D8A6")))
 	var card := PanelContainer.new()
@@ -134,7 +136,7 @@ func _on_notification(title: String, text: String, kind: StringName, world_pos: 
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.custom_minimum_size = Vector2(WIDTH - 30.0, 0)
 	body.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var here := world_pos != Vector2.INF and _camera != null
+	var here := world_pos != Vector2.INF and _goto.is_valid()
 	if here:
 		var go := Button.new()
 		go.text = "Vai sul posto"
@@ -142,7 +144,7 @@ func _on_notification(title: String, text: String, kind: StringName, world_pos: 
 		go.add_theme_font_size_override("font_size", 14)
 		go.size_flags_horizontal = Control.SIZE_SHRINK_END
 		KDTheme.button_styles(go)
-		go.pressed.connect(func() -> void: _camera.focus_on(world_pos, _camera.meters_per_pixel(), false))
+		go.pressed.connect(func() -> void: _goto.call(world_pos, space))
 		detail.add_child(go)
 	card.tooltip_text = "%s\n%s\nClic: %s" % [title, text, "leggi tutto e vai sul posto" if here else "leggi tutto"]
 	card.gui_input.connect(func(event: InputEvent) -> void:

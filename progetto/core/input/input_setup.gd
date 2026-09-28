@@ -20,6 +20,7 @@ static func register() -> void:
 	_key(&"kd_quick_load", [KEY_F9])
 	_key(&"kd_toggle_debug", [KEY_F3])
 	_key(&"kd_cancel", [KEY_ESCAPE])
+	_key(&"kd_toggle_map", [KEY_TAB])   # the valley <-> the map of the world (Rebirth)
 
 
 static func _key(action: StringName, keys: Array) -> void:

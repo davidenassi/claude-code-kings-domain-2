@@ -17,6 +17,13 @@ static func bal() -> Dictionary:
 	return _bal
 
 
+## The ground the settlements stand on: the player's valley, in its own metres (Rebirth). A world without a valley
+## (built by hand in an old test) falls back to the continent, where local and global metres are the same.
+static func ground(world: WorldState) -> WorldData:
+	var dd := DomainData.of(world)
+	return dd if dd != null else WorldData.get_instance()
+
+
 # --- per tick ---------------------------------------------------------------------------------------
 
 ## A settlement runs hour by hour only while it is on screen; otherwise its day is resolved by SettlementAggregate.
@@ -184,7 +191,7 @@ static func _regrow(world: WorldState, abs_day: int) -> Array[Dictionary]:
 	if abs_day < world.terrain.next_regrow_day:
 		return grew   # nothing planted here can be back yet: the whole scan is skipped
 	var range_days: Array = bal().get("stump_regrow_days", [60, 120])
-	var wd := WorldData.get_instance()
+	var wd := ground(world)
 	var sp := LocalFeatures.spacing()
 	var next := -1
 	for key: String in world.terrain.felled.keys():
@@ -406,13 +413,13 @@ static func warn_full(session: GameSession, s: SettlementState, res: StringName,
 	if k == null or not k.is_player:
 		return
 	var rd := Defs.resource(res)
-	EventBus.notify("Depositi pieni a %s" % s.name, "%d unità di %s vanno perdute: servono magazzini o granai." % [
+	EventBus.notify_local("Depositi pieni a %s" % s.name, "%d unità di %s vanno perdute: servono magazzini o granai." % [
 		lost, rd.display_name.to_lower() if rd else String(res)], &"warning", s.center)
 
 
-## Extra modifier keys that the land itself unlocks (irrigated fields, arid land).
-static func field_keys(pos: Vector2) -> Array:
-	var wd := WorldData.get_instance()
+## Extra modifier keys that the land itself unlocks (irrigated fields, arid land). `pos` in the valley's metres.
+static func field_keys(world: WorldState, pos: Vector2) -> Array:
+	var wd := ground(world)
 	var out: Array = []
 	var pid := wd.province_at(pos)
 	var g := wd.province_geo(pid)
@@ -577,7 +584,7 @@ static func _finish(session: GameSession, s: SettlementState, p: PersonState, t:
 			s.reserved.erase(key)
 			if world.terrain.is_felled(key):
 				return false
-			var tree := LocalFeatures.tree_by_key(WorldData.get_instance(), key)
+			var tree := LocalFeatures.tree_by_key(ground(world), key)
 			if tree.is_empty():
 				return false
 			world.terrain.fell(tree, world.day)
@@ -591,14 +598,14 @@ static func _finish(session: GameSession, s: SettlementState, p: PersonState, t:
 				try_finish_site(session, s, site)
 			return false
 		&"at_rock":
-			var rock := LocalFeatures.outcrop(String(pend["key"]))
+			var rock := LocalFeatures.outcrop(ground(world), String(pend["key"]))
 			if rock.is_empty() or world.terrain.rock_charges_left(rock) <= 0:
 				s.reserved.erase(String(pend["key"]))
 				return false
 			_do(p, t, float(pend.get("hours", 4.0)) / maxf(efficiency(p), 0.2), &"quarry", {"do": &"quarried", "key": pend["key"], "building": pend.get("building", -1)})
 			return true
 		&"quarried":
-			var rock := LocalFeatures.outcrop(String(pend["key"]))
+			var rock := LocalFeatures.outcrop(ground(world), String(pend["key"]))
 			s.reserved.erase(String(pend["key"]))
 			var b := world.building(int(pend.get("building", -1)))
 			if rock.is_empty() or b == null or not world.terrain.use_rock_charge(rock):
@@ -637,8 +644,8 @@ static func _finish(session: GameSession, s: SettlementState, p: PersonState, t:
 			var farm := world.building(int(pend["building"]))
 			if farm and farm.is_active():
 				var grown := 3.0 * efficiency(p) * float(farm.def().work.get("grain_per_work_hour", 0.05)) \
-					* _fertility(farm.pos) * season_agriculture(session, world.day)
-				farm.crop += KingdomModifiers.settlement_value(session, s, &"production.grain", grown, field_keys(farm.pos))
+					* _fertility(world, farm.pos) * season_agriculture(session, world.day)
+				farm.crop += KingdomModifiers.settlement_value(session, s, &"production.grain", grown, field_keys(world, farm.pos))
 			return false
 		&"harvest":
 			var farm := world.building(int(pend["building"]))
@@ -716,12 +723,11 @@ static func try_finish_site(session: GameSession, s: SettlementState, site: Buil
 	var world := session.world
 	if site.is_active() or site.work_done < site.required_hours() or not site.missing_materials().is_empty():
 		return
-	var wd := WorldData.get_instance()
-	var ground := site.trees_on_ground(wd)
-	for t in ground:
+	var on_site := site.trees_on_ground(ground(world))
+	for t in on_site:
 		if not world.terrain.is_felled(t["key"]):
 			return
-	for t in ground:
+	for t in on_site:
 		world.terrain.felled[t["key"]] = TerrainDeltas.CLEARED_FOR_GOOD
 	site.status = BuildingState.Status.ACTIVE
 	world.buildings_changed()
@@ -729,7 +735,7 @@ static func try_finish_site(session: GameSession, s: SettlementState, site: Buil
 	mark_assignment_dirty(session, s.id)
 	EventBus.building_state_changed.emit(site.id)
 	EventBus.building_completed.emit(site.id)
-	EventBus.notify("Costruzione completata", "%s a %s." % [site.def().display_name, s.name], &"building", site.pos)
+	EventBus.notify_local("Costruzione completata", "%s a %s." % [site.def().display_name, s.name], &"building", site.pos)
 	_remember_building(session, s, site)
 
 
@@ -760,8 +766,8 @@ static func _remember_building(session: GameSession, s: SettlementState, site: B
 					"%s conta ormai %d edifici." % [s.name, step]})
 
 
-static func _fertility(pos: Vector2) -> float:
-	var bd: BiomeDef = Defs.biome_by_index(WorldData.get_instance().biome_at(pos))
+static func _fertility(world: WorldState, pos: Vector2) -> float:
+	var bd: BiomeDef = Defs.biome_by_index(ground(world).biome_at(pos))
 	return bd.fertility if bd else 0.5
 
 
@@ -843,7 +849,7 @@ static func _plan_builder(session: GameSession, s: SettlementState, p: PersonSta
 	var key := "site_trees_%d" % site.id
 	var pending_trees: Array = session.runtime.get(key, [])
 	if not session.runtime.has(key):
-		pending_trees = site.trees_on_ground(WorldData.get_instance())
+		pending_trees = site.trees_on_ground(ground(world))
 		session.runtime[key] = pending_trees
 	var best := {}
 	var best_d := INF
@@ -917,7 +923,7 @@ static func candidate_trees(session: GameSession, b: BuildingState) -> Array[Dic
 	if not cache.has(b.id):
 		var radius := float(b.def().work.get("radius_m", 100.0))
 		var list: Array[Dictionary] = []
-		for tree in LocalFeatures.trees_in_rect(WorldData.get_instance(), Rect2(b.pos - Vector2(radius, radius), Vector2(radius, radius) * 2.0), false):
+		for tree in LocalFeatures.trees_in_rect(ground(session.world), Rect2(b.pos - Vector2(radius, radius), Vector2(radius, radius) * 2.0), false):
 			if tree["pos"].distance_to(b.pos) <= radius:
 				list.append(tree)
 		list.sort_custom(func(x: Dictionary, y: Dictionary) -> bool: return b.pos.distance_squared_to(x["pos"]) < b.pos.distance_squared_to(y["pos"]))
@@ -967,7 +973,7 @@ static func _plan_quarry(session: GameSession, s: SettlementState, p: PersonStat
 	var radius := float(b.def().work.get("radius_m", 90.0))
 	var best := {}
 	var best_d := INF
-	for rock in LocalFeatures.outcrops_in_rect(Rect2(b.pos - Vector2(radius, radius), Vector2(radius, radius) * 2.0)):
+	for rock in LocalFeatures.outcrops_in_rect(ground(world), Rect2(b.pos - Vector2(radius, radius), Vector2(radius, radius) * 2.0)):
 		if rock["deposit"] != deposit or world.terrain.rock_charges_left(rock) <= 0 or s.reserved.has(rock["id"]):
 			continue
 		var d := b.pos.distance_squared_to(rock["pos"])

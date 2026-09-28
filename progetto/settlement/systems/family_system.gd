@@ -162,7 +162,7 @@ func _milestones(session: GameSession, day: int) -> void:
 			var what := "Il %s" % k.name if k.monarchy_founded else "La %s" % k.name
 			EventBus.chronicle_written.emit({"day": day, "kingdom": k.id, "kind": "founding_extinct",
 				"text": "%s finisce: a %s non vive più nessuno. Le case restano vuote e il bosco torna a prendersi i campi." % [what, home.name]})
-			EventBus.notify("Non resta nessuno", "A %s non vive più nessuno." % home.name, &"death", home.center)
+			EventBus.notify_local("Non resta nessuno", "A %s non vive più nessuno." % home.name, &"death", home.center)
 		return
 	if not k.records.has(FIRST_HOUSE):
 		for b in world.buildings_of(home.id):

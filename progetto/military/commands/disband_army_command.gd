@@ -28,7 +28,7 @@ func validate(session: GameSession) -> String:
 static func _home(world: WorldState, a: ArmyState) -> SettlementState:
 	var radius := float((Military.bal().get("supply", {}) as Dictionary).get("food_from_settlement_radius_m", 900.0))
 	for s in world.settlements:
-		if s.kingdom == a.kingdom and s.center.distance_to(a.pos) < radius * 2.0:
+		if s.kingdom == a.kingdom and world.settlement_global_pos(s).distance_to(a.pos) < radius * 2.0:
 			return s
 	return null
 

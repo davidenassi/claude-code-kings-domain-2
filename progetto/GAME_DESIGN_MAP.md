@@ -3,6 +3,12 @@
 > *Non stiamo costruendo un gioco in cui controlli un regno.
 > Stiamo costruendo un gioco in cui vedi un regno nascere.*
 
+> **REBIRTH (28/09/2026).** Il pilastro 1 («un solo mondo continuo, nessun cambio di scena») e §4 («zoom continuo»)
+> **non valgono più**: il gioco ha due scale distinte — la **mappa locale del dominio** (la valle della patria, dove si
+> fonda e si costruisce) e la **mappa globale strategica** (il continente, dove si esplora e si espande) — con una sola
+> simulazione. Il resto di questo documento resta il riferimento dei sistemi finché il Rebirth non lo aggiorna fase per
+> fase. Vedi `KINGSDOMAIN_REBIRTH_AUDIT.md` e `KINGSDOMAIN_REBIRTH_REPORT.md`.
+
 Documento vivo. Descrive **cosa** è il gioco e **come i sistemi si toccano**.
 Il *come si costruisce* sta in `TECHNICAL_ARCHITECTURE.md`; l'eredità di Regno in `LEGACY_SYSTEM_AUDIT.md`.
 

@@ -9,9 +9,9 @@ func after_each() -> void:
 	Session.end()
 
 
-## A point on a river near the settlement, and the direction across it.
-static func _river_near(st: SettlementState) -> Dictionary:
-	var wd := WorldData.get_instance()
+## A point on a river near the settlement, and the direction across it (in the valley's metres).
+static func _river_near(w: WorldState, st: SettlementState) -> Dictionary:
+	var wd := SettlementSim.ground(w)
 	var best := {}
 	var best_d := INF
 	for r in wd.rivers:
@@ -30,8 +30,8 @@ func test_a_well_is_not_built_in_the_river() -> void:
 	var s := Economy.village(1751)
 	var w := s.world
 	var st := w.settlements[0]
-	var wd := WorldData.get_instance()
-	var river := _river_near(st)
+	var wd := SettlementSim.ground(w)
+	var river := _river_near(w, st)
 	assert_false(river.is_empty(), "the start valley has its river")
 	if river.is_empty():
 		return
@@ -51,7 +51,7 @@ func test_a_road_does_not_cross_the_river() -> void:
 	var s := Economy.village(1752)
 	var w := s.world
 	var st := w.settlements[0]
-	var river := _river_near(st)
+	var river := _river_near(w, st)
 	if river.is_empty():
 		return
 	var across: Vector2 = river["across"]
@@ -78,7 +78,7 @@ func test_no_tree_bush_or_rock_grows_on_the_water() -> void:
 				checked += 1
 				if wd.river_clearance(t["pos"]) < LocalFeatures.RIVER_CLEAR_M - 0.01:
 					wrong += 1
-			for rock in LocalFeatures.outcrops_in_rect(box):
+			for rock in LocalFeatures.outcrops_in_rect(wd, box):
 				if wd.river_clearance(rock["pos"]) < LocalFeatures.RIVER_CLEAR_M:
 					wrong += 1
 	assert_true(checked > 50, "trees along the rivers were looked at (%d)" % checked)
@@ -92,7 +92,7 @@ func test_the_village_keeps_its_feet_dry() -> void:
 	for m in 24:
 		s.advance_days(30)
 		Economy.lord_turn(s, 60)
-	var wd := WorldData.get_instance()
+	var wd := SettlementSim.ground(w)
 	for b in w.buildings_of(st.id):
 		if b.is_road():
 			var n := int(ceil(b.a.distance_to(b.b) / 2.0))

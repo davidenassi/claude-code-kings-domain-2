@@ -356,9 +356,9 @@ func test_the_coronation_card_tells_the_birth_of_the_kingdom() -> void:
 func test_the_founders_start_near_wood_rock_and_water() -> void:
 	var s := GameSession.create_new({"campaign_seed": 1511})
 	var st := s.world.settlements[0]
-	var wd := WorldData.get_instance()
+	var wd := SettlementSim.ground(s.world)   # the valley, in its own metres (Rebirth)
 	var nearest := INF
-	for r in LocalFeatures.outcrops_in_rect(Rect2(st.center - Vector2(400, 400), Vector2(800, 800))):
+	for r in LocalFeatures.outcrops_in_rect(wd, Rect2(st.center - Vector2(400, 400), Vector2(800, 800))):
 		if r["deposit"] == &"stone":
 			nearest = minf(nearest, r["pos"].distance_to(st.center))
 	assert_true(nearest <= 300.0, "rocks within a short walk (%.0f m)" % nearest)

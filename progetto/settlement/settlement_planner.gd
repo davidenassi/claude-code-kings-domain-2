@@ -163,7 +163,7 @@ static func lord_month(session: GameSession, settlement_id: int, max_people: int
 ## stores, the oven and the smithy between the houses and the fields, the woodcutter towards the wood. A village
 ## grows rings of use instead of a mix of house, field, house, field.
 static func zone_of(session: GameSession, st: SettlementState, def_id: StringName) -> Dictionary:
-	var fields := fields_direction(st)
+	var fields := fields_direction(session.world, st)
 	match def_id:
 		&"well":
 			return {"near": st.center, "min_r": 12.0}
@@ -174,7 +174,7 @@ static func zone_of(session: GameSession, st: SettlementState, def_id: StringNam
 		&"granary", &"storehouse", &"bakery", &"smith", &"barracks":
 			return {"near": st.center + fields.rotated(0.5 if def_id in [&"bakery", &"smith"] else -0.5) * 42.0, "min_r": 0.0}
 		&"woodcutter":
-			return {"near": st.center + wood_direction(st) * 110.0, "min_r": 0.0}
+			return {"near": st.center + wood_direction(session.world, st) * 110.0, "min_r": 0.0}
 	return {"near": st.center, "min_r": 32.0}
 
 
@@ -182,11 +182,11 @@ static var _fields_dir: Dictionary = {}   # "id:x:y" -> Vector2 (the place, not 
 
 
 ## The side of the settlement with the most free, dry, gentle land: where its fields go. Decided once.
-static func fields_direction(st: SettlementState) -> Vector2:
-	var key := "%d:%d:%d" % [st.id, int(st.center.x), int(st.center.y)]
+static func fields_direction(world: WorldState, st: SettlementState) -> Vector2:
+	var key := "%d:%d:%d:%s" % [st.id, int(st.center.x), int(st.center.y), world.domain.key() if world.domain else ""]
 	if _fields_dir.has(key):
 		return _fields_dir[key]
-	var wd := WorldData.get_instance()
+	var wd := SettlementSim.ground(world)
 	var best := Vector2.RIGHT
 	var best_score := -INF
 	for k in 12:
@@ -207,9 +207,9 @@ static func fields_direction(st: SettlementState) -> Vector2:
 
 
 ## Towards the nearest thick wood (where a woodcutter has trees to fell).
-static func wood_direction(st: SettlementState) -> Vector2:
-	var wd := WorldData.get_instance()
-	var best := -fields_direction(st)
+static func wood_direction(world: WorldState, st: SettlementState) -> Vector2:
+	var wd := SettlementSim.ground(world)
+	var best := -fields_direction(world, st)
 	var best_score := -INF
 	for k in 12:
 		var dir := Vector2.from_angle(TAU * float(k) / 12.0)

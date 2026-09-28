@@ -169,7 +169,7 @@ static func can_resupply(world: WorldState, army: ArmyState) -> float:
 	for s in world.settlements:
 		if s.kingdom != army.kingdom:
 			continue
-		if s.center.distance_to(army.pos) < float(cfg.get("food_from_settlement_radius_m", 900.0)):
+		if world.settlement_global_pos(s).distance_to(army.pos) < float(cfg.get("food_from_settlement_radius_m", 900.0)):
 			rate = maxf(rate, float(cfg.get("friendly_refill_per_day", 2.5)))
 	if rate <= 0.0 and army.path.is_empty() and p.owner >= 0 and p.owner != army.kingdom:
 		# a host camped in somebody else's fields eats those fields: slowly, and it ruins them
@@ -192,7 +192,7 @@ static func can_see(world: WorldState, kingdom_id: int, army: ArmyState) -> bool
 		if other.kingdom == kingdom_id and other.pos.distance_to(army.pos) < float(cfg.get("army_radius_m", 9000.0)):
 			return true
 	for s in world.settlements:
-		if s.kingdom == kingdom_id and s.center.distance_to(army.pos) < float(cfg.get("settlement_radius_m", 12000.0)):
+		if s.kingdom == kingdom_id and world.settlement_global_pos(s).distance_to(army.pos) < float(cfg.get("settlement_radius_m", 12000.0)):
 			return true
 	return false
 

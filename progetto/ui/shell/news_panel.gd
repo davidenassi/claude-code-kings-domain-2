@@ -13,7 +13,8 @@ var _fold: Button
 var _folded := false
 
 
-func setup(camera: WorldCamera) -> void:
+## `goto(pos, space)` takes the player to the place of a piece of news, on the map it belongs to (Rebirth).
+func setup(goto: Callable) -> void:
 	add_theme_stylebox_override("panel", KDTheme.dark_panel())
 	custom_minimum_size = Vector2(370, 0)
 	var col := VBoxContainer.new()
@@ -49,7 +50,7 @@ func setup(camera: WorldCamera) -> void:
 	col.add_child(_body)
 	stack = NotificationStack.new()
 	stack.name = "Notifications"
-	stack.setup(camera)
+	stack.setup(goto)
 	_body.add_child(stack)
 	_empty = SettlementHud._label(_body, 13, Color(KDTheme.TEXT_LIGHT, 0.55), false)
 	_empty.text = "Nessuna notizia recente."

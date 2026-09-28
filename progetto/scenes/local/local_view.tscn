@@ -1,0 +1,79 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/local/local_view.gd" id="1_view"]
+[ext_resource type="Script" path="res://map/world_view.gd" id="2_wv"]
+[ext_resource type="Script" path="res://map/camera/world_camera.gd" id="3_camera"]
+[ext_resource type="Script" path="res://map/terrain/terrain_layer.gd" id="4_terrain"]
+[ext_resource type="Script" path="res://map/water/river_layer.gd" id="5_rivers"]
+[ext_resource type="Script" path="res://map/water/river_bank_props.gd" id="6_bank"]
+[ext_resource type="Script" path="res://map/vegetation/vegetation_layer.gd" id="7_veg"]
+[ext_resource type="Script" path="res://map/settlement/settlement_layer.gd" id="8_settle"]
+[ext_resource type="Script" path="res://map/settlement/settlement_marks.gd" id="9_marks"]
+[ext_resource type="Script" path="res://map/settlement/settlement_props.gd" id="10_props"]
+[ext_resource type="Script" path="res://map/settlement/people_layer.gd" id="11_people"]
+[ext_resource type="Script" path="res://map/military/army_layer.gd" id="12_armies"]
+[ext_resource type="Script" path="res://map/terrain/domain_edge_layer.gd" id="13_edge"]
+[ext_resource type="Script" path="res://map/settlement/build_controller.gd" id="14_build"]
+[ext_resource type="Script" path="res://map/local_interaction.gd" id="15_interaction"]
+
+[node name="LocalView" type="Node2D"]
+script = ExtResource("1_view")
+
+[node name="WorldView" type="Node2D" parent="."]
+script = ExtResource("2_wv")
+
+[node name="TerrainLayer" type="Node2D" parent="WorldView"]
+script = ExtResource("4_terrain")
+camera_path = NodePath("../../WorldCamera")
+space = &"local"
+
+[node name="RiverLayer" type="MeshInstance2D" parent="WorldView"]
+script = ExtResource("5_rivers")
+camera_path = NodePath("../../WorldCamera")
+space = &"local"
+
+[node name="RiverBankProps" type="Node2D" parent="WorldView"]
+script = ExtResource("6_bank")
+camera_path = NodePath("../../WorldCamera")
+
+[node name="VegetationLayer" type="Node2D" parent="WorldView"]
+script = ExtResource("7_veg")
+camera_path = NodePath("../../WorldCamera")
+space = &"local"
+
+[node name="SettlementLayer" type="Node2D" parent="WorldView"]
+script = ExtResource("8_settle")
+camera_path = NodePath("../../WorldCamera")
+
+[node name="SettlementMarks" type="Node2D" parent="WorldView"]
+script = ExtResource("9_marks")
+camera_path = NodePath("../../WorldCamera")
+
+[node name="SettlementProps" type="Node2D" parent="WorldView"]
+script = ExtResource("10_props")
+camera_path = NodePath("../../WorldCamera")
+
+[node name="PeopleLayer" type="Node2D" parent="WorldView"]
+script = ExtResource("11_people")
+camera_path = NodePath("../../WorldCamera")
+
+[node name="ArmyLayer" type="Node2D" parent="WorldView"]
+script = ExtResource("12_armies")
+camera_path = NodePath("../../WorldCamera")
+space = &"local"
+
+[node name="DomainEdge" type="Node2D" parent="WorldView"]
+script = ExtResource("13_edge")
+camera_path = NodePath("../../WorldCamera")
+
+[node name="BuildController" type="Node2D" parent="WorldView"]
+script = ExtResource("14_build")
+camera_path = NodePath("../../WorldCamera")
+
+[node name="WorldCamera" type="Camera2D" parent="."]
+script = ExtResource("3_camera")
+
+[node name="LocalInteraction" type="Node" parent="."]
+script = ExtResource("15_interaction")
+camera_path = NodePath("../WorldCamera")
+build_path = NodePath("../WorldView/BuildController")

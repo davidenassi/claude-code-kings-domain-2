@@ -2,9 +2,12 @@ class_name BootArgs
 extends RefCounted
 ## Parses user command-line arguments passed after "--":
 ##   --kd-screenshot=<path>     save a PNG of the viewport and quit
-##   --kd-camera=x,y,mpp        initial camera position (metres) and zoom (metres per pixel);
-##                              also settlement,mpp / player,mpp / army,mpp (the first army of the crown)
-##                              / home,dx,dy,mpp (offset in metres from the player's settlement)
+##   --kd-view=local|global     the map on the table at the start (Rebirth: the valley or the world; default local)
+##   --kd-camera=x,y,mpp        initial camera position (metres of the map on the table) and zoom (metres per pixel);
+##                              also settlement,mpp / home,dx,dy,mpp (offset from the player's settlement) /
+##                              domain[,mpp] (the whole valley) on the local map; player[,mpp] / global[,mpp] (the
+##                              homeland on the map of the world); army,mpp (the first army of the crown)
+##   --kd-debug                 show the developer's box (F3) from the start
 ##   --kd-frames=N              frames to wait before the screenshot (default 30)
 ##   --kd-speed=N               initial simulation speed index
 ##   --kd-days=N                simulate N days instantly before rendering

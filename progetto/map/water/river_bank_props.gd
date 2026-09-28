@@ -21,6 +21,9 @@ var _drawn: Rect2i = Rect2i()
 ## its own stretch of river (walking every segment of every river for each chunk cost a hitch of a tenth of a
 ## second when the camera came down over a new place)
 static var _index: Dictionary = {}
+## The ground the index above was built on (Rebirth: the valley of the homeland; rebuilt when it changes).
+static var _index_of: WorldData = null
+var _wd: WorldData = null
 
 
 func _ready() -> void:
@@ -31,12 +34,25 @@ func _ready() -> void:
 	_atlas = load(ATLAS_DIR + "/" + String(meta["atlas"]))
 	_sprites = meta["sprites"]
 	_ppm = float(meta.get("ppm", 16.0))
-	if _index.is_empty():
-		_build_index(WorldData.get_instance())   # at the start, not as a hitch the first time the camera comes down
+	_use(MapSpace.data(MapSpace.LOCAL))   # at the start, not as a hitch the first time the camera comes down
+	EventBus.session_started.connect(func(_s: GameSession) -> void: _use(MapSpace.data(MapSpace.LOCAL)))
+	EventBus.session_loaded.connect(func(_s: GameSession) -> void: _use(MapSpace.data(MapSpace.LOCAL)))
+
+
+## The reeds and stones of the banks belong to the valley on the table.
+func _use(wd: WorldData) -> void:
+	if wd == _wd:
+		return
+	_wd = wd
+	_chunks.clear()
+	_drawn = Rect2i()
+	if wd:
+		_ensure_index(wd)
+	queue_redraw()
 
 
 func _process(_delta: float) -> void:
-	if _camera == null or _atlas == null:
+	if _camera == null or _atlas == null or _wd == null:
 		visible = false
 		return
 	var mpp := _camera.meters_per_pixel()
@@ -55,7 +71,7 @@ func _process(_delta: float) -> void:
 			for x in range(keys.position.x, keys.end.x + 1):
 				var k := Vector2i(x, y)
 				if not _chunks.has(k):
-					_chunks[k] = chunk_items(k)
+					_chunks[k] = chunk_items(_wd, k)
 		for k: Vector2i in _chunks.keys():
 			if not keys.grow(2).has_point(k):
 				_chunks.erase(k)
@@ -64,7 +80,11 @@ func _process(_delta: float) -> void:
 
 ## What grows on the banks inside one chunk: reeds where the water is slow (wide rivers, inner bends),
 ## stones here and there, both just outside the water on either side.
-static func _build_index(wd: WorldData) -> void:
+static func _ensure_index(wd: WorldData) -> void:
+	if _index_of == wd:
+		return
+	_index_of = wd
+	_index = {}
 	for ri in wd.rivers.size():
 		var pts: PackedVector2Array = wd.rivers[ri]["points"]
 		for i in pts.size() - 1:
@@ -78,17 +98,16 @@ static func _build_index(wd: WorldData) -> void:
 					_index[k] = list
 
 
-static func chunk_items(key: Vector2i) -> Array:
-	var wd := WorldData.get_instance()
-	if _index.is_empty():
-		_build_index(wd)
+static func chunk_items(wd: WorldData, key: Vector2i) -> Array:
+	_ensure_index(wd)
 	var rect := Rect2(Vector2(key) * CHUNK_M, Vector2(CHUNK_M, CHUNK_M))
 	var out: Array = []
 	var pairs: PackedInt32Array = _index.get(key, PackedInt32Array())
 	for n in range(0, pairs.size(), 2):
 		var ri := pairs[n]
 		var i := pairs[n + 1]
-		var r: Dictionary = wd.rivers[ri]
+		var r: Dictionary = wd.rivers[pairs[n]]
+		ri = int(r["id"])   # the dice of a river are its own, wherever it is cut
 		var pts: PackedVector2Array = r["points"]
 		var ws: PackedFloat32Array = r["widths"]
 		var a := pts[i]

@@ -8,8 +8,12 @@ Documento di riferimento per ogni scelta tecnica; aggiornarlo quando una scelta 
 
 ## 1. Principi tecnici
 
-1. **Un mondo, un orologio, un sistema di coordinate.** Tutto (terreno, edifici, abitanti, eserciti, battaglie)
-   vive nello stesso spazio in metri e avanza con lo stesso calendario.
+1. **Un mondo, un orologio, due spazi** (Rebirth, Fase 1 — sostituisce «un sistema di coordinate»). La simulazione è
+   una sola; le posizioni vivono in due spazi in metri: la **valle della patria** (insediamenti, edifici, abitanti,
+   alberi, rocce: `DomainState`/`DomainData`) e il **continente** (province, regni, eserciti, battaglie: `WorldData`).
+   La corrispondenza è una regola sola (`DomainState.to_global/to_local`, `WorldState.settlement_global_pos`).
+   Due mappe (`scenes/local/local_view.tscn`, `scenes/global/global_view.tscn`) con camera, livelli e interazioni
+   propri; nessuno zoom porta dall'una all'altra. Dettagli in `KINGSDOMAIN_REBIRTH_AUDIT.md` §3.
 2. **Simulazione separata dalla presentazione.** Lo stato di gioco è fatto di oggetti dati (`RefCounted`/`Resource`)
    senza nodi; i nodi Godot *leggono* lo stato e lo disegnano. La simulazione gira headless nei test.
 3. **La telecamera non cambia l'esito.** Ciò che è lontano viene simulato in forma più economica ma con lo stesso

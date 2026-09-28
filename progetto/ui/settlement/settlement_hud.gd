@@ -14,10 +14,8 @@ extends CanvasLayer
 ## The centre of the screen belongs to the map: the sheets open centre-left, beside the left column.
 ## Phase 18 HUD review: the layout follows the reference drawing given by the player (positions, room, weight).
 
-@export var build_path: NodePath
-@export var interaction_path: NodePath
-@export var camera_path: NodePath
-@export var controller_path: NodePath
+## The game shell (scenes/main.gd): the two maps, and the way from one to the other (Rebirth, Phase 1).
+@export var shell_path: NodePath
 
 const TOP_MARGIN := 76     ## under the band of block A (the clock hangs under its right end only)
 const BOTTOM_MARGIN := 98  ## over block D
@@ -41,9 +39,14 @@ const BOTTOM_ENTRIES: Array = [
 	[&"religion", "Religione", &"clergy", KEY_V],
 ]
 
+var _shell: Node
+## The map of the valley: building, its clicks, its camera.
 var _build: BuildController
-var _interaction: MapInteraction
+var _local: LocalInteraction
 var _camera: WorldCamera
+## The map of the world: provinces and hosts, map modes.
+var _interaction: MapInteraction
+var _controller: MapModeController
 var _top: TopBar
 var _left: NavBlock
 var _bottom: NavBlock
@@ -61,6 +64,9 @@ var _insp_cancel: Button
 var _province: ProvinceInspector
 var _building_id := -1
 var _minimap: Minimap
+var _modes_menu: MapModeMenu
+## The map on the table (MapSpace.LOCAL or GLOBAL).
+var view: StringName = MapSpace.LOCAL
 var _guide: GuidePanel
 var _pause: PauseMenu
 var _coronation: CoronationCard
@@ -74,9 +80,17 @@ var _dirty := false
 func _ready() -> void:
 	layer = 11
 	KDTheme.dress(self)
-	_build = get_node_or_null(build_path) as BuildController
-	_interaction = get_node_or_null(interaction_path) as MapInteraction
-	_camera = get_node_or_null(camera_path) as WorldCamera
+	_shell = get_node_or_null(shell_path)
+	# the two maps are the shell's children before this one: they are ready, the shell itself is not yet
+	var lv := _shell.get_node_or_null("LocalView") as LocalView if _shell else null
+	var gv := _shell.get_node_or_null("GlobalView") as GlobalView if _shell else null
+	if lv:
+		_build = lv.build
+		_local = lv.interaction
+		_camera = lv.camera
+	if gv:
+		_interaction = gv.interaction
+		_controller = gv.modes
 	_make_host()          # the sheets exist first: the columns only point at them
 	_make_top()
 	_make_left_column()
@@ -92,18 +106,20 @@ func _ready() -> void:
 	_make_pause_menu()
 	if String(BootArgs.parse().get("panel", "")) == "build":
 		_column.call_deferred("set_open", true)   # screenshots of the build list
-	# the clock's own buttons: the map modes and the menu of the game
+	# the clock's own buttons: the other map (valley / world) and the menu of the game
 	_top.map_requested.connect(func() -> void:
-		var controller := get_node_or_null(controller_path) as MapModeController
-		if controller:
-			controller.cycle(1))
+		if _shell:
+			_shell.toggle_map())
 	_top.menu_requested.connect(func() -> void:
 		if _pause:
 			_pause.open())
 	if _build:
 		_build.hint_changed.connect(_on_hint)
-	if _interaction:
-		_interaction.building_selected.connect(show_building)
+	if _local:
+		_local.building_selected.connect(show_building)
+	if _camera:
+		# the valley is the whole of the local map: asking for more distance says where the world is
+		_camera.zoom_out_blocked.connect(_on_zoom_out_blocked)
 	# a settlement changes many times inside one simulated day (every building that works says so): the HUD
 	# takes note and refreshes once, on the next frame — refreshing on each signal cost a town of three hundred
 	# souls a fifth of a second every day of the game (found by the world art pass benchmark)
@@ -122,6 +138,54 @@ func _ready() -> void:
 
 func settlement() -> SettlementState:
 	return _build.player_settlement() if _build else player_settlement()
+
+
+## The map on the table changed (called by the shell): what the HUD offers follows it. On the map of the world
+## there is nothing to build and no building to inspect; on the map of the valley there are no provinces to
+## pick and no map modes.
+func set_view(space: StringName, camera: WorldCamera) -> void:
+	view = space
+	var local := MapSpace.is_local(space)
+	if _minimap:
+		_minimap.set_map(space, camera)
+	if _modes_menu:
+		_modes_menu.visible = not local
+	if not local:
+		if _build and _build.active():
+			_build.stop()
+		if _column and _column.is_open():
+			_column.set_open(false)
+		show_building(-1)
+	elif _province and _province.visible and _interaction:
+		_interaction.select(-1)
+	_hint.visible = false
+
+
+var _edge_hint: Label = null
+var _edge_hint_left := 0.0
+
+
+## Shown when the wheel asks the valley for more than the valley: the world is another map, not a farther zoom.
+func _on_zoom_out_blocked() -> void:
+	if _edge_hint == null:
+		var anchor := _anchor(Control.PRESET_CENTER_BOTTOM, Vector4(0, 0, 0, BOTTOM_MARGIN + 18))
+		_edge_hint = _label(anchor, 17, KDTheme.GOLD, true)
+		_edge_hint.add_theme_color_override("font_outline_color", Color(0.1, 0.06, 0.03))
+		_edge_hint.add_theme_constant_override("outline_size", 6)
+		_edge_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_edge_hint.text = "Questa è tutta la valle. Oltre le nebbie: la mappa del mondo (Tab)"
+	_edge_hint.visible = true
+	_edge_hint.modulate.a = 1.0
+	_edge_hint_left = 2.8
+
+
+## Costruzioni: building is done in the valley — from the map of the world the button takes the player there.
+func _toggle_build() -> void:
+	if not MapSpace.is_local(view) and _shell:
+		_shell.show_local()
+		_column.set_open(true)
+		return
+	_column.toggle()
 
 
 ## The settlement of the crown, for everything that has no BuildController at hand.
@@ -187,7 +251,7 @@ func _make_left_column() -> void:
 	var entries: Array = []
 	for e: Array in LEFT_ENTRIES:
 		if e[0] == &"build":
-			entries.append([e[0], e[1], e[2], e[3], func() -> void: _column.toggle()])
+			entries.append([e[0], e[1], e[2], e[3], func() -> void: _toggle_build()])
 		else:
 			entries.append([e[0], e[1], e[2], e[3]])
 	_left.setup(_host, entries, true)
@@ -207,7 +271,9 @@ func _make_build_column() -> void:
 	_news = NewsPanel.new()
 	_news.name = "News"
 	right.add_child(_news)
-	_news.setup(_camera)
+	_news.setup(func(pos: Vector2, space: StringName) -> void:
+		if _shell:
+			_shell.go_to(pos, space))
 	_news.chronicle_requested.connect(func() -> void: _host.open(&"chronicle"))
 	_notifications = _news.stack
 	_column = BuildColumn.new()
@@ -250,10 +316,16 @@ func _make_host() -> void:
 	_host.add_page(&"knowledge", "Ricerca", KnowledgePanel.new(), KEY_K)
 	var army := ArmyPanel.new()
 	army.set_interaction(_interaction)
+	# the orders of the hosts are given on the map of the world
+	army.destination_wanted.connect(func(_id: int) -> void:
+		if _shell:
+			_shell.show_global())
 	_host.add_page(&"army", "Esercito", army, KEY_E)
 	_host.add_page(&"chronicle", "Cronaca", ChroniclePanel.new(), KEY_C)
 	if _interaction:
 		_interaction.army_selected.connect(func(_army_id: int) -> void: _host.open(&"army"))
+	if _local:
+		_local.army_selected.connect(func(_army_id: int) -> void: _host.open(&"army"))
 	var wanted := String(BootArgs.parse().get("panel", ""))
 	if wanted != "" and wanted != "build":
 		_host.call_deferred("open", StringName(wanted))   # screenshots of one sheet
@@ -304,8 +376,8 @@ func _make_inspector() -> void:
 	var close := KDTheme.close_button()
 	close.tooltip_text = "Chiudi"
 	close.pressed.connect(func() -> void:
-		if _interaction:
-			_interaction.select_building(-1)
+		if _local:
+			_local.select_building(-1)
 		else:
 			show_building(-1))
 	head.add_child(close)
@@ -369,7 +441,7 @@ func _refresh_inspector() -> void:
 		if not mats.is_empty():
 			lines.append("Materiali: " + ", ".join(mats))
 		var trees := 0
-		for t in b.trees_on_ground(WorldData.get_instance()):
+		for t in b.trees_on_ground(SettlementSim.ground(world)):
 			if not world.terrain.is_felled(t["key"]):
 				trees += 1
 		if trees > 0:
@@ -388,14 +460,14 @@ func _refresh_inspector() -> void:
 				lines.append("Raggio di taglio: %d m" % int(def.work.get("radius_m", 0)))
 				var standing := 0
 				var rad := float(def.work.get("radius_m", 110.0))
-				for t in LocalFeatures.trees_in_rect(WorldData.get_instance(), Rect2(b.pos - Vector2(rad, rad), Vector2(rad, rad) * 2.0), false):
+				for t in LocalFeatures.trees_in_rect(SettlementSim.ground(world), Rect2(b.pos - Vector2(rad, rad), Vector2(rad, rad) * 2.0), false):
 					if not world.terrain.is_felled(t["key"]) and t["pos"].distance_to(b.pos) <= rad:
 						standing += 1
 				lines.append("Alberi ancora in piedi nel raggio: %d" % standing)
 			&"quarry_rock":
 				var rocks := 0
 				var r := float(def.work.get("radius_m", 90.0))
-				for rock in LocalFeatures.outcrops_in_rect(Rect2(b.pos - Vector2(r, r), Vector2(r, r) * 2.0)):
+				for rock in LocalFeatures.outcrops_in_rect(SettlementSim.ground(world), Rect2(b.pos - Vector2(r, r), Vector2(r, r) * 2.0)):
 					if world.terrain.rock_charges_left(rock) > 0 and rock["pos"].distance_to(b.pos) <= r:
 						rocks += 1
 				lines.append("Rocce lavorabili vicine: %d" % rocks)
@@ -445,6 +517,10 @@ func _process(delta: float) -> void:
 	if _dirty:
 		_dirty = false
 		refresh()
+	if _edge_hint and _edge_hint.visible:
+		_edge_hint_left -= delta
+		_edge_hint.modulate.a = clampf(_edge_hint_left / 0.6, 0.0, 1.0)
+		_edge_hint.visible = _edge_hint_left > 0.0
 	if _crown_state < 0:
 		_sync_crown()   # until the game exists the state is unknown: learn it on the first frame, not after half a second
 	_refresh_timer += delta
@@ -506,12 +582,15 @@ func _make_minimap() -> void:
 	_minimap = Minimap.new()
 	_minimap.name = "Minimap"
 	anchor.add_child(_minimap)
-	_minimap.setup(_camera, get_node_or_null(controller_path) as MapModeController)
-	# the maps of the realm live with the map (they closed the left column before the HUD review)
-	var modes := MapModeMenu.new()
-	modes.name = "MapModes"
-	_minimap.add_to_head(modes)
-	modes.setup(get_node_or_null(controller_path) as MapModeController)
+	_minimap.setup(_camera, _controller)
+	_minimap.switch_requested.connect(func() -> void:
+		if _shell:
+			_shell.toggle_map())
+	# the maps of the realm live with the map of the world (they closed the left column before the HUD review)
+	_modes_menu = MapModeMenu.new()
+	_modes_menu.name = "MapModes"
+	_minimap.add_to_head(_modes_menu)
+	_modes_menu.setup(_controller)
 
 
 
@@ -550,7 +629,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if k.physical_keycode == KEY_B and _column:
-		_column.toggle()
+		_toggle_build()
 		get_viewport().set_input_as_handled()
 		return
 	# Esc first lets go of the building in hand, then closes the list, then the sheet, then opens the pause

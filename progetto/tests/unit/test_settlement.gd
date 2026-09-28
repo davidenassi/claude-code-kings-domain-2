@@ -13,7 +13,7 @@ static func find_spot(session: GameSession, def_id: StringName, near: Vector2, m
 
 func _felled_standing_trees_near(session: GameSession, center: Vector2, radius: float) -> int:
 	var n := 0
-	for t in LocalFeatures.trees_in_rect(wd, Rect2(center - Vector2(radius, radius), Vector2(radius, radius) * 2.0), false):
+	for t in LocalFeatures.trees_in_rect(SettlementSim.ground(session.world), Rect2(center - Vector2(radius, radius), Vector2(radius, radius) * 2.0), false):
 		if session.world.terrain.has_stump(t["key"]):
 			n += 1
 	return n
@@ -25,7 +25,10 @@ func test_start_settlement_six_founders_and_no_king() -> void:
 	assert_eq(w.settlements.size(), 1, "one settlement")
 	var st := w.settlements[0]
 	assert_eq(st.kingdom, w.player_kingdom)
-	assert_eq(wd.province_at(st.center), w.player().capital, "settlement in the start valley")
+	assert_eq(SettlementSim.ground(w).province_at(st.center), w.player().capital, "settlement in the start valley")
+	assert_not_null(w.domain, "the settlement has its valley (Rebirth)")
+	assert_eq(WorldData.get_instance().province_at(w.settlement_global_pos(st)), w.player().capital,
+		"and the valley stands on the home province of the map of the world")
 	var people := w.people_of(st.id)
 	assert_eq(people.size(), 6, "six founders")
 	assert_eq(people.filter(func(p: PersonState) -> bool: return p.female).size(), 3, "three women")
@@ -56,7 +59,7 @@ func test_start_settlement_six_founders_and_no_king() -> void:
 	assert_true(w.chronicle.any(func(e: Dictionary) -> bool: return String(e.get("kind", "")) == "founding_arrival"),
 		"the chronicle opens with the arrival of the founders")
 	for b in w.buildings_of(st.id):
-		for t in LocalFeatures.trees_in_rect(wd, b.rect()):
+		for t in LocalFeatures.trees_in_rect(SettlementSim.ground(w), b.rect()):
 			assert_true(w.terrain.is_felled(t["key"]), "no tree inside %s" % b.def_id)
 
 
@@ -69,7 +72,7 @@ func test_placement_reasons() -> void:
 	var r := Placement.check(w, st, house, keep.pos)
 	assert_false(bool(r["ok"]), "overlap refused")
 	assert_true(String(r["reason"]).contains("occupato"), String(r["reason"]))
-	var far := wd.province_geo(w.kingdoms[1].capital).center
+	var far := w.global_to_local(wd.province_geo(w.kingdoms[1].capital).center)   # a capital of the world, far past the valley
 	r = Placement.check(w, st, house, far)
 	assert_false(bool(r["ok"]))
 	assert_true(String(r["reason"]).contains("territorio") or String(r["reason"]).contains("acqua"), String(r["reason"]))
@@ -120,7 +123,7 @@ func test_woodcutter_fells_visible_trees_and_house_rises_on_cleared_land() -> vo
 		s.advance_days(1)
 		days += 1
 	assert_true(house.is_active(), "house built (%d days)" % days)
-	for t in LocalFeatures.trees_in_rect(wd, house.rect()):
+	for t in LocalFeatures.trees_in_rect(SettlementSim.ground(w), house.rect()):
 		assert_eq(int(w.terrain.felled.get(t["key"], 99)), TerrainDeltas.CLEARED_FOR_GOOD, "ground under the house cleared for good")
 	for p: PersonState in w.people.values():
 		assert_true(p.carrying.is_empty() or int(p.carrying["amount"]) > 0, "no empty loads")
@@ -222,7 +225,7 @@ func test_road_is_built_and_speeds_up_walking() -> void:
 		s.advance_days(1)
 		days += 1
 	assert_true(road.is_active(), "road finished in %d days" % days)
-	for t in road.trees_on_ground(wd):
+	for t in road.trees_on_ground(SettlementSim.ground(w)):
 		assert_true(w.terrain.is_felled(t["key"]), "the road is clear of trees")
 	var mid := (a + b) * 0.5
 	assert_true(road.covers(mid, 0.0), "the road covers its own middle")
@@ -270,7 +273,7 @@ func test_full_stores_are_told_once_a_month_not_every_day() -> void:
 	var st := s.world.settlements[0]
 	assert_false(SettlementSim.is_detailed(s, st.id), "nobody is watching: the village is resolved by the day")
 	var told: Array[String] = []
-	var listen := func(title: String, _text: String, _kind: StringName, _pos: Vector2) -> void:
+	var listen := func(title: String, _text: String, _kind: StringName, _pos: Vector2, _space: StringName) -> void:
 		if title.begins_with("Depositi pieni"):
 			told.append(title)
 	EventBus.notification.connect(listen)

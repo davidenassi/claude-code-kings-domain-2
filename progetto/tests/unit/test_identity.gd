@@ -52,7 +52,7 @@ func test_modifiers_reach_the_real_numbers() -> void:
 	assert_true(",".join(labels).contains("Signori del legname"), "the spirit appears in the breakdown: %s" % ",".join(labels))
 	# the same call through a settlement, with the land adding its own keys
 	var st := w.settlements[0]
-	var grain := KingdomModifiers.settlement_value(s, st, &"production.grain", 10.0, SettlementSim.field_keys(st.center))
+	var grain := KingdomModifiers.settlement_value(s, st, &"production.grain", 10.0, SettlementSim.field_keys(w, st.center))
 	assert_true(grain > 0.0, "fields yield something")
 	k.spirits = []
 	k.identity_changed()

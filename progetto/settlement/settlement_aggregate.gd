@@ -60,10 +60,10 @@ static func _produce(session: GameSession, s: SettlementState, b: BuildingState,
 			var sow := int(work.get("sow_month", 3))
 			var harvest := int(work.get("harvest_month", 8))
 			if month >= sow and month < harvest:
-				var bd: BiomeDef = Defs.biome_by_index(WorldData.get_instance().biome_at(b.pos))
+				var bd: BiomeDef = Defs.biome_by_index(SettlementSim.ground(world).biome_at(b.pos))
 				var season := SettlementSim.season_agriculture(session, world.day)
 				var grown := effort * float(work.get("grain_per_work_hour", 0.05)) * (bd.fertility if bd else 0.5) * season
-				b.crop += KingdomModifiers.settlement_value(session, s, &"production.grain", grown, SettlementSim.field_keys(b.pos))
+				b.crop += KingdomModifiers.settlement_value(session, s, &"production.grain", grown, SettlementSim.field_keys(world, b.pos))
 			elif month >= harvest and b.crop >= 1.0:
 				var moved := mini(int(floor(b.crop)), s.space_for(world, &"grain"))
 				if moved > 0:
@@ -125,7 +125,7 @@ static func _quarry(session: GameSession, s: SettlementState, b: BuildingState, 
 	var deposit := StringName(b.def().work.get("deposit", "stone"))
 	var radius := float(b.def().work.get("radius_m", 90.0))
 	var done := 0
-	for rock in LocalFeatures.outcrops_in_rect(Rect2(b.pos - Vector2(radius, radius), Vector2(radius, radius) * 2.0)):
+	for rock in LocalFeatures.outcrops_in_rect(SettlementSim.ground(world), Rect2(b.pos - Vector2(radius, radius), Vector2(radius, radius) * 2.0)):
 		if done >= count:
 			break
 		if rock["deposit"] != deposit or rock["pos"].distance_to(b.pos) > radius:
@@ -152,7 +152,7 @@ static func _build(session: GameSession, s: SettlementState, builders: Array[Per
 		if not site.ground_cleared:
 			var chop := float(Defs.building(&"woodcutter").work.get("hours", 3.0))
 			var standing := 0
-			for tree in site.trees_on_ground(WorldData.get_instance()):
+			for tree in site.trees_on_ground(SettlementSim.ground(world)):
 				if world.terrain.is_felled(tree["key"]):
 					continue
 				standing += 1

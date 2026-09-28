@@ -8,6 +8,8 @@ const NOISE_TEXTURE := "res://assets/environment/terrain/noise_tile.png"
 const STYLE_PATH := "res://data/defs/map_style.json"
 
 @export var camera_path: NodePath
+## Which map this terrain belongs to (MapSpace.GLOBAL: the continent; MapSpace.LOCAL: the valley of the homeland).
+@export var space: StringName = MapSpace.GLOBAL
 
 var _camera: WorldCamera
 var _material: ShaderMaterial
@@ -17,11 +19,22 @@ var _data: WorldData
 
 func _ready() -> void:
 	_camera = get_node_or_null(camera_path) as WorldCamera
-	_data = WorldData.get_instance()
 	_material = ShaderMaterial.new()
 	_material.shader = load("res://shaders/terrain.gdshader")
 	material = _material
+	_use(MapSpace.data(space))
+	if MapSpace.is_local(space):
+		# another campaign is another valley
+		EventBus.session_started.connect(func(_s: GameSession) -> void: _use(MapSpace.data(space)))
+		EventBus.session_loaded.connect(func(_s: GameSession) -> void: _use(MapSpace.data(space)))
+
+
+func _use(data: WorldData) -> void:
+	if data == null or data == _data:
+		return
+	_data = data
 	_setup_uniforms()
+	queue_redraw()
 
 
 func _setup_uniforms() -> void:
@@ -70,7 +83,7 @@ func _build_palette() -> ImageTexture:
 
 
 func _process(_delta: float) -> void:
-	if _camera == null:
+	if _camera == null or _data == null:
 		return
 	var view := _camera.visible_world_rect()
 	var center := view.get_center().snapped(Vector2(SNAP_M, SNAP_M))
@@ -78,7 +91,9 @@ func _process(_delta: float) -> void:
 	var local_rect := Rect2(view.position - center - margin, view.size + margin * 2.0)
 	if center != position:
 		position = center
-	var origin_mod := Vector2(fposmod(center.x, 1024.0), fposmod(center.y, 1024.0))
+	# the painted noises are read in the continent's metres: a valley cut out of it keeps the same brush strokes
+	var brush := center + _data.feature_origin
+	var origin_mod := Vector2(fposmod(brush.x, 1024.0), fposmod(brush.y, 1024.0))
 	_material.set_shader_parameter("node_origin", center)
 	_material.set_shader_parameter("origin_mod", origin_mod)
 	_material.set_shader_parameter("mpp", _camera.meters_per_pixel())

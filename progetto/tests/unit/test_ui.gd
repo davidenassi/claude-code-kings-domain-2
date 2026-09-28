@@ -209,7 +209,7 @@ func test_the_columns_reach_every_sheet_of_the_realm() -> void:
 		assert_true(_all_text(bottom).contains(wanted), "the bar at the foot carries %s" % wanted)
 	# the chronicle, from the news
 	var news := _open(NewsPanel.new()) as NewsPanel
-	news.setup(null)
+	news.setup(Callable())
 	news.chronicle_requested.connect(func() -> void: host.open(&"chronicle"))
 	for b: Button in _buttons(news):
 		if b.text == "Vedi tutto":

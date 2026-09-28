@@ -43,8 +43,12 @@ var sieges: Array[SiegeState] = []
 var chronicle: Array[Dictionary] = []
 ## Events waiting for the player's word: {id, event, day, expires}.
 var pending_events: Array[Dictionary] = []
-## Changes on the ground (felled trees, quarried rocks).
+## Changes on the ground (felled trees, quarried rocks), in the local metres of the valley.
 var terrain: TerrainDeltas = TerrainDeltas.new()
+## The player's homeland (Rebirth): the finite valley whose local metres settlements, buildings, people and the
+## changes on the ground are measured in. Provinces, realms and armies stay in the metres of the continent.
+## Null only for a world that never had a settlement.
+var domain: DomainState = null
 var next_id: int = 1
 ## Bumped whenever the set of buildings changes, so the per-settlement lists can be cached.
 ## Bumped whenever a province changes hands: who borders whom is cached against it.
@@ -69,6 +73,23 @@ var day: int:
 func new_id() -> int:
 	next_id += 1
 	return next_id - 1
+
+
+## Where a settlement stands on the continent (for the armies, the map symbols and anything else global).
+func settlement_global_pos(s: SettlementState) -> Vector2:
+	if s == null:
+		return Vector2.ZERO
+	return domain.to_global(s.center) if domain else s.center
+
+
+## A position of the valley in the metres of the continent.
+func local_to_global(local_pos: Vector2) -> Vector2:
+	return domain.to_global(local_pos) if domain else local_pos
+
+
+## A position of the continent in the metres of the valley.
+func global_to_local(global_pos: Vector2) -> Vector2:
+	return domain.to_local(global_pos) if domain else global_pos
 
 
 func settlement(settlement_id: int) -> SettlementState:
@@ -295,6 +316,7 @@ func to_dict() -> Dictionary:
 		"chronicle": chronicle.duplicate(true),
 		"pending_events": pending_events.duplicate(true),
 		"terrain": terrain.to_dict(),
+		"domain": domain.to_dict() if domain else {},
 		"next_id": next_id,
 	}
 
@@ -358,6 +380,8 @@ static func from_dict(d: Dictionary) -> WorldState:
 			"cede": Array(od.get("cede", [])).map(func(v: Variant) -> int: return int(v)),
 			"text": String(od.get("text", ""))})
 	w.terrain = TerrainDeltas.from_dict(d.get("terrain", {}))
+	var dd: Dictionary = d.get("domain", {})
+	w.domain = DomainState.from_dict(dd) if not dd.is_empty() else null
 	w.next_id = int(d.get("next_id", 1))
 	return w
 

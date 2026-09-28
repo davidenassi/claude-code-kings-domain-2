@@ -37,6 +37,11 @@ func _ready() -> void:
 	# the notifications of the game live in the HUD (NotificationStack), not in the debug overlay
 
 
+## The camera of the map on the table (Rebirth: each map has its own).
+func set_camera(camera: WorldCamera) -> void:
+	_camera = camera
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"kd_toggle_debug"):
 		visible = not visible

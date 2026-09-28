@@ -11,7 +11,7 @@ const RIVER_GAP_M := 1.0   ## a building keeps its feet out of the river bank by
 ## {ok: bool, reason: String, trees: int (to fell), rocks: int}
 static func check(world: WorldState, settlement: SettlementState, def: BuildingDef, pos: Vector2, ignore_cost: bool = false,
 		founding: bool = false) -> Dictionary:
-	var wd := WorldData.get_instance()
+	var wd := SettlementSim.ground(world)   # the valley, in its own metres
 	var bal: Dictionary = Defs.balance("settlement")
 	var out := {"ok": false, "reason": "", "trees": 0, "rocks": 0}
 	if def == null or (not def.buildable and not founding):
@@ -56,7 +56,7 @@ static func check(world: WorldState, settlement: SettlementState, def: BuildingD
 			out["reason"] = "Lo spazio è occupato da: %s." % b.def().display_name
 			return out
 	# rock outcrops cannot be built over
-	for r in LocalFeatures.outcrops_in_rect(rect.grow(2.0)):
+	for r in LocalFeatures.outcrops_in_rect(wd, rect.grow(2.0)):
 		if world.terrain.rock_charges_left(r) > 0:
 			out["reason"] = "Ci sono rocce affioranti: prima vanno cavate."
 			return out
@@ -65,7 +65,7 @@ static func check(world: WorldState, settlement: SettlementState, def: BuildingD
 		var radius := float(def.requires["rocks_within_m"])
 		var deposit := StringName(def.requires.get("deposit", "stone"))
 		var found := 0
-		for r in LocalFeatures.outcrops_in_rect(Rect2(pos - Vector2(radius, radius), Vector2(radius, radius) * 2.0)):
+		for r in LocalFeatures.outcrops_in_rect(wd, Rect2(pos - Vector2(radius, radius), Vector2(radius, radius) * 2.0)):
 			if r["deposit"] == deposit and r["pos"].distance_to(pos) <= radius and world.terrain.rock_charges_left(r) > 0:
 				found += 1
 		out["rocks"] = found
@@ -144,7 +144,7 @@ static func touches_river(wd: WorldData, rect: Rect2) -> bool:
 
 
 static func check_road(world: WorldState, settlement: SettlementState, a: Vector2, b: Vector2) -> Dictionary:
-	var wd := WorldData.get_instance()
+	var wd := SettlementSim.ground(world)   # the valley, in its own metres
 	var out := {"ok": false, "reason": "", "trees": 0, "rocks": 0}
 	if settlement == null:
 		out["reason"] = "Nessun insediamento."
@@ -175,7 +175,7 @@ static func check_road(world: WorldState, settlement: SettlementState, a: Vector
 			out["reason"] = "La strada passerebbe sopra: %s." % other.def().display_name
 			return out
 	var bounds := Rect2(a, Vector2.ZERO).expand(b).grow(half + 1.0)
-	for r in LocalFeatures.outcrops_in_rect(bounds):
+	for r in LocalFeatures.outcrops_in_rect(wd, bounds):
 		if world.terrain.rock_charges_left(r) > 0 and Geometry2D.get_closest_point_to_segment(r["pos"], a, b).distance_to(r["pos"]) <= half + 1.0:
 			out["reason"] = "Ci sono rocce affioranti sul tracciato."
 			return out

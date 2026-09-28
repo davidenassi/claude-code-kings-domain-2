@@ -259,7 +259,7 @@ func test_a_besieged_village_falls_with_its_houses_and_its_people_intact() -> vo
 	Diplomacy.start_war(w, enemy.id, me.id)
 	var village := w.settlements[0]
 	var host := _host(s, enemy, village.province, 40)
-	host.pos = village.center + Vector2(700.0, 0.0)
+	host.pos = w.settlement_global_pos(village) + Vector2(700.0, 0.0)   # hosts stand on the map of the world
 	var buildings_before := w.buildings_of(village.id).size()
 	var people_before := w.people_of(village.id).size()
 	var trust_before := village.trust

@@ -169,19 +169,19 @@ func _draw_settlements(world: WorldState, mpp: float, screen: Rect2, taken: Arra
 	var view := _camera.visible_world_rect().grow(600.0)
 	var font := KDFonts.serif_bold()
 	for s in world.settlements:
-		if not view.has_point(s.center):
+		# the settlement lives in the valley; on this map it stands where its valley is on the continent
+		var at := world.settlement_global_pos(s)
+		if not view.has_point(at):
 			continue
 		var people := world.people_of(s.id).size()
 		var pin := KDUi.icon(_pin_for(people))
-		if pin == null:
-			continue
-		var p := _camera.world_to_screen(s.center)
+		var p := _camera.world_to_screen(at)
 		# the pin stands above the houses and the name under them: both used to sit on the village itself and
 		# hid it (Phase 18 audit). When the place is big enough on screen to be read, the pin steps aside.
 		var r_px := minf(built_radius(world, s) / mpp, 220.0)
 		var pin_alpha := alpha * (1.0 - smoothstep(45.0, 80.0, r_px))
 		var h := 30.0 if people >= 400 else (26.0 if people >= 60 else 22.0)
-		var w := h * float(pin.get_width()) / maxf(float(pin.get_height()), 1.0)
+		var w := h * float(pin.get_width()) / maxf(float(pin.get_height()), 1.0) if pin else h * 0.8
 		var rect := Rect2(p.x - w * 0.5, p.y - r_px * 0.8 - h, w, h)
 		var fs := 13
 		var tw := font.get_string_size(s.name, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
@@ -195,7 +195,10 @@ func _draw_settlements(world: WorldState, mpp: float, screen: Rect2, taken: Arra
 			plate.modulate_color = Color(1, 1, 1, alpha)
 			draw_style_box(plate, plate_rect)
 		if pin_alpha > 0.01:
-			draw_texture_rect(pin, rect, false, Color(1, 1, 1, pin_alpha))
+			if pin:
+				draw_texture_rect(pin, rect, false, Color(1, 1, 1, pin_alpha))
+			else:
+				_draw_seat_mark(rect, pin_alpha)   # the painted kit is missing: a drawn seat, never nothing
 			var k := world.kingdom(s.kingdom)
 			if k:
 				# a dot of the realm's colour on the pin: who holds the place is read at a glance
@@ -203,6 +206,19 @@ func _draw_settlements(world: WorldState, mpp: float, screen: Rect2, taken: Arra
 		draw_string(font, Vector2(p.x - tw * 0.5, plate_rect.position.y + fs + 2.5), s.name,
 			HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.96, 0.91, 0.78, alpha))
 		drawn_count += 1
+
+
+## A seat drawn by hand for when the painted pins are not there: a gold-rimmed tower on a disc.
+func _draw_seat_mark(rect: Rect2, alpha: float) -> void:
+	var c := rect.get_center()
+	var r := rect.size.y * 0.42
+	draw_circle(c, r + 2.0, Color(0.18, 0.12, 0.06, 0.85 * alpha))
+	draw_circle(c, r, Color(0.93, 0.86, 0.66, alpha))
+	var t := Rect2(c.x - r * 0.35, c.y - r * 0.55, r * 0.7, r * 1.0)
+	draw_rect(t, Color(0.35, 0.26, 0.16, alpha))
+	for i in 3:
+		draw_rect(Rect2(t.position.x + i * t.size.x / 2.5, t.position.y - r * 0.18, t.size.x / 5.0, r * 0.2), Color(0.35, 0.26, 0.16, alpha))
+	draw_arc(c, r, 0.0, TAU, 28, Color(GOLD, alpha), 2.0, true)
 
 
 static var _radius_cache: Dictionary = {}   # settlement id -> [buildings_version, metres]

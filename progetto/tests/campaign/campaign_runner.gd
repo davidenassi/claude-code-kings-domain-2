@@ -65,7 +65,7 @@ func _ready() -> void:
 
 func _play(seed_value: int, years: int) -> Array[Dictionary]:
 	var session := GameSession.create_new({"campaign_seed": seed_value})
-	var counter := func(_title: String, text: String, kind: StringName, _p: Vector2) -> void:
+	var counter := func(_title: String, text: String, kind: StringName, _p: Vector2, _space: StringName) -> void:
 		var key := String(kind)
 		if kind == &"emigration":
 			key = "left:" + text.get_slice(":", text.get_slice_count(":") - 1).strip_edges().left(28)

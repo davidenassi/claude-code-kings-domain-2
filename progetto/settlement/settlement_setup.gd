@@ -15,7 +15,13 @@ static func found_player_settlement(world: WorldState) -> SettlementState:
 		return null
 	var wd := WorldData.get_instance()
 	var bal: Dictionary = Defs.balance("settlement")
-	var site := choose_site(world, player.capital)
+	# the first fire is chosen on the real ground of the home province; the valley of the homeland is laid
+	# around it (Rebirth, Phase 1: from here on everything of the settlement lives in the valley's own metres)
+	var site_global := choose_site(world, player.capital)
+	if world.domain == null:
+		world.domain = DomainState.crop_around(site_global, player.capital, wd.size_m)
+	var ld := DomainData.of(world)
+	var site := world.domain.to_local(site_global).snapped(Vector2.ONE)
 	var s := SettlementState.new()
 	s.id = world.settlements.size()
 	s.name = wd.province_geo(player.capital).name
@@ -37,7 +43,7 @@ static func found_player_settlement(world: WorldState) -> SettlementState:
 	var shelter := _add_building(world, s, &"shelter", site + Vector2(14.0, 8.0))
 	var radius := float(bal.get("site_clear_radius_m", 26.0))
 	var clear_rect := Rect2(site - Vector2(radius, radius), Vector2(radius, radius) * 2.0)
-	for t in LocalFeatures.trees_in_rect(wd, clear_rect.grow(12.0)):
+	for t in LocalFeatures.trees_in_rect(ld, clear_rect.grow(12.0)):
 		var in_building := store.rect().grow(1.0).has_point(t["pos"]) or shelter.rect().grow(1.0).has_point(t["pos"])
 		if in_building:
 			world.terrain.fell(t, -30, true)
@@ -130,6 +136,7 @@ static func _add_founders(world: WorldState, s: SettlementState, shelter: Buildi
 
 
 ## Best spot for the first fire inside a province: dry flat ground, water within reach, stone nearby, few trees.
+## In metres of the continent (the valley is laid around it).
 static func choose_site(world: WorldState, province_id: int) -> Vector2:
 	var wd := WorldData.get_instance()
 	var g := wd.province_geo(province_id)

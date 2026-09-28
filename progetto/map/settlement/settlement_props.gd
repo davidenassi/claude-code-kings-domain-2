@@ -77,7 +77,7 @@ static func props(world: WorldState) -> Array:
 	var out: Array = []
 	var taken: Array[Rect2] = []
 	var roads := SettlementSim.active_roads(world)
-	var wd := WorldData.get_instance()
+	var wd := SettlementSim.ground(world)
 	var yards := SettlementLayer.yards(world)
 	for b: BuildingState in world.buildings.values():
 		if not b.is_road():

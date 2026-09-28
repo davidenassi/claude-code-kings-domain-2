@@ -17,6 +17,9 @@ const MAX_SCALE := 3.2
 const BANNER_PX := 30.0
 
 @export var camera_path: NodePath
+## Which map the hosts are drawn on (Rebirth). Armies live on the continent; on the map of the valley only the
+## ones standing in it are drawn, moved into the valley's metres (the homeland seen from close by).
+@export var space: StringName = MapSpace.GLOBAL
 
 var _camera: WorldCamera
 var _atlas: Texture2D
@@ -45,7 +48,12 @@ func _process(delta: float) -> void:
 		queue_redraw()
 
 
-## Where the army stands right now, walking its day's stretch of road.
+## A point of the continent on this layer's map.
+func _on_map(world: WorldState, global_pos: Vector2) -> Vector2:
+	return world.global_to_local(global_pos) if MapSpace.is_local(space) else global_pos
+
+
+## Where the army stands right now, walking its day's stretch of road (metres of the continent).
 static func army_position(session: GameSession, a: ArmyState) -> Vector2:
 	if a.step_from == a.step_to:
 		return a.pos
@@ -67,18 +75,22 @@ func _draw() -> void:
 		var att := world.army(b.attacker)
 		var def := world.army(b.defender)
 		var seen := (att and Military.can_see(world, me.id, att)) or (def and Military.can_see(world, me.id, def))
-		if seen and view.has_point(b.pos):
-			_draw_mark(&"mark_battle", b.pos, mpp, 34.0)
+		var bpos := _on_map(world, b.pos)
+		if seen and view.has_point(bpos):
+			_draw_mark(&"mark_battle", bpos, mpp, 34.0)
 	for s in world.sieges:
 		var army := world.army(s.army)
-		if army == null or not Military.can_see(world, me.id, army) or not view.has_point(army.pos):
+		if army == null or not Military.can_see(world, me.id, army):
+			continue
+		var apos := _on_map(world, army.pos)
+		if not view.has_point(apos):
 			continue
 		var radius := 34.0 * mpp
-		draw_arc(army.pos, radius, -PI * 0.5, -PI * 0.5 + TAU * clampf(s.progress, 0.02, 1.0), 26,
+		draw_arc(apos, radius, -PI * 0.5, -PI * 0.5 + TAU * clampf(s.progress, 0.02, 1.0), 26,
 			Color(0.85, 0.6, 0.2, 0.9), maxf(2.5 * mpp, 0.4), true)
-		_draw_mark(&"mark_siege", army.pos, mpp, 26.0)
+		_draw_mark(&"mark_siege", apos, mpp, 26.0)
 	for a in Military.visible_armies(world, me.id):
-		var pos := army_position(session, a)
+		var pos := _on_map(world, army_position(session, a))
 		if not view.has_point(pos):
 			continue
 		var k := world.kingdom(a.kingdom)

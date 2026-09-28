@@ -11,9 +11,8 @@ extends Node2D
 
 const ATLAS_DIR := "res://assets/buildings"
 const VISIBLE_MPP := Vector2(2.4, 2.7)   # fully visible below x, hidden above y: further away SettlementMarks draws them
-## The settlements the camera looks at are simulated inhabitant by inhabitant up to this zoom (unchanged since
-## Phase 6: the drawing hands over to SettlementMarks earlier, the detailed simulation does not change)
-const OBSERVED_MPP := 22.0
+## Rebirth: which settlements are simulated inhabitant by inhabitant is no longer decided by the zoom here but by
+## the map on the table (LocalView: the valley is watched; GlobalView: nobody is).
 
 @export var camera_path: NodePath
 
@@ -81,14 +80,6 @@ func _process(_delta: float) -> void:
 		_last_fade = fade
 		modulate.a = fade
 	if Session.has_game():
-		# settlements on screen are simulated inhabitant by inhabitant, the others day by day
-		var observed := {}
-		if mpp < OBSERVED_MPP:
-			var view := _camera.visible_world_rect().grow(400.0)
-			for s in Session.current.world.settlements:
-				if view.has_point(s.center):
-					observed[s.id] = true
-		SettlementSim.set_observed(Session.current, observed)
 		var m := int(Session.current.calendar.date_of(Session.current.world.day)["month"])
 		if m != _month:
 			_month = m
@@ -375,7 +366,7 @@ func _draw_track(a: Vector2, b: Vector2, half: float, fill: Color, edge: Color, 
 ## drawn: walking speed still comes from the roads the player lays.
 static func footpaths(world: WorldState, s: SettlementState) -> Array:
 	var nodes := PackedVector2Array([s.center])
-	var wd := WorldData.get_instance()
+	var wd := SettlementSim.ground(world)
 	for b in world.buildings_of(s.id):
 		if b.is_road() or not b.is_active():
 			continue
@@ -430,7 +421,7 @@ static func footpaths(world: WorldState, s: SettlementState) -> Array:
 ## drawn, chosen by the id of the house, and never over another building, a road, a path's door or the river.
 static func yards(world: WorldState) -> Array[Rect2]:
 	var out: Array[Rect2] = []
-	var wd := WorldData.get_instance()
+	var wd := SettlementSim.ground(world)
 	var roads := SettlementSim.active_roads(world)
 	for b: BuildingState in world.buildings.values():
 		if b.def_id != &"house" or not b.is_active():
@@ -529,7 +520,7 @@ func _draw_square(s: SettlementState, people: int) -> void:
 ## The path the settlement wore down to the water: from the square to the nearest point of the river bank, if the
 ## river is close (people fetch water, wash, water the animals). Returns [from, to] or [].
 static func river_path(world: WorldState, s: SettlementState) -> Array:
-	var wd := WorldData.get_instance()
+	var wd := SettlementSim.ground(world)
 	var start := s.center
 	if wd.river_clearance(start) > 260.0:
 		return []

@@ -125,14 +125,14 @@ func _unhandled_input(event: InputEvent) -> void:
 						if not mb.shift_pressed:
 							stop()
 					else:
-						EventBus.notify("Non si può tracciare qui", road.reason, &"warning", _pos)
+						EventBus.notify_local("Non si può tracciare qui", road.reason, &"warning", _pos)
 			else:
 				var res := Session.current.submit(PlaceBuildingCommand.create(s.id, def_id, _pos))
 				if res.success:
 					if not mb.shift_pressed:
 						stop()
 				else:
-					EventBus.notify("Non si può costruire qui", res.reason, &"warning", _pos)
+					EventBus.notify_local("Non si può costruire qui", res.reason, &"warning", _pos)
 			get_viewport().set_input_as_handled()
 		elif mb.button_index == MOUSE_BUTTON_RIGHT:
 			if mb.pressed:

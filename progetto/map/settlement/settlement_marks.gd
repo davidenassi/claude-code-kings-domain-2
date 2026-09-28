@@ -78,7 +78,7 @@ func _draw() -> void:
 			continue
 		# the trodden ground around the doors: overlapping patches make the shape of the place — first every
 		# rim, then every fill, so the rims show only on the outside
-		var wd := WorldData.get_instance()
+		var wd := SettlementSim.ground(world)
 		for pass_i in 2:
 			for b in list:
 				if b.is_road() or b.def().work_type() == &"farm":

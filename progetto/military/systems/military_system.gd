@@ -88,13 +88,14 @@ static func _raise_regiment(session: GameSession, s: SettlementState, t: Diction
 ## The host standing on the settlement, or a new one raised there.
 static func _host_at(world: WorldState, k: KingdomState, s: SettlementState) -> ArmyState:
 	for a in world.armies:
-		if a.kingdom == k.id and a.path.is_empty() and a.pos.distance_to(s.center) < 600.0:
+		if a.kingdom == k.id and a.path.is_empty() and a.pos.distance_to(world.settlement_global_pos(s)) < 600.0:
 			return a
 	var army := ArmyState.new()
 	army.id = world.new_id()
 	army.kingdom = k.id
 	army.name = Military.army_name(world, k)
-	army.pos = s.center + Vector2(140.0, 90.0)
+	# the host gathers outside the capital on the map of the world (the settlement lives in the valley's metres)
+	army.pos = world.settlement_global_pos(s) + Vector2(140.0, 90.0)
 	army.province = s.province
 	army.step_from = army.pos
 	army.step_to = army.pos

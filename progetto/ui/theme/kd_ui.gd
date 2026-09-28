@@ -14,10 +14,17 @@ static var _styles: Dictionary = {}
 static var _icons: Dictionary = {}
 
 
+## The pieces of the kit whose picture is really there: a piece listed in kit.json whose file is missing (a copy
+## of the project without the painted sheets) is left out, so every caller falls back to the drawn styles instead
+## of a transparent box (Rebirth audit: the inspection pack has no kit PNGs).
 static func kit() -> Dictionary:
 	if _kit.is_empty():
 		var d: Variant = Defs.read_json(KIT_PATH)
-		_kit = (d as Dictionary).get("pieces", {}) if d is Dictionary else {}
+		var all: Dictionary = (d as Dictionary).get("pieces", {}) if d is Dictionary else {}
+		for key: String in all.keys():
+			var entry: Dictionary = all[key]
+			if ResourceLoader.exists(DIR.path_join(String(entry.get("file", "")))):
+				_kit[key] = entry
 	return _kit
 
 

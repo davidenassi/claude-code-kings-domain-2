@@ -3,9 +3,12 @@ extends MeshInstance2D
 ## All rivers of the official map as one mesh of ribbons (see shaders/river.gdshader).
 
 @export var camera_path: NodePath
+## Which map these rivers belong to (the continent's, or the valley's in its own metres).
+@export var space: StringName = MapSpace.GLOBAL
 
 var _camera: WorldCamera
 var _material: ShaderMaterial
+var _data: WorldData = null
 
 
 func _ready() -> void:
@@ -13,7 +16,17 @@ func _ready() -> void:
 	_material = ShaderMaterial.new()
 	_material.shader = load("res://shaders/river.gdshader")
 	material = _material
-	mesh = build_mesh(WorldData.get_instance().rivers)
+	_use(MapSpace.data(space))
+	if MapSpace.is_local(space):
+		EventBus.session_started.connect(func(_s: GameSession) -> void: _use(MapSpace.data(space)))
+		EventBus.session_loaded.connect(func(_s: GameSession) -> void: _use(MapSpace.data(space)))
+
+
+func _use(data: WorldData) -> void:
+	if data == null or data == _data:
+		return
+	_data = data
+	mesh = build_mesh(data.rivers)
 
 
 static func build_mesh(rivers: Array[Dictionary]) -> ArrayMesh:

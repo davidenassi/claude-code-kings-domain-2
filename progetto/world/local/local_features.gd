@@ -7,6 +7,10 @@ extends RefCounted
 ##
 ## Trees: jittered grid of the "close" vegetation band (data/defs/vegetation.json), density from the canopy raster.
 ## Outcrops: rocks scattered around every stone/iron deposit of the province data, with a number of charges.
+##
+## Rebirth (Phase 1): every function takes the map data it works on — the continent (WorldData) or the player's
+## valley (DomainData), in the valley's own metres. Hashes and noises are taken at `wd.feature_origin + pos`, so a
+## valley cut out of the continent grows exactly the trees the continent had there.
 
 ## Trees, bushes and rocks keep this far from the edge of the drawn river (its bank included).
 const RIVER_CLEAR_M := 1.5
@@ -27,6 +31,8 @@ static var _rock_chance := 0.04
 static var _outcrops: Array[Dictionary] = []      # {id: String, pos: Vector2, size: float, charges: int, deposit: StringName}
 static var _outcrop_buckets: Dictionary = {}      # Vector2i -> PackedInt32Array
 static var _outcrop_by_id: Dictionary = {}
+## The map data the outcrops above were laid out on (they are rebuilt when another map asks).
+static var _outcrops_of: WorldData = null
 
 
 static func ensure_ready() -> void:
@@ -59,7 +65,6 @@ static func ensure_ready() -> void:
 		var bd: BiomeDef = Defs.get_def("biomes", StringName(b))
 		if bd:
 			_rock_biomes[bd.index] = true
-	_build_outcrops()
 
 
 static func spacing() -> float:
@@ -79,15 +84,20 @@ static func cell_feature(wd: WorldData, gx: int, gy: int) -> Dictionary:
 	ensure_ready()
 	var s := _salt
 	var sp := _spacing
-	var pos := Vector2((gx + 0.1 + 0.8 * KDRng.hash01(gx, gy, s)) * sp, (gy + 0.1 + 0.8 * KDRng.hash01(gx, gy, s + 1)) * sp)
+	# the dice of a cell are the continent's cell (identical for the continent itself, whose origin is zero)
+	var off := cell_offset(wd)
+	var hx := gx + off.x
+	var hy := gy + off.y
+	var pos := Vector2((gx + 0.1 + 0.8 * KDRng.hash01(hx, hy, s)) * sp, (gy + 0.1 + 0.8 * KDRng.hash01(hx, hy, s + 1)) * sp)
 	if not wd.in_world(pos) or wd.water_at(pos) != WorldData.WATER_LAND:
 		return {}
 	if wd.river_clearance(pos) < RIVER_CLEAR_M:
 		return {}   # no tree grows in the river or on its gravel bank (Phase 17 check)
-	var h3 := KDRng.hash01(gx, gy, s + 2)
+	var h3 := KDRng.hash01(hx, hy, s + 2)
 	var biome := wd.biome_at(pos)
-	var jitter := Vector2(KDRng.hash01(gx, gy, s + 3) - 0.5, KDRng.hash01(gx, gy, s + 4) - 0.5) * 70.0
+	var jitter := Vector2(KDRng.hash01(hx, hy, s + 3) - 0.5, KDRng.hash01(hx, hy, s + 4) - 0.5) * 70.0
 	var canopy := wd.canopy_smooth(pos + jitter)
+	var npos := pos + wd.feature_origin   # where the noises of the woods are read
 	# a wood has a shape (world art pass): thick cores and glades (glade_factor, the same the mid zoom draws),
 	# ragged margins (margin_noise), and outside it trees in small groups, not a uniform stipple. The factors
 	# average to one: the same number of trees overall, so the wood a village can cut does not change on average.
@@ -95,22 +105,29 @@ static func cell_feature(wd: WorldData, gx: int, gy: int) -> Dictionary:
 	var p := 0.0
 	var dens := canopy
 	if h3 < smoothstep(0.10, 0.55, canopy + 0.15) * _bias * GLADE_MAX + GROVE_MAX:
-		dens = canopy + margin_noise(pos)
-		p = smoothstep(0.10, 0.55, dens) * _bias * glade_factor(pos)
+		dens = canopy + margin_noise(npos)
+		p = smoothstep(0.10, 0.55, dens) * _bias * glade_factor(npos)
 		if p < 0.2:
-			p += grove_chance(pos)   # inside a wood the groves change nothing: not worth their noise
+			p += grove_chance(npos)   # inside a wood the groves change nothing: not worth their noise
 	if h3 < p:
-		var species := pick_species(biome, KDRng.hash01(gx, gy, s + 5))
+		var species := pick_species(biome, KDRng.hash01(hx, hy, s + 5))
 		if species == &"":
 			return {}
 		return {"kind": KIND_BUSH if _bushes.has(species) else KIND_TREE, "key": tree_key(gx, gy), "pos": pos,
-			"gx": gx, "gy": gy, "species": species, "biome": biome, "variant_hash": KDRng.hash01(gx, gy, s + 6),
-			"tint_hash": KDRng.hash01(gx, gy, s + 9), "density": dens}
+			"gx": gx, "gy": gy, "species": species, "biome": biome, "variant_hash": KDRng.hash01(hx, hy, s + 6),
+			"tint_hash": KDRng.hash01(hx, hy, s + 9), "density": dens}
 	if _rock_biomes.has(biome) and h3 > 1.0 - _rock_chance:
 		return {"kind": KIND_ROCK, "key": tree_key(gx, gy), "pos": pos, "gx": gx, "gy": gy,
-			"species": &"rock" if KDRng.hash01(gx, gy, s + 7) < 0.8 else &"boulder", "biome": biome,
-			"variant_hash": KDRng.hash01(gx, gy, s + 8), "tint_hash": KDRng.hash01(gx, gy, s + 9), "density": dens}
+			"species": &"rock" if KDRng.hash01(hx, hy, s + 7) < 0.8 else &"boulder", "biome": biome,
+			"variant_hash": KDRng.hash01(hx, hy, s + 8), "tint_hash": KDRng.hash01(hx, hy, s + 9), "density": dens}
 	return {}
+
+
+## The tree grid of `wd` starts this many cells into the continent's (zero for the continent and for homelands).
+static func cell_offset(wd: WorldData) -> Vector2i:
+	if wd.feature_origin == Vector2.ZERO:
+		return Vector2i.ZERO
+	return Vector2i(roundi(wd.feature_origin.x / _spacing), roundi(wd.feature_origin.y / _spacing))
 
 
 const GLADE_MAX := 2.7
@@ -204,9 +221,20 @@ static func tree_by_key(wd: WorldData, key: String) -> Dictionary:
 
 # --- outcrops -----------------------------------------------------------------------------------
 
-static func _build_outcrops() -> void:
-	var wd := WorldData.get_instance()
+static func _ensure_outcrops(wd: WorldData) -> void:
+	ensure_ready()
+	if _outcrops_of == wd:
+		return
+	_outcrops_of = wd
+	_outcrops = []
+	_outcrop_buckets = {}
+	_outcrop_by_id = {}
+	_build_outcrops(wd)
+
+
+static func _build_outcrops(wd: WorldData) -> void:
 	var bal: Dictionary = Defs.balance("settlement")
+	var bounds := Rect2(Vector2.ZERO, wd.size_m).grow(float(bal.get("outcrop_radius_m", 34.0)) + 8.0)
 	var radius := float(bal.get("outcrop_radius_m", 34.0))
 	var counts: Array = bal.get("outcrop_rocks", [6, 14])
 	var charges: Array = bal.get("rock_charges", [7, 10])
@@ -216,6 +244,8 @@ static func _build_outcrops() -> void:
 			if not OUTCROP_TYPES.has(dep["type"]):
 				continue
 			var center: Vector2 = dep["pos"]
+			if not bounds.has_point(center):
+				continue   # a deposit of the continent outside the valley
 			var n := int(lerpf(float(counts[0]), float(counts[1]), clampf(float(dep["richness"]) - 0.5, 0.0, 1.0)))
 			var salt := g.id * 131 + di * 17
 			for i in n:
@@ -237,8 +267,8 @@ static func _build_outcrops() -> void:
 				_outcrop_buckets[bk] = list
 
 
-static func outcrops_in_rect(rect: Rect2) -> Array[Dictionary]:
-	ensure_ready()
+static func outcrops_in_rect(wd: WorldData, rect: Rect2) -> Array[Dictionary]:
+	_ensure_outcrops(wd)
 	var out: Array[Dictionary] = []
 	for by in range(int(floor(rect.position.y / OUTCROP_BUCKET_M)), int(floor(rect.end.y / OUTCROP_BUCKET_M)) + 1):
 		for bx in range(int(floor(rect.position.x / OUTCROP_BUCKET_M)), int(floor(rect.end.x / OUTCROP_BUCKET_M)) + 1):
@@ -249,7 +279,7 @@ static func outcrops_in_rect(rect: Rect2) -> Array[Dictionary]:
 	return out
 
 
-static func outcrop(rock_id: String) -> Dictionary:
-	ensure_ready()
+static func outcrop(wd: WorldData, rock_id: String) -> Dictionary:
+	_ensure_outcrops(wd)
 	return _outcrops[_outcrop_by_id[rock_id]] if _outcrop_by_id.has(rock_id) else {}
 

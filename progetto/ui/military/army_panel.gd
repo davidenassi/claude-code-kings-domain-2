@@ -3,6 +3,9 @@ extends PanelContainer
 ## The host sheet: who can be raised in the village and at what price, and what the armies already on the road
 ## are made of — men, heart, bread left, who commands them and where they are going.
 
+## A host waits for its destination: the orders are given on the map of the world (Rebirth).
+signal destination_wanted(army_id: int)
+
 var _levy: VBoxContainer
 var _armies: VBoxContainer
 var _signature := ""
@@ -182,6 +185,7 @@ func _army_row(session: GameSession, a: ArmyState) -> void:
 	move.pressed.connect(func() -> void:
 		if _interaction:
 			_interaction.order_army(a.id)
+		destination_wanted.emit(a.id)
 		EventBus.notify("Ordini", "Indica sulla mappa dove deve andare %s." % a.name, &"army"))
 	buttons.add_child(move)
 	var disband := Button.new()

@@ -35,6 +35,11 @@ var water: PackedByteArray
 var coast: PackedByteArray
 var province_raster: PackedByteArray   ## uint16 little endian per 64 m cell
 
+## Continent metres of this data's (0, 0): zero for the continent itself; for a valley cut out of it (DomainData)
+## the corner of the window, so that trees, woods and rocks are drawn from the same hashes and noises as the
+## continent would draw them there (the same trees after the Rebirth migration).
+var feature_origin: Vector2 = Vector2.ZERO
+
 var provinces: Array[ProvinceGeo] = []
 ## [{id, length_m, max_width_m, points: PackedVector2Array, widths: PackedFloat32Array}]
 var rivers: Array[Dictionary] = []

@@ -87,7 +87,7 @@ func test_twenty_years_of_a_prosperous_village() -> void:
 	var st := w.settlements[0]
 	var t0 := Time.get_ticks_msec()
 	var counts := {"birth": 0, "death": 0}
-	var counter := func(_t: String, _x: String, kind: StringName, _p: Vector2) -> void:
+	var counter := func(_t: String, _x: String, kind: StringName, _p: Vector2, _space: StringName) -> void:
 		if counts.has(String(kind)):
 			counts[String(kind)] = int(counts[String(kind)]) + 1
 	EventBus.notification.connect(counter)
@@ -169,7 +169,7 @@ func test_a_village_left_to_itself_empties_instead_of_starving() -> void:
 	var w := s.world
 	var st := w.settlements[0]
 	var counts := {"left": 0, "starved": 0, "born": 0}
-	var counter := func(_title: String, text: String, kind: StringName, _p: Vector2) -> void:
+	var counter := func(_title: String, text: String, kind: StringName, _p: Vector2, _space: StringName) -> void:
 		if kind == &"emigration":
 			counts["left"] = int(counts["left"]) + 1
 		elif kind == &"death" and text.contains("di stenti"):

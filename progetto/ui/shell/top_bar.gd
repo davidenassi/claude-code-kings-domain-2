@@ -221,7 +221,9 @@ func _build_clock() -> void:
 	map_btn.add_theme_constant_override("icon_max_width", 20)
 	map_btn.focus_mode = Control.FOCUS_NONE
 	map_btn.custom_minimum_size = Vector2(36, 32)
-	map_btn.tooltip_text = "Cambia mappa (M)"
+	if map_btn.icon == null:
+		map_btn.text = "Mondo"   # the painted pin is missing: a word, never an empty button
+	map_btn.tooltip_text = "Mappa del mondo / torna al dominio (Tab)"
 	KDTheme.button_styles(map_btn)
 	map_btn.pressed.connect(func() -> void: map_requested.emit())
 	clock_row.add_child(map_btn)

@@ -193,7 +193,7 @@ func _die(session: GameSession, s: SettlementState, p: PersonState, day: int) ->
 	world.remove_person(p.id)
 	s.recent_deaths.append(day)
 	var cause := "di stenti" if p.hunger > 6.0 else ("di vecchiaia" if p.age_years(day) >= int(bal().get("elder_age", 62)) else "di malattia")
-	EventBus.notify("Un lutto a %s" % s.name, "%s è morto %s a %d anni." % [p.name, cause, p.age_years(day)], &"death", p.seg_to)
+	EventBus.notify_local("Un lutto a %s" % s.name, "%s è morto %s a %d anni." % [p.name, cause, p.age_years(day)], &"death", p.seg_to)
 	SettlementSim.mark_assignment_dirty(session, s.id)
 	EventBus.settlement_changed.emit(s.id)
 
@@ -258,7 +258,7 @@ func _newborn(session: GameSession, s: SettlementState, mother: PersonState, fat
 	if fam:
 		fam.record(&"children", 1.0)
 	var full := SettlementSetup.full_name(world, p)
-	EventBus.notify("Un nuovo abitante", "%s è nat%s a %s, da %s e %s." % [full, "a" if p.female else "o", s.name,
+	EventBus.notify_local("Un nuovo abitante", "%s è nat%s a %s, da %s e %s." % [full, "a" if p.female else "o", s.name,
 		father.name, mother.name], &"birth", mother.seg_to)
 	var realm := world.kingdom(s.kingdom)
 	if realm and realm.is_player and not realm.records.has(&"chronicle_first_child"):
@@ -328,7 +328,7 @@ static func welcome(session: GameSession, s: SettlementState, n: int, day: int, 
 		home = _free_home(world, s)
 	if arrived.is_empty():
 		return 0
-	EventBus.notify("Viandanti a %s" % s.name, "%s %s." % [", ".join(arrived), why], &"travellers", s.center)
+	EventBus.notify_local("Viandanti a %s" % s.name, "%s %s." % [", ".join(arrived), why], &"travellers", s.center)
 	SettlementSim.mark_assignment_dirty(session, s.id)
 	EventBus.settlement_changed.emit(s.id)
 	return arrived.size()
@@ -349,7 +349,7 @@ static func send_away(session: GameSession, s: SettlementState, n: int, day: int
 		world.remove_person(p.id)
 	if names.is_empty():
 		return 0
-	EventBus.notify("Partenze da %s" % s.name, "%s se ne vanno a cercare fortuna." % ", ".join(names), &"emigration", s.center)
+	EventBus.notify_local("Partenze da %s" % s.name, "%s se ne vanno a cercare fortuna." % ", ".join(names), &"emigration", s.center)
 	SettlementSim.mark_assignment_dirty(session, s.id)
 	EventBus.settlement_changed.emit(s.id)
 	return names.size()
@@ -471,12 +471,12 @@ func _emigration(session: GameSession, s: SettlementState, day: int) -> void:
 			world.remove_person(p.id)
 	var carried := "" if going.size() == leaving.size() else " con %d figli" % (going.size() - leaving.size())
 	if target:
-		EventBus.notify("Partenze da %s" % s.name,
+		EventBus.notify_local("Partenze da %s" % s.name,
 			"%s%s se ne vanno a %s: %s." % [", ".join(names), carried, target.name, reason], &"emigration", s.center)
 		SettlementSim.mark_assignment_dirty(session, target.id)
 		EventBus.settlement_changed.emit(target.id)
 	else:
-		EventBus.notify("Partenze da %s" % s.name,
+		EventBus.notify_local("Partenze da %s" % s.name,
 			"%s%s lasciano il regno: %s." % [", ".join(names), carried, reason], &"emigration", s.center)
 	SettlementSim.mark_assignment_dirty(session, s.id)
 	EventBus.settlement_changed.emit(s.id)

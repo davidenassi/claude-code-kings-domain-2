@@ -1,7 +1,9 @@
 # King's Domain
 
-Un gioco strategico/gestionale medievale in 2D semplice e leggibile (Godot 4.7): da **un re e sei abitanti** a una potenza continentale,
-su **un solo mondo continuo**.
+Un gioco medievale di fondazione e crescita che evolve in un grand strategy (Godot 4.7): da **sei fondatori** a una grande
+potenza. **Rebirth (dal 28/09/2026): due mappe, una simulazione** — la **mappa locale del dominio** (la valle della patria:
+costruisci, osservi, vivi) e la **mappa globale strategica** (il continente: esplori, comprendi, espandi).
+Piano e stato in [KINGSDOMAIN_REBIRTH_AUDIT.md](KINGSDOMAIN_REBIRTH_AUDIT.md) e [KINGSDOMAIN_REBIRTH_REPORT.md](KINGSDOMAIN_REBIRTH_REPORT.md).
 
 ## Documenti
 - [GAME_DESIGN_MAP.md](GAME_DESIGN_MAP.md) — cosa è il gioco e come i sistemi si toccano
@@ -17,7 +19,11 @@ Aprire la cartella con Godot 4.7.2 oppure da terminale:
 ```
 
 Comandi: rotella = zoom verso il cursore · WASD/frecce o tasto destro/centrale trascinato = spostamento ·
-Spazio = pausa · 1–5 = velocità · F5/F9 = salvataggio/caricamento rapido · F3 = pannello di debug.
+**Tab = valle ⇄ mappa del mondo** (anche il pulsante «Mondo» dell'orologio, quello della minimappa, o doppio clic sulla
+patria nella mappa del mondo) · Spazio = pausa · 1–5 = velocità · F5/F9 = salvataggio/caricamento rapido ·
+F3 = pannello di debug.
+
+Linux / CI: `tools/setup_generated.sh` rigenera mappa e atlanti (identici all'originale), `tools/check.sh` fa import e test.
 
 ## Verifica automatica
 ```
