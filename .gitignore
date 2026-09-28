@@ -28,12 +28,12 @@ progetto/data/world/albedo_far.png
 progetto/data/world/provinces.json
 progetto/data/world/borders.json
 progetto/data/world/rivers.json
-progetto/assets/buildings/building_atlas.png
-progetto/assets/buildings/props_atlas.png
+# (Rebirth, Phase 3: the building, props and people atlases were redrawn — the fire of the nucleus, its benches and
+# landing, the water bucket and the sitting pose — so they are committed with their JSON: a copy with the old
+# PNG and the new JSON would draw the wrong pieces)
 progetto/assets/environment/mountains/mountain_atlas.png
 progetto/assets/environment/terrain/noise_tile.png
 progetto/assets/environment/vegetation/vegetation_atlas.png
-progetto/assets/people/people_atlas.png
 progetto/tools/worldgen/cache/
 progetto/tools/worldgen/out_preview/
 progetto/tools/domaingen/out_preview/

@@ -4,7 +4,8 @@ Run with Blender's bundled Python (numpy):
   "C:\\Program Files\\Blender Foundation\\Blender 5.2\\5.2\\python\\bin\\python.exe" tools/art/draw_people.py
 Output: assets/people/people_atlas.png + .json
 
-Sprites: "<job>_<anim>_<frame>" with anim idle(1) / walk(2) / work(2) / carry(2), facing right (the map flips them),
+Sprites: "<job>_<anim>_<frame>" with anim idle(1) / walk(2) / work(2) / carry(2) / sit(1), facing right (the map flips
+them),
 plus loads "load_<resource>" drawn on the shoulder. Pivot = feet.
 """
 import json
@@ -41,7 +42,7 @@ JOBS = {
     "balestrieri": {"tunic": "#7A5A3A", "tool": None, "hat": "cap", "weapon": "crossbow"},
     "cavalieri": {"tunic": "#8E2A2A", "tool": None, "hat": "helm", "weapon": "lance", "mount": True},
 }
-LOADS = {"wood": "#8A6240", "stone": "#9C9A92", "grain": "#D8C28A", "bread": "#C68A48"}
+LOADS = {"wood": "#8A6240", "stone": "#9C9A92", "grain": "#D8C28A", "bread": "#C68A48", "water": "#3E6E8C"}
 
 
 def line(c, ax, ay, bx, by, w, color):
@@ -92,7 +93,14 @@ def figure(job, anim, frame):
     if anim in ("walk", "carry"):
         step = 0.22 if frame == 0 else -0.22
     hip_y = fy - 0.85
-    if spec.get("mount"):
+    if anim == "sit":
+        # seated on a bench round the fire (Rebirth, Phase 3): the hips at the height of the seat, the thighs
+        # forward, the shins down to the ground
+        hip_y = fy - 0.5
+        line(c, fx - 0.06, hip_y, fx + 0.32, hip_y + 0.02, 0.17, "#4A3A2A")
+        line(c, fx + 0.32, hip_y + 0.02, fx + 0.36, fy, 0.14, "#3E3024")
+        line(c, fx + 0.04, hip_y + 0.04, fx + 0.26, hip_y + 0.08, 0.15, "#3E3024")
+    elif spec.get("mount"):
         # in the saddle: one thigh forward, a boot in the stirrup
         line(c, fx - 0.02, hip_y + 0.05, fx + 0.3, hip_y + 0.28, 0.17, "#4A3A2A")
         line(c, fx + 0.3, hip_y + 0.28, fx + 0.26, hip_y + 0.62, 0.13, "#3E3024")
@@ -129,6 +137,9 @@ def figure(job, anim, frame):
             line(c, tip[0], tip[1], tip[0] + 0.12, tip[1] + 0.18, 0.08, head_col)
     elif anim == "carry":
         line(c, shoulder[0], shoulder[1], fx + 0.22, hip_y - 0.9, 0.12, spec["tunic"])
+    elif anim == "sit":
+        # the hands on the knees
+        line(c, shoulder[0], shoulder[1], fx + 0.3, hip_y - 0.04, 0.12, spec["tunic"])
     else:
         swing = step * 0.6
         line(c, shoulder[0], shoulder[1], fx + 0.12 + swing, hip_y - 0.05, 0.12, spec["tunic"])
@@ -201,6 +212,14 @@ def load(res):
     elif res == "grain":
         disc(c, 0.65, 0.5, 0.32, col, 0.9)
         line(c, 0.55, 0.2, 0.75, 0.2, 0.08, "#8A7040")
+    elif res == "water":
+        # a wooden bucket carried by its handle (Rebirth, Phase 3: from the water point to the fire)
+        c.over(poly_mask(c, [(0.47, 0.9), (0.83, 0.9), (0.88, 0.52), (0.42, 0.52)]), hexc("#7C5634"))
+        line(c, 0.42, 0.62, 0.88, 0.62, 0.04, "#34281E")
+        line(c, 0.45, 0.84, 0.85, 0.84, 0.04, "#34281E")
+        disc(c, 0.65, 0.52, 0.23, col, 0.35)
+        line(c, 0.44, 0.52, 0.62, 0.22, 0.03, "#3A2E24")
+        line(c, 0.62, 0.22, 0.86, 0.52, 0.03, "#3A2E24")
     else:
         disc(c, 0.65, 0.58, 0.3, "#8A6A40", 0.55)
         disc(c, 0.6, 0.45, 0.12, col)
@@ -218,7 +237,9 @@ def trim(img, pivot, margin=1):
 def main():
     sprites = []
     for job in JOBS:
-        for anim, frames in (("idle", 1), ("walk", 2), ("work", 2), ("carry", 2)):
+        for anim, frames in (("idle", 1), ("walk", 2), ("work", 2), ("carry", 2), ("sit", 1)):
+            if anim == "sit" and (JOBS[job].get("mount") or JOBS[job].get("weapon")):
+                continue   # soldiers do not sit at the fire of the village
             for f in range(frames):
                 feet = feet_of(job)
                 img, piv = trim(figure(job, anim, f), (feet[0] * PPM, feet[1] * PPM))

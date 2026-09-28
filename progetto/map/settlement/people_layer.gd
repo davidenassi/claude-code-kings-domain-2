@@ -80,7 +80,8 @@ func _looks(job: StringName) -> Dictionary:
 		return known
 	var look := String(job) if _sprites.has("%s_idle_0" % job) else "idle"
 	known = {"walk": ["%s_walk_0" % look, "%s_walk_1" % look], "carry": ["%s_carry_0" % look, "%s_carry_1" % look],
-		"work": ["%s_work_0" % look, "%s_work_1" % look], "idle": "%s_idle_0" % look}
+		"work": ["%s_work_0" % look, "%s_work_1" % look], "idle": "%s_idle_0" % look,
+		"sit": "%s_sit_0" % look if _sprites.has("%s_sit_0" % look) else "%s_idle_0" % look}
 	_look_cache[job] = known
 	return known
 
@@ -90,10 +91,12 @@ func sprite_id(p: PersonState, _hours: float) -> String:
 	match p.action:
 		&"walk":
 			return looks["walk"][int(_anim_time * 5.0 + p.id) % 2]
-		&"carry":
+		&"carry", &"carry_water":
 			return looks["carry"][int(_anim_time * 5.0 + p.id) % 2]
-		&"chop", &"quarry", &"build", &"farm":
+		&"chop", &"quarry", &"build", &"farm", &"draw_water":
 			return looks["work"][int(_anim_time * 2.2 + p.id) % 2]
+		&"sit":
+			return looks["sit"]
 		_:
 			return looks["idle"]
 
@@ -111,6 +114,12 @@ func _draw() -> void:
 	var order: Array = []
 	var people: Array[PersonState] = []
 	var spots: PackedVector2Array = PackedVector2Array()
+	# at the fire in the evening everybody faces the fire (Rebirth, Phase 3)
+	var fires := {}
+	for s in world.settlements:
+		var h := Nucleus.hearth_of(world, s)
+		if h:
+			fires[s.id] = h.pos
 	for p: PersonState in world.people.values():
 		if p.action == &"sleep" or p.action == &"bake":
 			continue   # indoors
@@ -140,14 +149,19 @@ func _draw() -> void:
 		var p := people[i]
 		var pos := spots[i]
 		var dx := p.seg_to.x - p.seg_from.x
-		if absf(dx) > 0.3 and (p.action == &"walk" or p.action == &"carry"):
+		if absf(dx) > 0.3 and (p.action == &"walk" or p.action == &"carry" or p.action == &"carry_water"):
 			_facing[p.id] = 1.0 if dx > 0.0 else -1.0
+		if (p.action == &"sit" or p.action == &"warm") and fires.has(p.settlement):
+			_facing[p.id] = 1.0 if (fires[p.settlement] as Vector2).x >= pos.x else -1.0
 		var face := float(_facing.get(p.id, 1.0))
 		_draw_one(sprite_id(p, hours), pos, scale, face, _tint_of(p))
 		if p.action == &"carry" and not p.carrying.is_empty():
 			var load_id := "load_%s" % p.carrying["res"]
 			if _src.has(load_id):
 				_draw_one(load_id, pos + Vector2(0.15 * face, -1.45) * scale, scale * 0.9, face)
+		elif p.action == &"carry_water" and _src.has("load_water"):
+			# the bucket from the water point to the fire (Rebirth, Phase 3), carried at the side
+			_draw_one("load_water", pos + Vector2(0.42 * face, -0.55) * scale, scale * 0.9, face)
 
 
 func _tint_of(p: PersonState) -> Color:

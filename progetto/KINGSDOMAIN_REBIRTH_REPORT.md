@@ -161,3 +161,88 @@ senza fine; ora, alla stessa distanza, una valle chiusa e nominata con i suoi mo
 - I passi sono geografia e nomi; attraversarli (esploratori, mercanti, eserciti) è la Fase 8.
 - La densità delle chiome dipende dal disegno del canopy: il generatore non produce ancora sottobosco, sentieri
   di caccia o alberi isolati «monumentali».
+
+---
+
+## FASE 3 — Il nucleo della comunità ✅
+
+**Obiettivo**: dare subito un centro e un significato allo spazio iniziale. Sei fondatori (tre uomini, tre donne),
+nessun re, nessun castello: un **nucleo della comunità** da cui nasce tutto. «Questa è la mia comunità» deve
+capirsi al primo sguardo; il punto iniziale non deve sembrare uno spawn casuale; gli abitanti devono avere un luogo a
+cui appartengono; la crescita futura deve essere immaginabile.
+
+**Prima** (`docs/rebirth/phase2/p2_spawn.jpg`, `p2_close.jpg`): due capanne in un prato, due fuochi dipinti negli
+sprite del deposito e del riparo, i fondatori addormentati (la partita cominciava a mezzanotte), nessun legame visibile
+con il fiume, il bosco o i campi.
+
+**Fatto**
+- **Il nucleo** (`settlement/nucleus.gd`, classe `Nucleus`) posato dalla fondazione:
+  - il **focolare comune** (`hearth`, edificio del mondo: si salva, si seleziona, i costruttori lo rispettano) al
+    centro dell'insediamento: anello di pietre, braci, tronchi incrociati, treppiede con il paiolo, tre panche di
+    tronco spaccato; fiamme, bagliore e fumo sono disegnati vivi;
+  - la **piazzola comune**: un raggio di 9 m attorno al fuoco dove non si costruisce (`Placement`: «La piazzola del
+    focolare resta libera: è il cuore della comunità»), disegnata come terra battuta dal primo giorno;
+  - il **piccolo deposito** (`camp_store`, ora «Primo deposito») e il **riparo** dietro il fuoco, dal lato opposto
+    all'acqua: la piazzola si apre verso il fiume;
+  - il **punto d'acqua** (`water_point`) sulla riva più vicina: assi di legno posate di traverso sulla riva fino
+    all'acqua aperta, secchi accanto, il sentiero che ci arriva dal fuoco (sgombro di alberi, per sempre);
+  - il **gonfalone della comunità** su un palo al bordo della piazzola, nel colore del regno: con il fumo dice da
+    qualunque altezza dov'è la comunità e che è del giocatore (non scende mai sotto i 30 px: dalla vista di tutta la
+    valle si trova a colpo d'occhio insieme alla targa con il nome).
+- **Gli abitanti appartengono al luogo** (`SettlementSim`):
+  - la partita comincia **alle 8 del mattino** (`time.json → start_hour`), con i sei **seduti attorno al fuoco**;
+  - **la sera** (dalle 19 per due ore) chi abita vicino si siede sulle panche o resta in piedi a scaldarsi, poi va a
+    dormire. In una comunità piccola tutti hanno un posto sulle panche; in un paese solo una dozzina per sera
+    (scelti ogni sera): il fuoco non diventa una folla;
+  - **di giorno** chi non ha lavoro si ferma sulla piazzola, e ogni tanto qualcuno va al punto d'acqua, riempie i
+    secchi in fondo alle assi e porta l'acqua al fuoco (secchio in mano, nuova posa seduta negli sprite);
+  - nessun effetto sull'economia: ore di lavoro, produzione e simulazione aggregata sono identiche (i vent'anni di
+    `test_economy` danno gli stessi numeri della Fase 2, con due edifici in più).
+- **La crescita si immagina**: dalla piazzola partono i **primi sentieri** dei fondatori — verso il margine del bosco e
+  verso la terra aperta dei campi — che sfumano quando il villaggio (30–90 abitanti) ha le sue vie; case, campi e
+  taglialegna crescono attorno al nucleo e la piazzola resta vuota (schermate `p3_village`, `p3_community`).
+- **Il focolare nel pannello**: selezionandolo si legge chi lo accese (i fondatori) e quanti ci sono attorno.
+- **Resa**: la piazzola e la terra battuta attorno agli edifici sono ora macchie morbide (timbri di una texture
+  sfumata) invece di poligoni piatti sovrapposti; il fumo è un pennacchio morbido. Gli sprite del deposito e del
+  riparo non hanno più un loro fuoco (il fuoco è uno solo). La prima inquadratura è più vicina (0,22 m/px invece di
+  0,35).
+- **Salvataggi v8** (`SaveMigrator._v7_to_v8`): una comunità fondata prima del nucleo riceve il suo focolare su
+  terreno libero davanti al deposito (il centro dell'insediamento si sposta lì) e il punto d'acqua sulla riva più
+  vicina; nient'altro si muove; una seconda apertura non aggiunge nulla.
+- **Atlanti**: `building_atlas`, `props_atlas` e `people_atlas` sono stati ridisegnati (focolare, panche, pontile,
+  secchi, posa seduta, secchio in mano) e ora sono nel repository insieme al loro JSON: una copia con il PNG vecchio
+  e il JSON nuovo disegnerebbe i pezzi sbagliati.
+
+**Prove**
+- Nuovo `tests/unit/test_nucleus.gd` (7 prove): la comunità nasce attorno al suo fuoco (focolare al centro, deposito
+  e riparo fuori dalla piazzola e dal lato opposto all'acqua, punto d'acqua sulla riva entro 200 m, sentiero
+  sgombro, i sei al fuoco ciascuno al suo posto, la cronaca racconta il fuoco); la piazzola resta libera (anche dopo
+  sei mesi di villaggio costruito dal signore prudente); la sera i sei sono seduti al fuoco e di giorno qualcuno va a
+  prendere l'acqua e la porta al fuoco; un paese non affolla il fuoco; il nucleo viaggia con il salvataggio; una
+  comunità di un salvataggio v7 riceve il suo fuoco; anche la valle ritagliata dal continente ha il suo nucleo.
+- **Esito** (suite completa sullo snapshot della Fase 3, 29 min): 230 prove, 10 308 asserzioni, **1 fallimento**, 2
+  saltate (i salvataggi della Fase 18 assenti, vedi Fase 2). Il fallimento era vero:
+  `test_river::test_the_village_keeps_its_feet_dry` vuole ogni edificio fuori dalla riva, e il punto d'acqua sta
+  sulla riva per costruzione. La prova ora gli chiede la cosa giusta (i piedi sulla terra, `river_clearance ≥ 0` al
+  centro) e resta severa per tutti gli altri edifici. Dopo lo snapshot sono stati corretti anche il pontile (di
+  traverso alla riva fino all'acqua aperta, oltre la fascia di fango disegnata dal fiume) e il posto di chi attinge;
+  riverificati `test_nucleus`, `test_domain`, `test_ui`, `test_river`: 0 fallimenti.
+- I vent'anni del villaggio di `test_economy` danno esattamente i numeri della Fase 2 (33 abitanti, 17 nati, 4 morti,
+  fiducia 77, tesoro 8 181), con due edifici in più (il focolare e il punto d'acqua): il nucleo non tocca l'economia.
+
+**Schermate** (`docs/rebirth/phase3/`): `p3_start` (il primo istante, 0,22 m/px: i sei seduti attorno al fuoco, il
+fumo, il gonfalone, i sentieri), `p3_evening` (le 20, 0,07 m/px: tutti sulle panche), `p3_water` (il punto d'acqua a
+metà mattina: qualcuno riempie i secchi), `p3_medium` (1,1 m/px), `p3_far` (tutta la valle: il gonfalone e il nome),
+`p3_village` (un villaggio di pochi mesi attorno alla piazzola), `p3_community` (cinque anni dopo, 38 abitanti).
+
+**Limiti dichiarati**
+- La resa resta quella degli sprite numpy attuali (Fase 12): da vicino il focolare è leggibile ma piccolo (è un fuoco
+  vero di 2 m); le assi del pontile si allargano quando la riva è larga (lo sprite è stirato, non ripetuto).
+- La notte non è disegnata: gli abitanti dormono al riparo (non si vedono), il fuoco e il fumo restano.
+- Il fumo va sempre nella stessa direzione (non c'è ancora un vento del mondo).
+- Il punto d'acqua è vita e paesaggio, non un servizio: il pozzo resta la cosa da costruire per l'acqua vicina alle
+  case (guida, «Acqua vicina»).
+- La serata al fuoco si vede solo con la valle sotto gli occhi (simulazione per abitante); quando si guarda la mappa
+  del mondo i giorni si risolvono in forma chiusa, come prima.
+- La migrazione v7→v8 è provata su un salvataggio v7 sintetico: i salvataggi reali delle versioni vecchie non sono nel
+  pacchetto (vedi Fase 2).

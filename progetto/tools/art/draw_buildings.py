@@ -319,15 +319,15 @@ def shelter():
            hexc("#7D7040")[None, None, :] * tex[..., None])
     c.over(poly_mask(c, [(x0 - 0.5, front - 0.2), (x1 + 0.5, front - 0.2), (x1 + 0.5, front + 0.15), (x0 - 0.5, front + 0.15)]) * 0.7,
            np.array([0.28, 0.24, 0.12]))
-    # bedding under the roof, a fire pit in front
-    d = np.sqrt((c.x - (x0 + 1.5)) ** 2 + ((c.y - (y1 + 0.8)) / 0.7) ** 2)
-    c.over(np.clip((0.7 - d) / c.aa, 0, 1), np.array([0.35, 0.3, 0.28]))
-    c.over(np.clip((0.35 - d) / c.aa, 0, 1), np.array([0.85, 0.45, 0.15]))
+    # bedding under the roof: rolled blankets (the fire is the common one, on the square: Rebirth, Phase 3)
+    for i, bx in enumerate(np.linspace(x0 + 1.0, x1 - 1.0, 3)):
+        d = np.sqrt((c.x - bx) ** 2 + ((c.y - (y1 - 0.45)) / 0.55) ** 2)
+        c.over(np.clip((0.42 - d) / c.aa, 0, 1), hexc("#8A6E58") * (0.9 + 0.06 * i))
     return b
 
 
 def camp_store(fw=8.0, fd=6.0):
-    """What six people carry into an empty valley: a fire, a low lean-to over the sacks, the first stack of wood."""
+    """What six people carry into an empty valley: a low lean-to over the sacks, the first stack of wood."""
     b = B(fw, fd, 2.2 * ZK + 1.6)
     b.ground("#86744F", 0.55)
     c = b.c
@@ -346,14 +346,8 @@ def camp_store(fw=8.0, fd=6.0):
     for i, sx in enumerate(np.linspace(x0 + 0.5, x1 - 0.6, 3)):
         d = np.sqrt((c.x - sx) ** 2 + ((c.y - (y1 - 0.3)) / 0.8) ** 2)
         c.over(np.clip((0.42 - d) / c.aa, 0, 1), hexc("#C2A26B") * (0.92 + 0.05 * i))
-    # the first stack of wood on the left
+    # the first stack of wood on the left (the fire is the common one, on the square: Rebirth, Phase 3)
     b.logs(b.x0 + 0.3, b.x0 + 2.8, b.y1 - 0.5, 2, 0.3)
-    # the fire in front: a ring of stones and the flame
-    cx, cy = b.x0 + 1.6, b.y1 + 0.7
-    d = np.sqrt((c.x - cx) ** 2 + ((c.y - cy) / 0.65) ** 2)
-    c.over(np.clip((0.75 - d) / c.aa, 0, 1), np.array([0.44, 0.41, 0.37]))
-    c.over(np.clip((0.5 - d) / c.aa, 0, 1), np.array([0.2, 0.15, 0.1]))
-    c.over(np.clip((0.3 - d) / c.aa, 0, 1), np.array([0.92, 0.52, 0.16]))
     return b
 
 

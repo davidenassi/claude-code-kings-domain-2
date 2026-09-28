@@ -477,6 +477,21 @@ func _refresh_inspector() -> void:
 			if p.workplace == b.id and p.job == def.job:
 				names.append(p.name)
 		lines.append("Lavoratori: %s" % (", ".join(names) if not names.is_empty() else "nessuno"))
+	if b.def_id == Nucleus.HEARTH:
+		# the historic point of the community (Rebirth, Phase 3): who lit it, and who sits there now
+		var founders := PackedStringArray()
+		for f: FamilyState in world.families.values():
+			if f.founding and f.settlement == b.settlement:
+				for pid: int in f.founders:
+					var p := world.person(pid)
+					if p:
+						founders.append(SettlementSetup.full_name(world, p))
+		if not founders.is_empty():
+			lines.append("Lo accesero: %s." % ", ".join(founders))
+		var around := world.people_of(b.settlement).filter(func(p: PersonState) -> bool:
+			return (p.action == &"sit" or p.action == &"warm") and p.seg_to.distance_to(b.pos) < 8.0)
+		if not around.is_empty():
+			lines.append("Attorno al fuoco ora: %d." % around.size())
 	_insp_body.text = "\n".join(lines)
 	for c in _insp_workers.get_children():
 		_insp_workers.remove_child(c)

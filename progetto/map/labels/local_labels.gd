@@ -47,7 +47,7 @@ func _draw() -> void:
 	var far_a := _band(mpp, 1.7, 2.8, 50.0, 60.0)
 	# the community first: its plate under the houses (from the zoom where the houses become blocks)
 	for s in world.settlements:
-		var a := _band(mpp, 0.9, 1.6, 50.0, 60.0)
+		var a := _band(mpp, 0.55, 0.85, 50.0, 60.0)
 		if a > 0.01:
 			_plate(_camera.world_to_screen(s.center) + Vector2(0, 26.0), s.name, a, screen, taken)
 	if far_a <= 0.01:

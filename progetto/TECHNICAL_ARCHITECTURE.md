@@ -41,6 +41,24 @@ Documento di riferimento per ogni scelta tecnica; aggiornarlo quando una scelta 
 - `start_setup.json → player.homeland` sceglie la patria della nuova partita; `GameSession.create_new({"homeland":
   "none"})` ritaglia invece la valle dal continente (come i salvataggi della mappa unica).
 
+### 1.2 Il nucleo della comunità (Rebirth, Fase 3)
+- `Nucleus.lay_out()` (chiamato da `SettlementSetup`) posa quattro **edifici del mondo** non costruibili: il deposito
+  (`camp_store`, sempre il primo edificio dell'insediamento: le scorte di partenza sono lì), il riparo, il
+  **focolare** (`hearth`, esattamente in `SettlementState.center`) e il **punto d'acqua** (`water_point`, sulla riva
+  più vicina entro `nucleus.water_reach_m`; assente se non c'è acqua). Deposito e riparo stanno dietro il fuoco, dal
+  lato opposto all'acqua, su terreno che `Placement.check` accetta.
+- Regola di piazzamento: nessun edificio (strade escluse) tocca il cerchio di `nucleus.square_radius_m` attorno al
+  focolare del proprio insediamento.
+- Comportamento (`SettlementSim`, solo con la simulazione per abitante): serata al fuoco (`_plan_evening`, posti da
+  `Nucleus.seat`, azioni `sit`/`warm`), acqua (`at_water` → `draw_water` → `water_back` con l'azione `carry_water`),
+  gli ozi del giorno che finiscono all'ora di fine lavoro (`_until_evening`). Nessuna risorsa «acqua» entra nelle
+  scorte.
+- Disegno: `NucleusLayer` (due nodi della scena locale: sotto le persone il fuoco, le panche e il pontile; sopra
+  tutto il fumo e il gonfalone), `SettlementLayer` (piazzola, sentiero dell'acqua, primi sentieri), `PeopleLayer`
+  (posa seduta, secchio). `NucleusLayer.soft_blob()` è la macchia sfumata con cui si timbrano terra battuta, fumo e
+  bagliore.
+- Salvataggi: versione 8; `SaveMigrator._v7_to_v8` aggiunge focolare e punto d'acqua alle comunità che ne erano prive.
+
 ---
 
 ## 2. Struttura del progetto

@@ -100,5 +100,9 @@ func test_the_village_keeps_its_feet_dry() -> void:
 				assert_true(wd.river_clearance(b.a.lerp(b.b, float(i) / maxf(float(n), 1.0))) >= BuildingState.road_width() * 0.5 - 0.01,
 					"the road stays on dry ground")
 			continue
+		if b.def_id == Nucleus.WATER_POINT:
+			# the landing of the nucleus (Rebirth, Phase 3) is on the bank by design: its feet on land, its planks on the water
+			assert_true(wd.water_at(b.pos) == WorldData.WATER_LAND and wd.river_clearance(b.pos) >= 0.0, "the water point stands on the bank")
+			continue
 		assert_false(Placement.touches_river(wd, b.rect()), "%s stands on dry ground" % b.def_id)
 

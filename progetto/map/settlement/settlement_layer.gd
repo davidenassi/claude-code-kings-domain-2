@@ -30,6 +30,8 @@ var _paths_version := -1
 var _paths_world := 0
 ## The fenced gardens behind the houses (Phase 18), rebuilt with the footpaths
 var _yards: Array[Rect2] = []
+## settlement id -> [[a, b], ...]: the first trails out of the nucleus (Rebirth, Phase 3), rebuilt with the footpaths
+var _trails: Dictionary = {}
 ## Every field in one mesh (FieldPainter.build_mesh), rebuilt when the buildings or the month change
 var _fields_mesh: ArrayMesh = null
 var _fields_key := ""
@@ -225,12 +227,30 @@ func _draw_ground() -> void:
 		_yards = yards(world)
 		for s in world.settlements:
 			_paths[s.id] = footpaths(world, s)
-			var landing := river_path(world, s)
+			# the path to the water: to the water point of the nucleus (Rebirth, Phase 3), else to the nearest bank
+			var landing := Nucleus.water_path(world, s)
+			if landing.is_empty():
+				landing = river_path(world, s)
+			else:
+				landing.append(6)
 			if not landing.is_empty():
 				(_paths[s.id] as Array).append(landing)
-	# the open square at the heart of each settlement, then the worn footpaths and the roads: all on the ground
+		_trails = {}
+		for s in world.settlements:
+			_trails[s.id] = Nucleus.trails(world, s)
+	# the open square at the heart of each settlement, the first trails out of it, then the worn footpaths and
+	# the roads: all on the ground
 	for s in world.settlements:
-		_draw_square(s, world.people_of(s.id).size())
+		_draw_square(s, world.people_of(s.id).size(), Nucleus.hearth_of(world, s) != null)
+	for s in world.settlements:
+		# the trails the founders walked toward the wood and the fields: where the village will grow; they fade
+		# as the streets of a real village take their place
+		var fade := 1.0 - smoothstep(30.0, 90.0, float(world.people_of(s.id).size()))
+		if fade <= 0.01:
+			continue
+		for tr: Array in _trails.get(s.id, []):
+			_draw_track(tr[0], tr[1], 0.55, Color(PATH_FILL, PATH_FILL.a * 0.8 * fade), Color(PATH_EDGE, PATH_EDGE.a * fade),
+				0.35, int(tr[0].x * 5.0 + tr[1].y * 11.0), false, 0.12)
 	for s in world.settlements:
 		for edge: Array in _paths.get(s.id, []):
 			var served := float(edge[2]) if edge.size() > 2 else 1.0
@@ -370,6 +390,8 @@ static func footpaths(world: WorldState, s: SettlementState) -> Array:
 	for b in world.buildings_of(s.id):
 		if b.is_road() or not b.is_active():
 			continue
+		if b.def_id == Nucleus.HEARTH or b.def_id == Nucleus.WATER_POINT:
+			continue   # the fire is the centre the paths start from; the water has its own path
 		nodes.append(b.pos + Vector2(0.0, b.def().footprint.y * 0.5 + 0.6))   # in front of the door
 	var n := nodes.size()
 	if n < 2:
@@ -499,22 +521,28 @@ func _draw_yard(r: Rect2) -> void:
 ## The open ground at the heart of a settlement, where the paths meet: a patch of trodden earth around the
 ## common fire (or the well, or the keep), growing with the people — a hamlet has a clearing, a village a
 ## square, a borough a market place.
-func _draw_square(s: SettlementState, people: int) -> void:
-	if people < 8:
+func _draw_square(s: SettlementState, people: int, has_hearth: bool = false) -> void:
+	if people < 8 and not has_hearth:
 		return
 	var r := 7.0 + minf(float(people), 400.0) * 0.035
-	var pts := PackedVector2Array()
-	for k in 18:
-		var a := TAU * float(k) / 18.0
-		var wobble := 0.82 + 0.3 * KDRng.hash01(s.id, 80 + k, 7005)
-		pts.append(Vector2(cos(a), sin(a) * 0.82) * r * wobble)
-	_ci.draw_set_transform(s.center, 0.0, Vector2.ONE)
-	_ci.draw_colored_polygon(pts, Color(0.55, 0.46, 0.31, 0.38))
-	var inner := PackedVector2Array()
-	for p in pts:
-		inner.append(p * 0.72)
-	_ci.draw_colored_polygon(inner, Color(0.60, 0.51, 0.35, 0.30))
-	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if has_hearth:
+		# the square of the common fire: from the first day, as wide as the ground nobody may build on
+		r = maxf(r, Nucleus.square_radius() + 1.5)
+	# stamped with soft stains (Rebirth, Phase 3: two flat polygons one over the other read as a cut-out): a wide one
+	# in the middle and a ring of smaller ones pushed out by the id, so the edge is ragged and soft
+	var blob := NucleusLayer.soft_blob()
+	_ci.draw_texture_rect(blob, Rect2(s.center - Vector2(r * 1.25, r * 1.05), Vector2(r * 2.5, r * 2.1)), false,
+		Color(0.56, 0.47, 0.32, 0.62))
+	for k in 7:
+		var a := TAU * (float(k) + KDRng.hash01(s.id, 90 + k, 7005) * 0.6) / 7.0
+		var d := r * (0.45 + 0.3 * KDRng.hash01(s.id, 100 + k, 7005))
+		var size := r * (0.8 + 0.5 * KDRng.hash01(s.id, 110 + k, 7005))
+		var at := s.center + Vector2(cos(a), sin(a) * 0.82) * d
+		_ci.draw_texture_rect(blob, Rect2(at - Vector2(size, size * 0.84) * 0.5, Vector2(size, size * 0.84)), false,
+			Color(0.54, 0.45, 0.30, 0.42))
+	# the trodden middle, lighter and dustier
+	_ci.draw_texture_rect(blob, Rect2(s.center - Vector2(r * 0.7, r * 0.55), Vector2(r * 1.4, r * 1.1)), false,
+		Color(0.64, 0.55, 0.39, 0.45))
 
 
 ## The path the settlement wore down to the water: from the square to the nearest point of the river bank, if the
@@ -583,7 +611,7 @@ func _draw_scaffold(r: Rect2, prog: float) -> void:
 ## with: everything that stands casts its shadow to the south-east, or the village looks pasted on the grass.
 const SUN := Vector2(0.42, 0.30)
 const SHADOW := Color(0.10, 0.09, 0.06, 0.26)
-const TRODDEN := Color(0.46, 0.38, 0.25, 0.22)
+const TRODDEN := Color(0.46, 0.38, 0.25, 0.34)
 
 
 ## Bare earth around what is lived in: nobody keeps the grass under his own door. A ploughed field is already
@@ -592,6 +620,8 @@ func _stands_up(b: BuildingState) -> bool:
 	var def := b.def()
 	if def.work_type() == &"farm" or b.is_road():
 		return false
+	if not _sprites.has(String(sprite_for(b, _month))):
+		return false   # drawn by another layer (the fire and the water point of the nucleus: NucleusLayer)
 	return _height_of(b) > def.footprint.y * 0.45
 
 
@@ -603,15 +633,16 @@ func _draw_ground_patch(b: BuildingState) -> void:
 	var fp := b.def().footprint
 	var r := minf(fp.x, fp.y) * 0.78 + 1.2
 	var centre: Vector2 = b.pos + visual_of(b)["offset"] + Vector2(0.0, fp.y * 0.16)
-	var pts := PackedVector2Array()
-	for k in 14:
-		var a := TAU * float(k) / 14.0
-		var wobble := 0.8 + 0.45 * KDRng.hash01(b.id, 60 + k, 7003)
-		var front := 1.0 + 0.35 * maxf(sin(a), 0.0)          # down the screen is the door
-		pts.append(Vector2(cos(a) * r * 1.08, sin(a) * r * 0.86) * wobble * front)
-	_ci.draw_set_transform(centre, 0.0, Vector2.ONE)
-	_ci.draw_colored_polygon(pts, TRODDEN)
-	_ci.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	# soft stains, not a polygon (Rebirth, Phase 3): one under the building, one wider in front of the door where
+	# people come and go, one to a side chosen by the id
+	var blob := NucleusLayer.soft_blob()
+	var w := r * 2.3
+	_ci.draw_texture_rect(blob, Rect2(centre - Vector2(w, w * 0.8) * 0.5, Vector2(w, w * 0.8)), false, TRODDEN)
+	var front := centre + Vector2((KDRng.hash01(b.id, 61, 7003) - 0.5) * r * 0.5, fp.y * 0.45)
+	_ci.draw_texture_rect(blob, Rect2(front - Vector2(r * 1.6, r * 0.9) * 0.5, Vector2(r * 1.6, r * 0.9)), false, TRODDEN)
+	var side := centre + Vector2((1.0 if KDRng.hash01(b.id, 62, 7003) < 0.5 else -1.0) * fp.x * 0.55, fp.y * 0.1)
+	_ci.draw_texture_rect(blob, Rect2(side - Vector2(r, r * 0.8) * 0.5, Vector2(r, r * 0.8)), false,
+		Color(TRODDEN, TRODDEN.a * 0.8))
 
 
 ## The shadow of a standing thing: an ellipse at its feet, leaning away from the sun. Drawn as a circle

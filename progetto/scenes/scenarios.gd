@@ -99,6 +99,11 @@ static func apply(sess: GameSession, args: Dictionary, crown: Callable) -> void:
 	if args.has("days"):
 		sess.advance_days(String(args["days"]).to_int())
 	if args.has("hours"):
+		# hour by hour with the valley watched, as the local map watches it: the people are where they would be
+		var watched := {}
+		for s in sess.world.settlements:
+			watched[s.id] = true
+		SettlementSim.set_observed(sess, watched)
 		for i in String(args["hours"]).to_int():
 			sess.step_tick()
 

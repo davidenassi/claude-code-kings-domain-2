@@ -55,6 +55,11 @@ static func check(world: WorldState, settlement: SettlementState, def: BuildingD
 		if hit:
 			out["reason"] = "Lo spazio è occupato da: %s." % b.def().display_name
 			return out
+		# Rebirth, Phase 3: the square round the common fire stays open — it is the heart of the community
+		if b.def_id == Nucleus.HEARTH and b.settlement == settlement.id \
+				and Nucleus.rect_meets_circle(rect, b.pos, Nucleus.square_radius()):
+			out["reason"] = "La piazzola del focolare resta libera: è il cuore della comunità."
+			return out
 	# rock outcrops cannot be built over
 	for r in LocalFeatures.outcrops_in_rect(wd, rect.grow(2.0)):
 		if world.terrain.rock_charges_left(r) > 0:

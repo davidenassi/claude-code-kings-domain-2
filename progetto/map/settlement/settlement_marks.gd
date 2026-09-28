@@ -94,7 +94,9 @@ func _draw() -> void:
 		for b in list:
 			if b.is_road() and b.progress() > 0.0:
 				draw_line(b.a, b.a.lerp(b.b, b.progress()), ROAD, maxf(BuildingState.road_width(), mpp * 1.4))
-		var blocks := list.filter(func(b: BuildingState) -> bool: return not b.is_road())
+		# the fire and the water point of the nucleus are not roofs: NucleusLayer draws the spark of the fire
+		var blocks := list.filter(func(b: BuildingState) -> bool:
+			return not b.is_road() and b.def_id != Nucleus.HEARTH and b.def_id != Nucleus.WATER_POINT)
 		blocks.sort_custom(func(a: BuildingState, b: BuildingState) -> bool: return a.pos.y < b.pos.y)
 		for b: BuildingState in blocks:
 			_draw_block(b, min_m, mpp)

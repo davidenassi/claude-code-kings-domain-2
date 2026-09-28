@@ -281,7 +281,149 @@ def bank_stone(variant):
     return p
 
 
+# --- the nucleus of the community (Rebirth, Phase 3) -----------------------------------------------------------
+
+def hearth():
+    """The common fire of the founders: a ring of stones round ash and embers, split logs crossed in it and a
+    tripod with the pot hanging over it. The flames, the glow and the smoke are drawn live by the game."""
+    rng = random.Random(100)
+    p = P(3.8, 3.6, 2.5)
+    c = p.c
+    cx, cy = p.gx, p.gy
+    ground_shadow(c, cx, cy + 0.1, 1.5, 0.22)
+    # scorched earth round the ring
+    cov, d = ellipse(c, cx, cy, 1.45, 0.95)
+    c.over(cov * np.clip(1.15 - d, 0, 1) * 0.55, hexc("#4E4234"))
+    stones = []
+    n = 13
+    for i in range(n):
+        a = i / n * math.tau + rng.uniform(-0.08, 0.08)
+        stones.append((math.sin(a), cx + math.cos(a) * 1.0, cy + math.sin(a) * 0.62, rng.uniform(0.17, 0.25), rng.uniform(0.85, 1.1)))
+
+    def stone(sx, sy, r, tone):
+        cov, _ = ellipse(c, sx, sy, r, r * 0.72)
+        c.over(cov, lit_color(c, "#A8A292", sx + r * 0.25, sy + r * 0.15, r, 0.5) * tone)
+        cov2, _ = ellipse(c, sx - r * 0.25, sy - r * 0.3, r * 0.45, r * 0.25)
+        c.over(cov2 * 0.45, hexc("#CFC9BA"))
+
+    # the stones behind the fire first
+    for s in stones:
+        if s[0] < 0:
+            stone(*s[1:])
+    # ash and embers
+    cov, d = ellipse(c, cx, cy, 0.82, 0.5)
+    ember = np.clip(1.0 - d * 1.15, 0, 1) ** 1.5
+    ash = hexc("#5A5048")[None, None, :] * (0.75 + 0.35 * c.mottle(0.12, 7)[..., None])
+    glow = hexc("#D0601E")[None, None, :]
+    c.over(cov, ash * (1 - ember[..., None] * 0.8) + glow * (ember[..., None] * 0.8))
+    # charred logs crossed in the fire
+    for k, (ang, ln) in enumerate([(0.45, 0.62), (-0.5, 0.6), (0.05, 0.5)]):
+        ca, sa = math.cos(ang), math.sin(ang) * 0.6
+        x0, y0 = cx - ln * ca, cy - ln * sa - 0.05
+        x1, y1 = cx + ln * ca, cy + ln * sa - 0.05
+        c.over(poly_mask(c, [(x0, y0 + 0.08), (x1, y1 + 0.08), (x1, y1 - 0.08), (x0, y0 - 0.08)]), hexc("#2E231A"))
+        c.over(poly_mask(c, [(x0, y0 - 0.02), (x1, y1 - 0.02), (x1, y1 - 0.07), (x0, y0 - 0.07)]) * 0.8, hexc("#6A4A30"))
+        # the burning ends glow
+        cov, _ = ellipse(c, (x0 + x1) * 0.5, (y0 + y1) * 0.5 - 0.02, 0.12, 0.07)
+        c.over(cov * 0.8, hexc("#E08A2E"))
+    # the tripod: three poles meeting over the fire, the pot on a chain
+    apex = (cx + 0.02, cy - 1.75 * ZK - 0.2)
+    legs = [(cx - 1.25, cy - 0.35), (cx + 1.2, cy - 0.3), (cx + 0.1, cy + 0.75)]
+    for lx, ly in legs[:2]:
+        c.over(poly_mask(c, [(lx - 0.05, ly), (lx + 0.05, ly), (apex[0] + 0.03, apex[1]), (apex[0] - 0.03, apex[1])]), hexc("#4A3524"))
+    pot_y = cy - 0.62 * ZK
+    c.over(poly_mask(c, [(apex[0] - 0.015, apex[1]), (apex[0] + 0.015, apex[1]), (apex[0] + 0.015, pot_y - 0.3), (apex[0] - 0.015, pot_y - 0.3)]),
+           hexc("#2A2622"))
+    body, _ = ellipse(c, apex[0], pot_y - 0.08, 0.3, 0.24)
+    c.over(body, lit_color(c, "#3C3A38", apex[0], pot_y - 0.12, 0.3, 0.7))
+    rim, _ = ellipse(c, apex[0], pot_y - 0.26, 0.3, 0.08)
+    c.over(rim, hexc("#1E1C1A"))
+    lx, ly = legs[2]
+    c.over(poly_mask(c, [(lx - 0.055, ly), (lx + 0.055, ly), (apex[0] + 0.03, apex[1]), (apex[0] - 0.03, apex[1])]), hexc("#5A4230"))
+    # and the stones in front
+    for s in stones:
+        if s[0] >= 0:
+            stone(*s[1:])
+    return p
+
+
+def log_bench(variant):
+    """A split trunk lying east-west to sit on, round the fire."""
+    p = P(2.8, 1.3, 0.95)
+    c = p.c
+    ground_shadow(c, p.gx, p.gy, 1.2, 0.24)
+    y = p.gy - 0.2
+    x0, x1 = p.gx - 1.1, p.gx + 1.1
+    body = poly_mask(c, [(x0, y + 0.2), (x1, y + 0.2), (x1, y - 0.14), (x0, y - 0.14)])
+    shade = np.clip(1.05 - 1.4 * (c.y - (y - 0.14)), 0.55, 1.05)
+    c.over(body, hexc("#6E4E30")[None, None, :] * (shade * (0.92 + 0.08 * np.sin(c.x * 23.0)))[..., None])
+    top = poly_mask(c, [(x0 + 0.04, y - 0.14), (x1 - 0.04, y - 0.14), (x1 - 0.1, y - 0.3), (x0 + 0.1, y - 0.3)])
+    c.over(top, hexc("#BC9262")[None, None, :] * (0.94 + 0.06 * np.sin(c.x * 41.0))[..., None])
+    log_end(c, x1, y + 0.02, 0.19)
+    return p
+
+
+def landing():
+    """The water point: planks on stakes from the bank over the water, seen FROM ABOVE and lying along +x (the game
+    turns it toward the water). Pivot: the land end of the planks, in the middle."""
+    rng = random.Random(130)
+    p = P(3.6, 1.9, 0.95)
+    p.gx = 0.25
+    c = p.c
+    x0, x1 = 0.25, 3.25
+    y0, y1 = 0.2, 1.7
+    # its shadow on the water and the stakes under the far end
+    c.over(poly_mask(c, [(x0 + 0.5, y1), (x1 + 0.25, y1), (x1 + 0.25, y1 + 0.18), (x0 + 0.5, y1 + 0.18)]) * 0.35, hexc("#10202A"))
+    for sy in (y0 + 0.08, y1 - 0.08):
+        cov, _ = ellipse(c, x1 - 0.12, sy, 0.1, 0.1)
+        c.over(cov, hexc("#3A2A1A"))
+    # the two stringers, then the planks across them
+    for sy in (y0 + 0.2, y1 - 0.2):
+        c.over(poly_mask(c, [(x0, sy - 0.07), (x1, sy - 0.07), (x1, sy + 0.07), (x0, sy + 0.07)]), hexc("#4E3822"))
+    x = x0 + 0.05
+    k = 0
+    while x < x1 - 0.2:
+        w = rng.uniform(0.24, 0.3)
+        tone = rng.uniform(0.86, 1.08)
+        j0, j1 = rng.uniform(-0.06, 0.02), rng.uniform(-0.02, 0.06)
+        plank = poly_mask(c, [(x, y0 + j0), (x + w, y0 + j0), (x + w, y1 + j1), (x, y1 + j1)])
+        grain = 0.94 + 0.06 * np.sin(c.y * 31.0 + k * 2.1)
+        c.over(plank, hexc("#9A7A52")[None, None, :] * (tone * grain * (1.0 + 0.05 * c.mottle(0.2, 20 + k)))[..., None])
+        c.over(poly_mask(c, [(x + w - 0.035, y0 + j0), (x + w, y0 + j0), (x + w, y1 + j1), (x + w - 0.035, y1 + j1)]), hexc("#3E2C1C"))
+        x += w + 0.035
+        k += 1
+    # the stake heads at the far end, over the planks
+    for sy in (y0 + 0.08, y1 - 0.08):
+        cov, _ = ellipse(c, x1 - 0.12, sy, 0.08, 0.08)
+        c.over(cov, hexc("#7A5A3A"))
+    p.gy = (y0 + y1) * 0.5
+    return p
+
+
+def buckets(variant):
+    """Wooden buckets by the water, one of them full."""
+    p = P(1.8, 1.3, 1.0)
+    c = p.c
+    ground_shadow(c, p.gx, p.gy, 0.7, 0.22)
+    for k, dx in enumerate((-0.3, 0.32) if variant == 0 else (0.0,)):
+        bx = p.gx + dx
+        gy = p.gy - (0.04 if k else 0.0)
+        top = gy - 0.46 * ZK
+        body = poly_mask(c, [(bx - 0.2, gy), (bx + 0.2, gy), (bx + 0.25, top), (bx - 0.25, top)])
+        shade = np.clip(1.1 - 0.9 * (c.x - (bx - 0.25)) / 0.5, 0.55, 1.1)
+        c.over(body, hexc("#7C5634")[None, None, :] * shade[..., None])
+        for yy in (gy - 0.07, top + 0.07):
+            c.over(poly_mask(c, [(bx - 0.25, yy - 0.025), (bx + 0.25, yy - 0.025), (bx + 0.25, yy + 0.025), (bx - 0.25, yy + 0.025)]), hexc("#34281E"))
+        cov, _ = ellipse(c, bx, top, 0.25, 0.1)
+        c.over(cov, hexc("#3E6E8C") if k == 0 else hexc("#4A3522"))
+    return p
+
+
 PROPS = {
+    "hearth_0": hearth,
+    "bench_0": lambda: log_bench(0),
+    "landing_0": landing,
+    "buckets_0": lambda: buckets(0), "buckets_1": lambda: buckets(1),
     "woodpile_0": lambda: woodpile(0), "woodpile_1": lambda: woodpile(1),
     "logs_0": lambda: logs(0), "logs_1": lambda: logs(1),
     "stump_0": lambda: stump(0), "stump_1": lambda: stump(1),

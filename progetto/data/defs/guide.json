@@ -3,7 +3,7 @@
   "notes": "I primi passi, dai sei fondatori al Regno (Fase 15). Ogni passo si chiude da solo quando lo stato del mondo dice che e stato fatto: nessuna finzione, nessuna mano guidata. Si puo chiudere la guida in qualunque momento.",
   "steps": [
     { "id": "casa", "title": "Un tetto per sei persone",
-      "text": "Siete in sei, con un fuoco e una tettoia. Premi COSTRUZIONI a sinistra (tasto B) e alza una Casa: chi non ha un letto non mette radici e non fa figli.",
+      "text": "Siete in sei, attorno a un fuoco, con una tettoia e un deposito. Premi COSTRUZIONI a sinistra (tasto B) e alza una Casa: chi non ha un letto non mette radici e non fa figli.",
       "done": { "building": "house", "count": 1 } },
     { "id": "campi", "title": "Il pane prima di tutto",
       "text": "Una Fattoria semina in primavera e miete a fine estate. Senza campi la comunità vive di quel che ha portato, e finisce.",
@@ -15,7 +15,7 @@
       "text": "Il Forno fa sei pani da quattro misure di grano: è la differenza fra un granaio pieno e una comunità sazia.",
       "done": { "building": "bakery", "count": 1 } },
     { "id": "granaio", "title": "Un granaio per l'inverno",
-      "text": "Il fuoco comune tiene poco. Dopo la mietitura il grano deve bastare fino all'anno dopo: senza un Granaio il raccolto va perso e la gente se ne va. Il grano in alto diventa giallo quando il cibo non arriva al raccolto.",
+      "text": "Il primo deposito tiene poco. Dopo la mietitura il grano deve bastare fino all'anno dopo: senza un Granaio il raccolto va perso e la gente se ne va. Il grano in alto diventa giallo quando il cibo non arriva al raccolto.",
       "done": { "building": "granary", "count": 1 } },
     { "id": "sentieri", "title": "I primi sentieri",
       "text": "Traccia una Strada dal fuoco ai campi e al bosco (in COSTRUZIONI): chi porta legna e grano cammina più svelto su un sentiero battuto.",

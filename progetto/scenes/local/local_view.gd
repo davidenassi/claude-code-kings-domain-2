@@ -14,8 +14,9 @@ const MIN_MPP := 0.05
 const MAX_MPP_CAP := 7.0
 ## How far past the valley's edge the camera may look (the mists are drawn there).
 const EDGE_MARGIN_M := 260.0
-## The zoom the game opens on: the founders' fire and the ground around it.
-const HOME_MPP := 0.35
+## The zoom the game opens on: the founders round their fire, the store, the shelter and the square (Rebirth,
+## Phase 3: at 0.35 the camp of six was a speck in the middle of the screen).
+const HOME_MPP := 0.22
 
 @onready var world_view: WorldView = $WorldView
 @onready var camera: WorldCamera = $WorldCamera

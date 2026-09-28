@@ -152,7 +152,8 @@ static func _wake_people(session: GameSession, s: SettlementState) -> void:
 	for p in session.world.people_of(s.id):
 		p.busy_until = now + float(p.id % WAKE_SPREAD_HOURS)
 		p.pending = {}
-		p.action = &"idle"
+		if p.action != &"sit" and p.action != &"warm":
+			p.action = &"idle"   # who sits at the fire stays seated until the next plan
 		p.seg_from = p.seg_to
 		p.seg_t0 = now
 		p.seg_t1 = p.busy_until
@@ -678,12 +679,33 @@ static func _finish(session: GameSession, s: SettlementState, p: PersonState, t:
 					var made := KingdomModifiers.settlement_value(session, s, StringName("production.%s" % res), float(work["output"][res]) * ratio)
 					p.carrying = {"res": StringName(res), "amount": maxi(int(round(made)), 1), "for_site": -1}
 			return false
+		&"gather":
+			# at the fire: seated until the evening is over
+			var until := float(pend.get("until", t))
+			if until - t > 0.05:
+				_do(p, t, until - t, Nucleus.evening_action(p.id, int(floorf(t / 24.0)), world.people_of(s.id).size()), {})
+				return true
+			return false
+		&"at_water":
+			# fill the buckets, rinse a cloth, a word with whoever is there
+			_do(p, t, 0.4 + 0.5 * _rand(p, t, 13), &"draw_water", {"do": &"water_back"})
+			return true
+		&"water_back":
+			# the bucket goes to the fire (the pot is there)
+			var hearth := Nucleus.hearth_of(world, s)
+			if hearth == null:
+				return false
+			var wp := Nucleus.water_point_of(world, s)
+			var side := (wp.pos - hearth.pos).normalized() if wp else Vector2.DOWN
+			_go(world, p, t, hearth.pos + side * 2.4 + Vector2(side.y, -side.x) * (_rand(p, t, 12) - 0.5) * 2.0,
+				{"do": &"idle"}, &"carry_water")
+			return true
 		&"idle":
 			# at the end of a stroll the person stands there a while (Phase 19: the next plan came at once, inside
 			# the same quarter of an hour, so it drew the same numbers — the same stroll to the same spot, up to ten
 			# times an hour: in a town of a thousand, twenty-five thousand plans a day for people doing nothing)
 			if _is_work_time(t):
-				_do(p, t, 1.5 + 2.5 * _rand(p, t, 10), &"idle", {})
+				_do(p, t, _until_evening(t, 1.5 + 2.5 * _rand(p, t, 10)), &"idle", {})
 				return true
 			return false
 	return false
@@ -806,6 +828,8 @@ static func _plan(session: GameSession, s: SettlementState, p: PersonState, t: f
 	var home := world.building(p.home)
 	if not _is_work_time(t) or p.is_king:
 		if not _is_work_time(t):
+			if _plan_evening(world, s, p, t, home):
+				return
 			if home and p.seg_to.distance_to(_door(home, 0.5)) > 6.0:
 				_go(session.world, p, t, _door(home, _rand(p, t, 4)), {"do": &"home"})
 			else:
@@ -827,17 +851,61 @@ static func _plan(session: GameSession, s: SettlementState, p: PersonState, t: f
 		&"baker":
 			if _plan_bake(session, s, p, t):
 				return
-	_plan_idle(world, p, t, home)
+	_plan_idle(world, p, t, home, s)
 
 
-static func _plan_idle(world: WorldState, p: PersonState, t: float, home: BuildingState) -> void:
+## The evening at the common fire (Rebirth, Phase 3): for a couple of hours after work some of the people who live
+## near the hearth sit round it — the six founders all of them, a town only a dozen chosen each evening — then
+## they go home to sleep. True when the person was sent there.
+static func _plan_evening(world: WorldState, s: SettlementState, p: PersonState, t: float, home: BuildingState) -> bool:
+	var nb := Nucleus.balance()
+	var h := _hour(t)
+	var start := float(bal().get("work_end_hour", 19))
+	var until := floorf(t / 24.0) * 24.0 + start + float(nb.get("gather_hours", 2.0))
+	if h < start or t >= until - 0.05:
+		return false
+	var hearth := Nucleus.hearth_of(world, s)
+	if hearth == null:
+		return false
+	if home and home.pos.distance_to(hearth.pos) > float(nb.get("gather_home_m", 160.0)):
+		return false
+	var day := int(floorf(t / 24.0))
+	var people := world.people_of(s.id).size()
+	if KDRng.hash01(p.id, day, 9901) >= float(nb.get("gather_max", 12)) / maxf(float(people), 1.0):
+		return false
+	var seat := Nucleus.seat(hearth, p.id, day, people)
+	if p.seg_to.distance_to(seat) > 0.5:
+		_go(world, p, t, seat, {"do": &"gather", "until": until})
+	else:
+		_do(p, t, until - t, Nucleus.evening_action(p.id, day, people), {})
+	return true
+
+
+## An idle spell never runs past the end of the working day: at that hour the evening at the fire begins, and a
+## stroll of four hours started at five would make a person miss it.
+static func _until_evening(t: float, hours: float) -> float:
+	var end := floorf(t / 24.0) * 24.0 + float(bal().get("work_end_hour", 19))
+	if t >= end:
+		return hours
+	return minf(hours, maxf(end - t, 0.05))
+
+
+static func _plan_idle(world: WorldState, p: PersonState, t: float, home: BuildingState, s: SettlementState = null) -> void:
 	var anchor := home.pos if home else p.seg_to
+	# Rebirth, Phase 3: who has nothing to do lingers on the square of the fire, or goes to draw water
+	var hearth := Nucleus.hearth_of(world, s)
+	if hearth and (home == null or home.pos.distance_to(hearth.pos) <= float(Nucleus.balance().get("gather_home_m", 160.0))):
+		anchor = hearth.pos + Vector2(0.0, -8.0)
+		var wp := Nucleus.water_point_of(world, s)
+		if wp and p.job != &"child" and _rand(p, t, 11) < float(Nucleus.balance().get("water_errand_chance", 0.18)):
+			_go(world, p, t, Nucleus.draw_spot(world, wp), {"do": &"at_water"})
+			return
 	if _rand(p, t, 7) < 0.35:
 		var a := TAU * _rand(p, t, 8)
 		var r := 6.0 + 12.0 * _rand(p, t, 9)
 		_go(world, p, t, anchor + Vector2(cos(a), sin(a) * 0.7) * r + Vector2(0, 8), {"do": &"idle"})
 	else:
-		_do(p, t, 1.5 + 2.5 * _rand(p, t, 10), &"idle", {})
+		_do(p, t, _until_evening(t, 1.5 + 2.5 * _rand(p, t, 10)), &"idle", {})
 
 
 static func _plan_builder(session: GameSession, s: SettlementState, p: PersonState, t: float) -> bool:

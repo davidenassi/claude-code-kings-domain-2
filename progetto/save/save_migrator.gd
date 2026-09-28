@@ -4,7 +4,7 @@ extends RefCounted
 ## Each step is a static function `_v<N>_to_v<N+1>(data: Dictionary) -> Dictionary`.
 ## Never reject an old save when a migration path exists.
 
-const CURRENT_VERSION := 7
+const CURRENT_VERSION := 8
 
 
 static func migrate(data: Dictionary) -> Dictionary:
@@ -125,6 +125,95 @@ func _v6_to_v7(data: Dictionary) -> Dictionary:
 	move_into_valley(world, d.origin_global)
 	data["world"] = world
 	return data
+
+
+## v8 (Rebirth, Phase 3): the nucleus of the community. A community founded before it had its store and its shelter
+## but no common fire of its own and no water point: they are added where the founding would have put them — the
+## fire on free ground in front of the store, which becomes the centre of the settlement, and the water point on the
+## nearest bank. Nothing else moves.
+func _v7_to_v8(data: Dictionary) -> Dictionary:
+	var world: Dictionary = data.get("world", {})
+	var buildings: Array = world.get("buildings", [])
+	var domain_d: Dictionary = world.get("domain", {})
+	var ld: DomainData = DomainData.for_domain(DomainState.from_dict(domain_d)) if not domain_d.is_empty() else null
+	if ld != null and not ld.loaded:
+		ld = null
+	for sd: Dictionary in world.get("settlements", []):
+		var sid := int(sd.get("id", -1))
+		var store: Dictionary = {}
+		var has_hearth := false
+		for bd: Dictionary in buildings:
+			if int(bd.get("settlement", -1)) != sid:
+				continue
+			var def := String(bd.get("def", ""))
+			if def == "camp_store" and store.is_empty():
+				store = bd
+			elif def == "hearth":
+				has_hearth = true
+		if store.is_empty() or has_hearth:
+			continue
+		var at := Vector2(float(store.get("x", 0.0)), float(store.get("y", 0.0)))
+		var fire := _free_spot(buildings, ld, at, Vector2(6.0, 6.0))
+		if fire == Vector2.INF:
+			continue
+		var day := int(world.get("tick", 0)) / int(world.get("ticks_per_day", 24))
+		buildings.append(_nucleus_building(world, sid, "hearth", fire, day))
+		sd["x"] = fire.x
+		sd["y"] = fire.y
+		if ld != null:
+			var water := Nucleus.water_spot(ld, fire)
+			if not water.is_empty():
+				var wp: Vector2 = (water["pos"] as Vector2).snapped(Vector2(0.1, 0.1))
+				if _free_spot(buildings, null, wp, Vector2(3.0, 3.0), 0) == wp:
+					buildings.append(_nucleus_building(world, sid, "water_point", wp, day))
+	world["buildings"] = buildings
+	data["world"] = world
+	return data
+
+
+## The nearest place round `near` where a rectangle of `size` stands on dry land clear of every saved building and
+## road: in front of `near` first, then rings further out. Vector2.INF when none within 60 m.
+static func _free_spot(buildings: Array, ld: DomainData, near: Vector2, size: Vector2, rings: int = 6) -> Vector2:
+	var candidates: Array[Vector2] = []
+	candidates.append(near + Vector2(0.0, 9.5) if rings > 0 else near)
+	for ring in rings:
+		for k in 16:
+			candidates.append(near + Vector2.from_angle(PI * 0.5 + TAU * float(k) / 16.0) * (10.0 + ring * 8.0))
+	for c: Vector2 in candidates:
+		var p := c.snapped(Vector2(0.1, 0.1))
+		var rect := Rect2(p - size * 0.5, size)
+		var clear := true
+		for bd: Dictionary in buildings:
+			var def := Defs.building(StringName(String(bd.get("def", ""))))
+			if def == null:
+				continue
+			if def.is_line:
+				var a: Array = bd.get("a", [0, 0])
+				var b: Array = bd.get("b", [0, 0])
+				if Placement.segment_hits_rect(Vector2(float(a[0]), float(a[1])), Vector2(float(b[0]), float(b[1])),
+						rect.grow(BuildingState.road_width() * 0.5)):
+					clear = false
+					break
+				continue
+			var at := Vector2(float(bd.get("x", 0.0)), float(bd.get("y", 0.0)))
+			if Rect2(at - def.footprint * 0.5, def.footprint).grow(Placement.GAP_M).intersects(rect):
+				clear = false
+				break
+		if clear and ld != null:
+			for q: Vector2 in [rect.get_center(), rect.position, rect.end]:
+				if ld.water_at(q) != WorldData.WATER_LAND or ld.river_clearance(q) < 1.5:
+					clear = false
+		if clear:
+			return p
+	return Vector2.INF
+
+
+static func _nucleus_building(world: Dictionary, settlement_id: int, def_id: String, pos: Vector2, day: int) -> Dictionary:
+	var id := int(world.get("next_id", 1))
+	world["next_id"] = id + 1
+	return {"id": id, "def": def_id, "settlement": settlement_id, "x": pos.x, "y": pos.y, "status": "active",
+		"delivered": {}, "work_done": 0.0, "workers_wanted": 0, "crop": 0.0, "placed_day": day, "work_required": 0.0,
+		"a": [0.0, 0.0], "b": [0.0, 0.0]}
 
 
 ## Moves everything of the settlements of a saved world by -origin (continent metres -> valley metres).

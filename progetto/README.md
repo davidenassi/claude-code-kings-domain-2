@@ -3,6 +3,8 @@
 Un gioco medievale di fondazione e crescita che evolve in un grand strategy (Godot 4.7): da **sei fondatori** a una grande
 potenza. **Rebirth (dal 28/09/2026): due mappe, una simulazione** — la **mappa locale del dominio** (la valle della patria:
 costruisci, osservi, vivi) e la **mappa globale strategica** (il continente: esplori, comprendi, espandi).
+La partita comincia a Valverde, una valle chiusa dai monti, con sei persone attorno al loro fuoco: il **nucleo della
+comunità** (focolare, piazzola, deposito, riparo, punto d'acqua) da cui crescerà il regno.
 Piano e stato in [KINGSDOMAIN_REBIRTH_AUDIT.md](KINGSDOMAIN_REBIRTH_AUDIT.md) e [KINGSDOMAIN_REBIRTH_REPORT.md](KINGSDOMAIN_REBIRTH_REPORT.md).
 
 ## Documenti

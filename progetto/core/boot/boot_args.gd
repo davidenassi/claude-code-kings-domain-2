@@ -11,6 +11,7 @@ extends RefCounted
 ##   --kd-frames=N              frames to wait before the screenshot (default 30)
 ##   --kd-speed=N               initial simulation speed index
 ##   --kd-days=N                simulate N days instantly before rendering
+##   --kd-hours=N               then N hours more, with the valley watched (the new game starts at 8 in the morning)
 ##   --kd-hide-debug            hide the debug overlay
 ##   --kd-no-events             switch the events off (clean screenshots)
 ##   --kd-menu                  stay on the main menu instead of entering the game

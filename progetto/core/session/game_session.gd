@@ -19,6 +19,8 @@ static func create_new(options: Dictionary = {}) -> GameSession:
 	var time_cfg: Dictionary = Defs.balance("time")
 	s.world = WorldState.new()
 	s.world.ticks_per_day = int(time_cfg.get("ticks_per_day", 24))
+	# the founders arrive in the morning (Rebirth, Phase 3): the first thing seen is six people round their fire
+	s.world.tick = clampi(int(time_cfg.get("start_hour", 0)), 0, s.world.ticks_per_day - 1)
 	var seed_value: int = int(options.get("campaign_seed", 0))
 	if seed_value == 0:
 		seed_value = int(Time.get_unix_time_from_system() * 1000.0) ^ randi()

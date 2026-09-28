@@ -1,9 +1,10 @@
 class_name SettlementSetup
 extends RefCounted
 ## Founds the player's first settlement in the start valley. Since Phase 15 there is no keep and no king: six people
-## — three men and three women, each from a family of their own — arrive with a common fire that holds their
-## stores, a lean-to to sleep under and little else. Everything else they will build. The site is chosen from the
-## real ground (flat, near water but dry, near stone, lightly wooded).
+## — three men and three women, each from a family of their own — arrive, light a common fire and make the nucleus
+## of the community around it (Rebirth, Phase 3: Nucleus): a small store, a lean-to to sleep under, the square
+## round the fire and the point on the bank where they draw water. Everything else they will build. The site is
+## chosen from the real ground (flat, near water but dry, near stone, at the edge of a wood).
 
 const SEARCH_STEP_M := 64.0
 const REFINE_STEP_M := 16.0
@@ -45,24 +46,32 @@ static func found_player_settlement(world: WorldState) -> SettlementState:
 	world.settlements.append(s)
 	player.founded_day = world.day
 
-	# the ground the first settlers cleared: stumps around, bare ground under the fire and the lean-to
-	var store := _add_building(world, s, &"camp_store", site)
-	var shelter := _add_building(world, s, &"shelter", site + Vector2(14.0, 8.0))
+	# Rebirth, Phase 3: the nucleus of the community — the fire in the middle of its square, the store and the
+	# shelter behind it, the water point on the nearest bank (Nucleus.lay_out)
+	var nucleus := Nucleus.lay_out(world, s, ld)
+	var shelter: BuildingState = nucleus["shelter"]
+	# the ground the first settlers cleared: bare ground under what they built and on the square, stumps around
 	var radius := float(bal.get("site_clear_radius_m", 26.0))
+	var square := Nucleus.square_radius() + 2.0
 	var clear_rect := Rect2(site - Vector2(radius, radius), Vector2(radius, radius) * 2.0)
-	for t in LocalFeatures.trees_in_rect(ld, clear_rect.grow(12.0)):
-		var in_building := store.rect().grow(1.0).has_point(t["pos"]) or shelter.rect().grow(1.0).has_point(t["pos"])
-		if in_building:
+	for t in LocalFeatures.trees_in_rect(ld, clear_rect.grow(24.0)):
+		var in_building := false
+		for key: String in ["store", "shelter", "hearth", "water"]:
+			var b: BuildingState = nucleus[key]
+			if b and b.rect().grow(1.0).has_point(t["pos"]):
+				in_building = true
+		if in_building or t["pos"].distance_to(site) <= square:
 			world.terrain.fell(t, -30, true)
 		elif t["pos"].distance_to(site) <= radius:
 			world.terrain.fell(t, -30 - int(KDRng.hash01(t["gx"], t["gy"], 5) * 40.0))
+	Nucleus.clear_the_way(world, s, ld)
 
-	var founders := _add_founders(world, s, shelter, player)
+	var founders := _add_founders(world, s, shelter, player, nucleus["hearth"])
 	var names := PackedStringArray()
 	for p in founders:
 		names.append(full_name(world, p))
 	world.chronicle.append({"day": world.day, "kingdom": player.id, "kind": "founding_arrival",
-		"text": "Sei persone arrivano a %s: %s. Non c'è un re, non c'è un castello: c'è la terra." % [
+		"text": "Sei persone arrivano a %s: %s. Non c'è un re, non c'è un castello: c'è la terra. Accendono un fuoco, e da quel fuoco nascerà tutto." % [
 			s.name, ", ".join(names)]})
 	return s
 
@@ -111,7 +120,8 @@ static func _add_building(world: WorldState, s: SettlementState, def_id: StringN
 
 ## Three men and three women, each from a family of their own: the couples come later (FamilySystem), and the
 ## chronicle writes down every one of them.
-static func _add_founders(world: WorldState, s: SettlementState, shelter: BuildingState, realm: KingdomState) -> Array[PersonState]:
+static func _add_founders(world: WorldState, s: SettlementState, shelter: BuildingState, realm: KingdomState,
+		hearth: BuildingState = null) -> Array[PersonState]:
 	var fam: Dictionary = Defs.balance("families").get("start", {})
 	var names: Dictionary = (Defs.read_json("res://data/defs/person_names.json") as Dictionary)["cultures"]
 	var pool: Dictionary = names.get(String(realm.culture), names["latin"])
@@ -157,7 +167,11 @@ static func _add_founders(world: WorldState, s: SettlementState, shelter: Buildi
 		world.families[f.id] = f
 		p.family = f.id
 		p.born_family = f.id
+		# they have just lit the fire: round it (without one, in front of the shelter)
 		var spot := shelter.pos + Vector2(rng.randf_range(-4.0, 4.0), shelter.def().footprint.y * 0.5 + rng.randf_range(1.0, 3.0))
+		if hearth:
+			spot = Nucleus.seat(hearth, p.id, world.day, sexes.size())
+			p.action = Nucleus.evening_action(p.id, world.day, sexes.size())   # sitting round it
 		p.seg_from = spot
 		p.seg_to = spot
 		world.add_person(p)
