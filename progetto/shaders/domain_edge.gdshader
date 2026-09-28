@@ -6,7 +6,7 @@ shader_type canvas_item;
 uniform vec2 domain_size = vec2(8064.0, 6144.0);
 uniform vec2 node_origin = vec2(0.0);
 uniform sampler2D noise_tex : filter_linear_mipmap, repeat_enable;
-uniform float band_m = 620.0;          // width of the misty band inside the valley's edge
+uniform float band_m = 340.0;          // width of the misty band inside the valley's edge
 uniform vec3 mist_light = vec3(0.90, 0.89, 0.84);
 uniform vec3 mist_shadow = vec3(0.66, 0.68, 0.66);
 uniform float drift = 0.0;             // seconds, for a very slow movement of the clouds

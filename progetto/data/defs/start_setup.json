@@ -7,6 +7,7 @@
     "culture": "latin",
     "religion": "catholic",
     "require": { "river": true, "coastal": false, "min_forest": 0.3, "min_fertility": 0.45, "deposit": "stone" },
+    "homeland": "valverde",
     "realm_name": "Comunità di {province}",
     "kingdom_name": "Regno di {province}",
     "color": "#2F4F9E",

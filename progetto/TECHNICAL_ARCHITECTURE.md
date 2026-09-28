@@ -26,6 +26,21 @@ Documento di riferimento per ogni scelta tecnica; aggiornarlo quando una scelta 
 6. **Salvataggi versionati e migrabili** fin dal primo giorno.
 7. **Ogni fase termina con verifiche automatiche** (test headless + screenshot di controllo).
 
+### 1.1 Le patrie generate (Rebirth, Fase 2)
+- `data/domains/homelands.json` descrive la geografia **disegnata** di ogni patria (dimensioni, passi, fiumi, lago,
+  colline, boschi, depositi, nomi); `tools/domaingen/generate_domains.py` (Python 3 + numpy, seme fisso) la
+  costruisce in `data/domains/<id>/`: `height.bin` (float32, 8 m), `biome/canopy/moisture/temperature.bin`
+  (uint8, 8 m), `water/coast.bin` (uint8, 4 m) e `domain_meta.json` (fiumi, lago, passi, depositi, sito di fondazione,
+  cime illustrate del bordo, nomi). `--check` rigenera in una cartella temporanea e confronta al byte.
+- `DomainData._load_homeland()` li carica con la stessa interfaccia di `WorldData`: la valle è **una provincia**
+  (ogni campo asciutto appartiene alla provincia di casa), gli alberi seguono il `canopy` disegnato
+  (`WorldData.designed_woods`: niente radure e margini aggiunti dal rumore del continente) e il terreno ha la roccia
+  dove il pendio è ripido (`slope_rock` nello shader).
+- Sulla mappa del mondo la patria sta **dentro** la sua provincia (`DomainState.for_homeland`: scala ridotta, centro
+  sotto il nome del regno).
+- `start_setup.json → player.homeland` sceglie la patria della nuova partita; `GameSession.create_new({"homeland":
+  "none"})` ritaglia invece la valle dal continente (come i salvataggi della mappa unica).
+
 ---
 
 ## 2. Struttura del progetto

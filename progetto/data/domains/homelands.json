@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "notes": "Le patrie del Rebirth (Fase 2): valli finite, ad alta risoluzione, chiuse da confini naturali. Ogni voce descrive la geografia disegnata (passi, fiumi, lago, colline, boschi, nomi); tools/domaingen/generate_domains.py la costruisce in data/domains/<id>/ in modo deterministico (seme fisso). Coordinate in metri della valle, (0,0) in alto a sinistra.",
+  "homelands": [
+    {
+      "id": "valverde",
+      "name": "Valverde",
+      "template": "river_valley",
+      "seed": 1230,
+      "size": [8064, 6144],
+      "floor_m": 220.0,
+      "rim": { "inner_m": [1050, 1650], "rise_m": 1000, "peak_m": [1450, 2350] },
+      "passes": [
+        { "id": "gola_del_chiaro", "name": "Gola del Chiaro", "kind": "river", "edge": [0, 1500], "inner": [1350, 1700], "width_m": 430, "saddle_m": 245 },
+        { "id": "stretta_di_valle", "name": "Stretta di Valle", "kind": "river", "edge": [6100, 6144], "inner": [5550, 4850], "width_m": 520, "saddle_m": 175 },
+        { "id": "passo_del_lupo", "name": "Passo del Lupo", "kind": "road", "edge": [2600, 0], "inner": [2850, 1450], "width_m": 330, "saddle_m": 880 },
+        { "id": "varco_delle_querce", "name": "Varco delle Querce", "kind": "road", "edge": [8064, 4300], "inner": [6800, 4150], "width_m": 400, "saddle_m": 520 }
+      ],
+      "rivers": [
+        { "id": 0, "name": "Chiaro", "points": [[-40, 1500], [900, 1640], [1750, 2080], [2450, 2700], [3250, 3080], [4150, 3380], [4850, 3900], [5450, 4650], [5850, 5400], [6100, 6200]], "width": [15.0, 27.0], "meander_m": 70 },
+        { "id": 1, "name": "Rio del Lago", "points": [[6000, -40], [6080, 700], [6180, 1450], [6230, 1980]], "width": [5.0, 8.0], "meander_m": 35 },
+        { "id": 2, "name": "Rio del Lago", "points": [[5780, 2560], [5320, 2960], [4880, 3420], [4700, 3700]], "width": [8.0, 10.0], "meander_m": 30 }
+      ],
+      "lakes": [ { "name": "Lago di Valverde", "center": [6200, 2330], "radii": [560, 330], "angle_deg": 18, "depth_m": 14 } ],
+      "hills": [
+        { "center": [2050, 4350], "radius_m": 760, "height_m": 115 },
+        { "center": [3150, 4900], "radius_m": 520, "height_m": 70 },
+        { "center": [1500, 2600], "radius_m": 420, "height_m": 55 },
+        { "center": [4700, 1700], "radius_m": 620, "height_m": 90 }
+      ],
+      "forests": [
+        { "center": [6900, 1250], "radius_m": 1150, "density": 0.95 },
+        { "center": [1250, 3400], "radius_m": 820, "density": 0.9 },
+        { "center": [4200, 5250], "radius_m": 760, "density": 0.85 },
+        { "center": [3900, 1900], "radius_m": 520, "density": 0.8 },
+        { "center": [2500, 3900], "radius_m": 380, "density": 0.75 },
+        { "center": [2780, 2700], "radius_m": 560, "density": 0.95 }
+      ],
+      "site_search": { "center": [3300, 3150], "radius_m": 900 },
+      "iron": [ [2200, 5000], [5200, 1250] ],
+      "stone": [ [1900, 4150], [3000, 4700], [1400, 2500], [4600, 1600], [5600, 4500], [2700, 1500] ],
+      "names": {
+        "ranges": [
+          { "name": "Monti Ferrigni", "at": [3600, 420] },
+          { "name": "Serra del Vento", "at": [7550, 2700] },
+          { "name": "Colli di Ponente", "at": [520, 4300] },
+          { "name": "Costa Grigia", "at": [3100, 5750] }
+        ],
+        "places": [
+          { "name": "Bosco Nero", "at": [6900, 1250] },
+          { "name": "Selva di Ponente", "at": [1250, 3400] },
+          { "name": "Bosco del Focolare", "at": [2700, 2650] }
+        ]
+      }
+    }
+  ]
+}

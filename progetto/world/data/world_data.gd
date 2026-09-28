@@ -39,6 +39,9 @@ var province_raster: PackedByteArray   ## uint16 little endian per 64 m cell
 ## the corner of the window, so that trees, woods and rocks are drawn from the same hashes and noises as the
 ## continent would draw them there (the same trees after the Rebirth migration).
 var feature_origin: Vector2 = Vector2.ZERO
+## The woods of this data are drawn tree by tree in its canopy raster (a generated homeland, 8 m): glades, cores and
+## ragged margins are already there, and the noises that give the continent's 64 m woods a shape are not added.
+var designed_woods := false
 
 var provinces: Array[ProvinceGeo] = []
 ## [{id, length_m, max_width_m, points: PackedVector2Array, widths: PackedFloat32Array}]

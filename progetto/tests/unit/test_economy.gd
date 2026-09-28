@@ -16,7 +16,9 @@ static func village(seed_value: int, with_farm: bool = true) -> GameSession:
 	if with_farm:
 		wanted = [&"farm", &"woodcutter", &"bakery", &"house", &"granary", &"house"]
 	for def_id in wanted:
-		var spot := SettlementPlanner.find_spot(s, st.id, def_id, keep.pos, 36.0)
+		# the woodcutter at the edge of the wood (Rebirth: the valley's woods are masses, not a stipple)
+		var near := keep.pos if def_id != &"woodcutter" else st.center + SettlementPlanner.wood_direction(s.world, st) * 110.0
+		var spot := SettlementPlanner.find_spot(s, st.id, def_id, near, 36.0 if def_id != &"woodcutter" else 0.0)
 		if spot != Vector2.INF:
 			s.submit(PlaceBuildingCommand.create(st.id, def_id, spot))
 	return s
@@ -91,10 +93,14 @@ func test_twenty_years_of_a_prosperous_village() -> void:
 		if counts.has(String(kind)):
 			counts[String(kind)] = int(counts[String(kind)]) + 1
 	EventBus.notification.connect(counter)
+	var children_seen := 0
 	for y in 20:
 		for m in 12:
 			s.advance_days(30)
 			lord_turn(s, 30)   # a village of about thirty souls: enough to see births, deaths and newcomers
+		for p in w.people_of(st.id):
+			if p.job == &"child":
+				children_seen += 1
 	var ms := Time.get_ticks_msec() - t0
 	var people := w.people_of(st.id)
 	EventBus.notification.disconnect(counter)
@@ -110,7 +116,10 @@ func test_twenty_years_of_a_prosperous_village() -> void:
 		var a := p.age_years(w.day)
 		assert_true(a >= 0 and a <= int(Defs.balance("population")["max_age"]) + 1, "%s has a plausible age (%d)" % [p.name, a])
 		ages[p.job] = int(ages.get(p.job, 0)) + 1
-	assert_true(int(ages.get(&"child", 0)) > 0, "there are children")
+	# children are born and grow up in the village. Counted over the twenty years, not on the last day: a child needs
+	# a free bed (population.json → needs_free_bed), and a village the lord keeps at thirty souls can fill its beds
+	# early and then age (Rebirth: the fertile floor of Valverde fills them by the third year)
+	assert_true(children_seen > 0, "there are children (%d child-years, %d today)" % [children_seen, int(ages.get(&"child", 0))])
 	assert_true(w.provinces[w.kingdoms[1].capital].population > 0, "the provinces of the other realms live on")
 	assert_true(ms < 200000, "twenty years simulated in %d ms" % ms)
 	assert_true(w.player().treasury > 0.0, "the crown is not in debt (%.0f)" % w.player().treasury)

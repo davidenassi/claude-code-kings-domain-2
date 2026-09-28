@@ -92,7 +92,8 @@ func test_woodcutter_fells_visible_trees_and_house_rises_on_cleared_land() -> vo
 	var w := s.world
 	var st := w.settlements[0]
 	var keep := w.buildings_of(st.id)[0]
-	var spot := find_spot(s, &"woodcutter", keep.pos, 40.0)
+	# at the edge of the wood, where the planner puts woodcutters (Rebirth: the valley's woods are masses)
+	var spot := find_spot(s, &"woodcutter", st.center + SettlementPlanner.wood_direction(w, st) * 110.0, 0.0)
 	assert_true(spot != Vector2.INF, "woodcutter spot")
 	var res := s.submit(PlaceBuildingCommand.create(st.id, &"woodcutter", spot))
 	assert_true(res.success, res.reason)
@@ -161,7 +162,9 @@ func test_two_years_of_settlement_life() -> void:
 	var keep := w.buildings_of(st.id)[0]
 	var placed := []
 	for def_id: StringName in [&"farm", &"woodcutter", &"bakery", &"house"]:
-		var spot := find_spot(s, def_id, keep.pos, 40.0)
+		# where a player puts them: the woodcutter at the edge of the wood (Rebirth: woods are masses in the valley)
+		var near := keep.pos if def_id != &"woodcutter" else st.center + SettlementPlanner.wood_direction(w, st) * 110.0
+		var spot := find_spot(s, def_id, near, 40.0 if def_id != &"woodcutter" else 0.0)
 		if spot == Vector2.INF:
 			fail("no spot for %s" % def_id)
 			continue

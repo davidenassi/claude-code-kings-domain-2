@@ -17,6 +17,7 @@ func _ready() -> void:
 	var total_tests := 0
 	var total_assertions := 0
 	var failed: PackedStringArray = []
+	var skipped_all: PackedStringArray = []
 	var report: PackedStringArray = []
 	var t_start := Time.get_ticks_msec()
 
@@ -50,6 +51,7 @@ func _ready() -> void:
 					continue
 				tc.current_test = "%s::%s" % [file.get_basename(), method_name]
 				var before := tc.failures.size()
+				var skipped_before := tc.skipped.size()
 				var t0 := Time.get_ticks_msec()
 				tc.before_each()
 				var ret: Variant = tc.call(method_name)
@@ -58,10 +60,14 @@ func _ready() -> void:
 				tc.after_each()
 				total_tests += 1
 				var status := "ok" if tc.failures.size() == before else "FAIL"
+				if status == "ok" and tc.skipped.size() > skipped_before:
+					status = "SKIP"
 				report.append("[%s] %s (%d ms)" % [status, tc.current_test, Time.get_ticks_msec() - t0])
 			total_assertions += tc.assertions
 			for f in tc.failures:
 				failed.append(f)
+			for sk in tc.skipped:
+				skipped_all.append(sk)
 
 	var elapsed := Time.get_ticks_msec() - t_start
 	for line in report:
@@ -69,7 +75,10 @@ func _ready() -> void:
 	print("----")
 	for f in failed:
 		print("FAILURE: %s" % f)
-	var summary := "TESTS: %d run, %d assertions, %d failures, %d ms" % [total_tests, total_assertions, failed.size(), elapsed]
+	for sk in skipped_all:
+		print("SKIPPED: %s" % sk)
+	var summary := "TESTS: %d run, %d assertions, %d failures, %d skipped, %d ms" % [total_tests, total_assertions,
+		failed.size(), skipped_all.size(), elapsed]
 	print(summary)
 
 	var out_dir := ProjectSettings.globalize_path("res://tests/output")

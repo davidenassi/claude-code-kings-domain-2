@@ -154,7 +154,8 @@ func test_the_picture_of_the_world_is_the_same_after_a_reload() -> void:
 ## The woods keep their trees on average (the shape of glades and cores only moves them around): the wood a
 ## village can cut does not change with the art.
 func test_the_woods_have_a_shape_and_keep_their_trees() -> void:
-	var s := Session.start_new({"campaign_seed": 1})
+	# the woods of the continent (a valley cut out of it): the homelands draw their own woods (test_homeland)
+	var s := Session.start_new({"campaign_seed": 1, "homeland": "none"})
 	var wd := SettlementSim.ground(s.world)
 	var home := s.world.settlements[0].center
 	var total := 0

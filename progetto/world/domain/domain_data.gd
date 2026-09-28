@@ -159,9 +159,118 @@ static func _moved_province(g: ProvinceGeo, shift: Vector2) -> ProvinceGeo:
 
 # --- generated homelands (Phase 2) -------------------------------------------------------------------
 
+const HOMELANDS_DIR := "res://data/domains"
+
+
+## The directory of a generated homeland (tools/domaingen/generate_domains.py).
+static func homeland_dir(homeland_id: String) -> String:
+	return "%s/%s" % [HOMELANDS_DIR, homeland_id]
+
+
+## The meta of a generated homeland, or {} when it has not been generated.
+static func homeland_meta(homeland_id: String) -> Dictionary:
+	var path := homeland_dir(homeland_id) + "/domain_meta.json"
+	if homeland_id == "" or not FileAccess.file_exists(path):
+		return {}
+	var m: Variant = Defs.read_json(path)
+	return m if m is Dictionary else {}
+
+
+## The homeland's own ground, at its own resolution (8 m relief, woods and biomes; 4 m water), in its own metres.
+## Its trees are its own (no continent behind them: feature_origin stays zero).
 func _load_homeland() -> void:
-	errors.append("homeland '%s': generated homelands arrive with Phase 2" % domain.homeland)
-	loaded = false
+	var t0 := Time.get_ticks_msec()
+	var dir := homeland_dir(domain.homeland)
+	meta = homeland_meta(domain.homeland)
+	if meta.is_empty():
+		errors.append("homeland '%s' not generated (tools/domaingen/generate_domains.py)" % domain.homeland)
+		loaded = false
+		return
+	size_m = Vector2(float(meta["world_width_m"]), float(meta["world_height_m"]))
+	cell_m = float(meta["cell_m"])
+	fine_cell_m = float(meta["fine_cell_m"])
+	grid_w = int(meta["grid_width"])
+	grid_h = int(meta["grid_height"])
+	fine_w = int(meta["fine_grid_width"])
+	fine_h = int(meta["fine_grid_height"])
+	height_bytes = _raster_at(dir, "height")
+	height = height_bytes.to_float32_array()
+	designed_woods = true
+	biome = _raster_at(dir, "biome")
+	canopy = _raster_at(dir, "canopy")
+	forest = canopy
+	moisture = _raster_at(dir, "moisture")
+	temperature = _raster_at(dir, "temperature")
+	water = _raster_at(dir, "water")
+	coast = _raster_at(dir, "coast")
+	_check_size("height", height.size(), grid_w * grid_h)
+	_check_size("water", water.size(), fine_w * fine_h)
+	for r: Dictionary in meta.get("rivers", []):
+		var xyw: Array = r["xyw"]
+		var pts := PackedVector2Array()
+		var ws := PackedFloat32Array()
+		var i := 0
+		while i + 2 < xyw.size():
+			pts.append(Vector2(float(xyw[i]), float(xyw[i + 1])))
+			ws.append(float(xyw[i + 2]))
+			i += 3
+		rivers.append({"id": int(r["id"]), "name": String(r.get("name", "")), "length_m": float(r["length_m"]),
+			"max_width_m": float(r["max_width_m"]), "points": pts, "widths": ws})
+	# the provinces of the continent keep their ids (the table is indexed by them) but have no ground here,
+	# except the home province: the whole valley, with the homeland's own deposits
+	var wd := WorldData.get_instance()
+	for g in wd.provinces:
+		var p := _moved_province(g, Vector2(-1.0e7, -1.0e7))
+		p.deposits = []
+		if g.id == domain.home_province:
+			p.center = size_m * 0.5
+			p.centroid = size_m * 0.5
+			p.inner_radius_m = minf(size_m.x, size_m.y) * 0.35
+			p.has_river = not rivers.is_empty()
+			p.has_lake = not (meta.get("lakes", []) as Array).is_empty()
+			for d: Dictionary in meta.get("deposits", []):
+				p.deposits.append({"type": StringName(d["type"]), "pos": Vector2(float(d["x"]), float(d["y"])),
+					"richness": float(d.get("richness", 1.0))})
+		provinces.append(p)
+	provinces_inside = PackedInt32Array([domain.home_province])
+	loaded = errors.is_empty()
+	for e in errors:
+		KDLog.error("world", e)
+	KDLog.info("world", "homeland %s loaded: %d x %d m, %d rivers, %d deposits in %d ms" % [domain.homeland,
+		int(size_m.x), int(size_m.y), rivers.size(), (meta.get("deposits", []) as Array).size(), Time.get_ticks_msec() - t0])
+
+
+func _raster_at(dir: String, raster_name: String) -> PackedByteArray:
+	var info: Dictionary = (meta.get("rasters", {}) as Dictionary).get(raster_name, {})
+	if info.is_empty():
+		errors.append("homeland raster %s not described" % raster_name)
+		return PackedByteArray()
+	var path := dir + "/" + String(info["file"])
+	if not FileAccess.file_exists(path):
+		errors.append("homeland raster missing: %s" % path)
+		return PackedByteArray()
+	var raw := FileAccess.get_file_as_bytes(path).decompress(int(info["uncompressed_bytes"]), FileAccess.COMPRESSION_DEFLATE)
+	if raw.size() != int(info["uncompressed_bytes"]):
+		errors.append("homeland raster %s: %d bytes, expected %d" % [raster_name, raw.size(), int(info["uncompressed_bytes"])])
+	return raw
+
+
+## A homeland is one province: every piece of dry ground of the valley belongs to the home province.
+func province_at(pos: Vector2) -> int:
+	if domain.is_crop():
+		return super.province_at(pos)
+	if not in_world(pos):
+		return -1
+	var w := water_at(pos)
+	if w == WATER_SEA or w == WATER_LAKE:
+		return -1
+	return domain.home_province
+
+
+## The founding site designed with the homeland (valley metres), or Vector2.INF for a crop.
+func founding_site() -> Vector2:
+	var s: Array = meta.get("founding_site", [])
+	return Vector2(float(s[0]), float(s[1])) if s.size() == 2 else Vector2.INF
 
 
 # --- textures ---------------------------------------------------------------------------------------
@@ -169,6 +278,12 @@ func _load_homeland() -> void:
 ## The far albedo of the continent, cut to the valley (the local camera never zooms out far enough to show it,
 ## but the terrain shader samples it: it must be the valley's, not the continent's).
 func texture(tex_name: StringName) -> Texture2D:
+	if not domain.is_crop() and (tex_name == &"albedo_far" or tex_name == &"province") and not _textures.has(tex_name):
+		# a homeland has no painted far albedo (the local camera never goes that far) and one province only
+		var img := Image.create(1, 1, false, Image.FORMAT_RGB8 if tex_name == &"albedo_far" else Image.FORMAT_RG8)
+		img.fill(Color(0.5, 0.55, 0.35) if tex_name == &"albedo_far" else Color(1.0, 1.0, 0.0))
+		_textures[tex_name] = ImageTexture.create_from_image(img)
+		return _textures[tex_name]
 	if tex_name == &"albedo_far" and not _textures.has(tex_name):
 		var src: Texture2D = WorldData.get_instance().texture(&"albedo_far")
 		var tex: Texture2D = null

@@ -79,8 +79,8 @@ func test_work_fills_the_registers_that_feed_the_spirits() -> void:
 	var s := GameSession.create_new({"campaign_seed": 304})
 	var w := s.world
 	var st := w.settlements[0]
-	var keep := w.buildings_of(st.id)[0]
-	var spot := SettlementPlanner.find_spot(s, st.id, &"woodcutter", keep.pos, 36.0)
+	# at the edge of the wood (Rebirth: the valley's woods are masses with open land between them)
+	var spot := SettlementPlanner.find_spot(s, st.id, &"woodcutter", st.center + SettlementPlanner.wood_direction(w, st) * 110.0, 0.0)
 	s.submit(PlaceBuildingCommand.create(st.id, &"woodcutter", spot))
 	s.advance_days(60)
 	var k := w.player()

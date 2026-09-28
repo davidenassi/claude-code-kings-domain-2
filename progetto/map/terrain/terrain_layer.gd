@@ -50,6 +50,10 @@ func _setup_uniforms() -> void:
 	_material.set_shader_parameter("palette_tex", _build_palette())
 	_material.set_shader_parameter("province_tex", _data.texture(&"province"))
 	apply_style(_material, Defs.read_json(STYLE_PATH))
+	# a generated homeland has relief fine enough for cliffs and scree (0 on the continent and on crops)
+	_material.set_shader_parameter("slope_rock", 0.85 if _data.designed_woods else 0.0)
+	if _data.designed_woods:
+		_material.set_shader_parameter("relief", 0.62)   # the rim of a valley is read by its light and shade
 
 
 ## Shared colour rules (data/defs/map_style.json) -> shader uniforms of the same name.

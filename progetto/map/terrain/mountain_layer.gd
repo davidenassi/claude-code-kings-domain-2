@@ -9,24 +9,41 @@ const PLACEMENT := "res://data/world/mountains.json"
 const FADE_MPP := Vector2(5.0, 8.0)   # fully hidden below x, fully visible above y
 
 @export var camera_path: NodePath
+## Which map the peaks belong to (Rebirth): the continent's ranges, or the rim of a generated homeland
+## (DomainData meta "mountains", in the valley's metres, seen from nearer: they fade out sooner).
+@export var space: StringName = MapSpace.GLOBAL
 
 var _camera: WorldCamera
+var _fade_mpp := FADE_MPP
 var _material: ShaderMaterial
 var instance_total := 0
 
 
 func _ready() -> void:
 	_camera = get_node_or_null(camera_path) as WorldCamera
+	_build()
+	if MapSpace.is_local(space):
+		# another campaign is another valley, with its own rim
+		EventBus.session_started.connect(func(_s: GameSession) -> void: _build())
+		EventBus.session_loaded.connect(func(_s: GameSession) -> void: _build())
+
+
+func _build() -> void:
 	var meta: Variant = Defs.read_json(ATLAS_DIR + "/mountain_atlas.json")
 	var placement: Variant = Defs.read_json(PLACEMENT)
+	if MapSpace.is_local(space):
+		var dd := MapSpace.data(space) as DomainData
+		placement = {"items": dd.meta.get("mountains", [])} if dd else {"items": []}
+		_fade_mpp = Vector2(2.2, 3.6)
 	if not (meta is Dictionary and placement is Dictionary):
 		KDLog.error("map", "MountainLayer: missing atlas or placement data")
 		return
 	texture = load(ATLAS_DIR + "/" + String(meta["atlas"]))
-	_material = ShaderMaterial.new()
-	_material.shader = load("res://shaders/vegetation.gdshader")
-	_material.set_shader_parameter("tone_amount", 0.0)
-	material = _material
+	if _material == null:
+		_material = ShaderMaterial.new()
+		_material.shader = load("res://shaders/vegetation.gdshader")
+		_material.set_shader_parameter("tone_amount", 0.0)
+		material = _material
 	multimesh = build_multimesh(meta, placement["items"])
 	instance_total = multimesh.instance_count
 
@@ -70,7 +87,7 @@ static func build_multimesh(meta: Dictionary, items: Array) -> MultiMesh:
 func _process(_delta: float) -> void:
 	if _camera == null or _material == null:
 		return
-	var fade := smoothstep(FADE_MPP.x, FADE_MPP.y, _camera.meters_per_pixel())
+	var fade := smoothstep(_fade_mpp.x, _fade_mpp.y, _camera.meters_per_pixel())
 	visible = fade > 0.001
 	_material.set_shader_parameter("fade", fade)
 

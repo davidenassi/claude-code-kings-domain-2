@@ -62,8 +62,17 @@ static func place_starter_village(session: GameSession, settlement_id: int) -> A
 	var out: Array[int] = []
 	var world := session.world
 	var keep := world.buildings_of(settlement_id)[0]
+	var st := world.settlement(settlement_id)
 	for def_id: StringName in [&"woodcutter", &"farm", &"house", &"bakery", &"well"]:
-		var spot := find_spot(session, settlement_id, def_id, keep.pos, 36.0)
+		# Rebirth: the valley's woods are masses with open ground between them, not a stipple everywhere — the
+		# woodcutter goes to the edge of the wood and the fields to the open side, as the careful lord does
+		var near := keep.pos
+		var min_r := 36.0
+		if def_id in [&"woodcutter", &"farm"]:
+			var zone := zone_of(session, st, def_id)
+			near = zone["near"]
+			min_r = float(zone["min_r"])
+		var spot := find_spot(session, settlement_id, def_id, near, min_r)
 		if spot == Vector2.INF:
 			continue
 		var res := session.submit(PlaceBuildingCommand.create(settlement_id, def_id, spot))

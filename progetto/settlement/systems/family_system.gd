@@ -24,6 +24,7 @@ static func bal() -> Dictionary:
 
 
 func run(session: GameSession, step: SimStep) -> void:
+	# the first pages of the chronicle are written by CommunityMilestonesSystem, at the close of every day
 	if not step.is_new_month:
 		return
 	var world := session.world
@@ -31,7 +32,6 @@ func run(session: GameSession, step: SimStep) -> void:
 		_pair(session, s, step.day)
 		_record_work(world, s)
 	_authority(world)
-	_milestones(session, step.day)
 
 
 # --- unions ----------------------------------------------------------------------------------------------
@@ -139,7 +139,7 @@ static func _record_work(world: WorldState, s: SettlementState) -> void:
 
 # --- the first pages of the chronicle -----------------------------------------------------------------------
 
-func _milestones(session: GameSession, day: int) -> void:
+static func milestones(session: GameSession, day: int) -> void:
 	var world := session.world
 	var k := world.player()
 	if k == null:

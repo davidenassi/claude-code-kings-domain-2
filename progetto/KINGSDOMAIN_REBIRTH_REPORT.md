@@ -88,3 +88,76 @@ la valle con le nebbie), `p1_global` (la patria sulla mappa del mondo, 14 m/px),
   la Fase 2.
 - Gli eserciti nella valle sono solo disegnati alla loro posizione (la difesa della patria è la Fase 10).
 - Le nebbie del bordo sono una resa semplice; l'esplorazione vera è la Fase 8.
+
+---
+
+## FASE 2 — La patria di Valverde (vertical slice) ✅
+
+**Obiettivo**: la prima impressione deve essere «sono dentro una vera regione in cui posso fondare qualcosa», non «sono
+un punto dentro un continente». Un solo regno (Valverde), nessuna replica sugli altri.
+
+**Fatto**
+- **Generatore delle patrie** `tools/domaingen/generate_domains.py` (Python 3 + numpy, deterministico: `--check`
+  rigenera e confronta al byte) dalla geografia disegnata in `data/domains/homelands.json`.
+- **Valverde** (`data/domains/valverde/`, 8 064 × 6 144 m, rilievo, boschi e biomi a 8 m, acque a 4 m):
+  - un **fondovalle** arrotondato e ondulato (~44% della patria) con colline, prati, piana fluviale;
+  - un **anello di montagne** (fino a 2 570 m, neve sulle cime, roccia sui pendii ripidi) che chiude la valle;
+  - **quattro vie d'uscita**: la *Gola del Chiaro* e la *Stretta di Valle* (il fiume entra ed esce nelle sue gole),
+    il *Passo del Lupo* (a nord, 880 m) e il *Varco delle Querce* (a est) — oltre, le nebbie dell'ignoto;
+  - il fiume **Chiaro** che attraversa la valle con le sue anse, il **Lago di Valverde** con il suo emissario, un rio
+    che scende dai monti;
+  - **boschi come masse** (Bosco Nero, Selva di Ponente, Bosco del Focolare…): nuclei fitti, margini irregolari,
+    radure; i pendii boscosi fino al limite degli alberi; rive e passi aperti;
+  - **risorse garantite**: acqua a meno di 200 m dal fuoco, un bosco accanto, pietra a pochi passi (sempre), altre
+    sei cave sulle colline, **ferro** in due punti ai piedi dei monti; terra fertile dal lato dei campi;
+  - il **sito di fondazione** scelto dal generatore: piano, asciutto, a 90–170 m dal fiume, al margine di un bosco;
+  - le **cime illustrate** del bordo (83 sprite, gli stessi dei monti del continente, alla scala della valle) e i
+    **nomi**: catene, passi, fiume, rii, lago, boschi, il villaggio.
+- **Nel gioco**: `DomainData` carica la patria (45 ms); la nuova partita nasce a Valverde; la valle è un'unica
+  provincia; gli alberi seguono il bosco disegnato (e nei boschi fitti le chiome si toccano); la roccia compare dove
+  il pendio è ripido; `LocalLabels` scrive i nomi della valle; sulla mappa del mondo la patria sta dentro la sua
+  provincia, con la capitale sotto il nome del regno.
+- **Pianificazione**: il villaggio di partenza e il signore prudente mettono il taglialegna al margine del bosco e i
+  campi dal lato aperto (in una valle con boschi veri un taglialegna nel prato non ha nulla da tagliare).
+- **Correzione trovata dal cambio di geografia**: le prime pagine della cronaca (prima casa, primo raccolto, il
+  villaggio, la fine) erano scritte una volta al mese dal `FamilySystem`, così «il villaggio è nato» poteva arrivare
+  dopo che la comunità poteva già scegliere la corona. Ora le scrive `CommunityMilestonesSystem` alla fine di ogni
+  giorno, dopo nascite e arrivi.
+
+**Prove**
+- Nuovo `tests/unit/test_homeland.gd` (6 prove): la partita nasce nella patria; la valle è chiusa dai monti tranne
+  ai passi (il bordo è alto ovunque, ogni punto basso è un passo) e il fondovalle è ampio; il fiume passa per le sue
+  gole e il lago ha acqua; acqua, legna, pietra, ferro e terra fertile a portata dei fondatori, e una casa e una cava
+  ci stanno; i boschi sono masse (fitti dentro, aperti fuori); la patria viaggia con il salvataggio.
+- `test_domain` (Fase 1) usa il ritaglio del continente dove prova proprio quello (`{"homeland": "none"}`).
+- Test esistenti adattati al paesaggio nuovo, con la stessa intenzione: il taglialegna delle prove va al margine del
+  bosco; `test_economy::test_twenty_years_of_a_prosperous_village` conta i bambini nei vent'anni e non solo
+  nell'ultimo giorno (nel fondovalle fertile il villaggio che il signore tiene a trenta anime riempie i letti al terzo
+  anno e poi invecchia: un bambino nasce solo se c'è un letto libero).
+- **Esito** (suite completa sullo snapshot della Fase 2, 30 min 36 s): 223 prove, 10 128 asserzioni, 2 fallimenti,
+  entrambi corretti e riverificati a parte:
+  `test_visual::test_the_woods_have_a_shape_and_keep_their_trees` (la prova dei boschi del continente ora gira sul
+  ritaglio, `{"homeland": "none"}`) e `test_identity::test_work_fills_the_registers_that_feed_the_spirits` (il
+  taglialegna della prova stava accanto al deposito, in campo aperto: ora al margine del bosco, come nelle altre
+  prove). Riverificate dopo le correzioni: `test_homeland`, `test_domain`, `test_visual`, `test_military`,
+  `test_identity`, `test_save` — 0 fallimenti.
+- **Problema scoperto e non più nascosto**: `test_save::test_saves_of_an_older_build_still_load_and_play_on` apre due
+  salvataggi della Fase 18 che non sono nel pacchetto (Audit §0.1) e finora «passava» con un errore di script.
+  Ora il test runner ha lo stato `SKIP` con il motivo (`KDTestCase.skip`), e la riga finale conta le prove saltate:
+  `TESTS: … failures, 2 skipped`. La migrazione dei salvataggi v5 resta coperta dalle altre prove di `test_save` e
+  `test_founders`, ma non su quei due mondi reali.
+
+**Schermate** (`docs/rebirth/phase2/`): `p2_far` (tutta la valle, ~6 m/px: monti, passi, lago, fiume, boschi, nomi,
+nebbie), `p2_medium` (1,6 m/px), `p2_near` (0,6), `p2_spawn` (0,35, il primo giorno), `p2_close` (0,12),
+`p2_global` (la patria sulla mappa del mondo), `p2_valverde_generator_map` (la mappa del generatore).
+
+**Confronto con prima** (`docs/rebirth/before/`): prima, a 8 m/px, un quadrato di bosco uniforme dentro un continente
+senza fine; ora, alla stessa distanza, una valle chiusa e nominata con i suoi monti, le sue acque e le sue uscite.
+
+**Limiti dichiarati**
+- La resa è ancora quella degli asset attuali (sprite numpy, terreno a tinte): è il livello da cui partirà la Fase 12.
+  Da vicino i boschi sono alberi singoli un po' radi ai margini; i monti del bordo sono gli sprite del continente.
+- Una sola patria (Valverde); le altre arrivano con la Fase 11.
+- I passi sono geografia e nomi; attraversarli (esploratori, mercanti, eserciti) è la Fase 8.
+- La densità delle chiome dipende dal disegno del canopy: il generatore non produce ancora sottobosco, sentieri
+  di caccia o alberi isolati «monumentali».

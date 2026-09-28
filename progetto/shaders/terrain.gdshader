@@ -41,6 +41,8 @@ uniform float valley_depth_m = 220.0;
 uniform float valley_light = 0.12;
 uniform vec3 valley_cool = vec3(0.90, 0.96, 1.02);
 uniform vec3 crest_warm = vec3(1.06, 1.03, 0.94);
+// bare rock where the ground is steep (the fine relief of a homeland; the continent's 64 m slopes never get there)
+uniform float slope_rock = 0.0;
 
 varying vec2 local_pos;
 
@@ -148,6 +150,7 @@ void fragment() {
 			// light: without it a mountain range reads as a smooth pale wash at regional zoom.
 			vec3 fine = texture(noise_tex, dp / 64.0).rgb - 0.5;   // 64 divides 1024: no seam when the quad moves
 			float rock_t = smoothstep(1300.0, 1800.0, h + n.r * 150.0) * 0.50;
+			rock_t = max(rock_t, smoothstep(0.45, 0.95, length(grad) + fine.g * 0.25) * slope_rock);
 			vec3 rock_col = vec3(0.64, 0.60, 0.50) * (0.82 + 0.30 * fine.b + 0.16 * fine.r);
 			col = mix(col, rock_col, rock_t);
 			float snow_t = smoothstep(2000.0, 2300.0, h + n.g * 150.0) * 0.72;

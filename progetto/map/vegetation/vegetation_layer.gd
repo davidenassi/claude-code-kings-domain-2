@@ -266,7 +266,9 @@ func _base_items(band: Dictionary, key: Vector2i) -> Array:
 				var key_s := "" if f["kind"] == LocalFeatures.KIND_ROCK else String(f["key"])
 				var dens := float(f["density"])
 				var shade := 0.6 * float(f["tint_hash"]) + 0.4 * clampf(1.2 - dens * 1.3, 0.0, 1.0)
-				out.append([f["pos"], alive, stump, key_s, shade, _wd.moisture_smooth(f["pos"])])
+				# in a homeland's thick woods the crowns grow into one another: a wood is a mass, not a stipple
+				var crown := 1.0 if not _wd.designed_woods else lerpf(1.0, 1.6, smoothstep(0.45, 0.9, dens))
+				out.append([f["pos"], alive, stump, key_s, shade, _wd.moisture_smooth(f["pos"]), crown])
 	else:
 		var salt := int(spacing * 10.0)
 		for j in n_cells:
@@ -281,11 +283,18 @@ func _base_items(band: Dictionary, key: Vector2i) -> Array:
 				var h3 := KDRng.hash01(gx, gy, salt + 2)
 				var jitter := Vector2(KDRng.hash01(gx, gy, salt + 3) - 0.5, KDRng.hash01(gx, gy, salt + 4) - 0.5) * 70.0
 				var npos := pos + _wd.feature_origin   # the woods have the continent's shape (LocalFeatures)
-				var dens := _wd.canopy_smooth(pos + jitter) + LocalFeatures.margin_noise(npos)
-				# a wood has glades, thick cores and ragged margins: the same shape the single trees of the close
-				# zoom follow (LocalFeatures), so nothing jumps when the camera comes down
-				var p := smoothstep(0.10, 0.55, dens) * bias * LocalFeatures.glade_factor(npos) \
-					+ LocalFeatures.grove_chance(npos) * 0.5
+				var dens: float
+				var p: float
+				if _wd.designed_woods:
+					# a homeland's canopy already has its glades and margins: the clusters follow it closely
+					dens = _wd.canopy_smooth(pos + jitter * 0.2)
+					p = smoothstep(0.10, 0.5, dens) * bias
+				else:
+					dens = _wd.canopy_smooth(pos + jitter) + LocalFeatures.margin_noise(npos)
+					# a wood has glades, thick cores and ragged margins: the same shape the single trees of the close
+					# zoom follow (LocalFeatures), so nothing jumps when the camera comes down
+					p = smoothstep(0.10, 0.55, dens) * bias * LocalFeatures.glade_factor(npos) \
+						+ LocalFeatures.grove_chance(npos) * 0.5
 				if h3 >= p:
 					continue
 				var sprite := _pick_sprite(table, _wd.biome_at(pos), KDRng.hash01(gx, gy, salt + 5), KDRng.hash01(gx, gy, salt + 6))
@@ -341,7 +350,7 @@ func _build_chunk(band: Dictionary, key: Vector2i) -> Node2D:
 			if sprite < 0:
 				continue
 			var pos: Vector2 = base[0]
-			items.append([pos.y, pos, sprite, base[4], base[5], 1.0])
+			items.append([pos.y, pos, sprite, base[4], base[5], 1.0, float(base[6]) if base.size() > 6 else 1.0])
 	else:
 		var none: Array[Rect2] = []
 		for base: Array in _base_items(band, key):
@@ -386,6 +395,8 @@ func _build_chunk(band: Dictionary, key: Vector2i) -> Node2D:
 			var seed_f := fposmod(float(it[3]) * 7.31 + (it[1] as Vector2).x * 0.013, 1.0)
 			vary = 0.78 + 0.46 * seed_f
 			flip = -1.0 if fposmod(float(it[3]) * 13.7, 1.0) < 0.5 else 1.0
+			if it.size() > 6:
+				vary *= float(it[6])   # the crown of a tree in a thick wood
 		var w := float(size_m[0]) * sc * vary * flip
 		var h := float(size_m[1]) * sc * vary
 		var local: Vector2 = (it[1] as Vector2) - origin

@@ -95,7 +95,9 @@ static func cell_feature(wd: WorldData, gx: int, gy: int) -> Dictionary:
 		return {}   # no tree grows in the river or on its gravel bank (Phase 17 check)
 	var h3 := KDRng.hash01(hx, hy, s + 2)
 	var biome := wd.biome_at(pos)
-	var jitter := Vector2(KDRng.hash01(hx, hy, s + 3) - 0.5, KDRng.hash01(hx, hy, s + 4) - 0.5) * 70.0
+	var designed := wd.designed_woods
+	# on a designed canopy (8 m) the edge of a wood is where it is drawn: only a small jitter
+	var jitter := Vector2(KDRng.hash01(hx, hy, s + 3) - 0.5, KDRng.hash01(hx, hy, s + 4) - 0.5) * (14.0 if designed else 70.0)
 	var canopy := wd.canopy_smooth(pos + jitter)
 	var npos := pos + wd.feature_origin   # where the noises of the woods are read
 	# a wood has a shape (world art pass): thick cores and glades (glade_factor, the same the mid zoom draws),
@@ -104,7 +106,9 @@ static func cell_feature(wd: WorldData, gx: int, gy: int) -> Dictionary:
 	# The noises cost: a cell whose dice are above the best the shape could give is decided without them.
 	var p := 0.0
 	var dens := canopy
-	if h3 < smoothstep(0.10, 0.55, canopy + 0.15) * _bias * GLADE_MAX + GROVE_MAX:
+	if designed:
+		p = smoothstep(0.08, 0.5, canopy) * _bias + 0.004   # the homeland's own woods, and a lone tree now and then
+	elif h3 < smoothstep(0.10, 0.55, canopy + 0.15) * _bias * GLADE_MAX + GROVE_MAX:
 		dens = canopy + margin_noise(npos)
 		p = smoothstep(0.10, 0.55, dens) * _bias * glade_factor(npos)
 		if p < 0.2:

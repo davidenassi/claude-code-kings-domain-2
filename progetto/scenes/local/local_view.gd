@@ -21,6 +21,8 @@ const HOME_MPP := 0.35
 @onready var camera: WorldCamera = $WorldCamera
 @onready var interaction: LocalInteraction = $LocalInteraction
 @onready var build: BuildController = $WorldView/BuildController
+## The names of the valley (screen space): shown only while this map is on the table.
+@onready var local_hud: CanvasLayer = $LocalHud
 
 var active := false
 
@@ -60,6 +62,7 @@ static func domain() -> DomainState:
 func activate() -> void:
 	active = true
 	visible = true
+	local_hud.visible = true
 	process_mode = Node.PROCESS_MODE_INHERIT
 	camera.enabled = true
 	camera.make_current()
@@ -69,6 +72,7 @@ func activate() -> void:
 func deactivate() -> void:
 	active = false
 	visible = false
+	local_hud.visible = false
 	if build and build.active():
 		build.stop()
 	process_mode = Node.PROCESS_MODE_DISABLED

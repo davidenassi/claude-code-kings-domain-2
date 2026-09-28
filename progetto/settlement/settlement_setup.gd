@@ -15,13 +15,20 @@ static func found_player_settlement(world: WorldState) -> SettlementState:
 		return null
 	var wd := WorldData.get_instance()
 	var bal: Dictionary = Defs.balance("settlement")
-	# the first fire is chosen on the real ground of the home province; the valley of the homeland is laid
-	# around it (Rebirth, Phase 1: from here on everything of the settlement lives in the valley's own metres)
-	var site_global := choose_site(world, player.capital)
+	# Rebirth: the community is founded in its homeland — the valley generated for the start (Phase 2), or, for
+	# a world without one, a valley cut out of the continent around the best spot of the home province (Phase 1).
+	# From here on everything of the settlement lives in the valley's own metres.
 	if world.domain == null:
-		world.domain = DomainState.crop_around(site_global, player.capital, wd.size_m)
+		world.domain = homeland_for(world, player)
+	var site: Vector2
+	if world.domain.is_crop():
+		var site_global := choose_site(world, player.capital)
+		if world.domain.contains_global(site_global) == false:
+			world.domain = DomainState.crop_around(site_global, player.capital, wd.size_m)
+		site = world.domain.to_local(site_global).snapped(Vector2.ONE)
+	else:
+		site = DomainData.of(world).founding_site().snapped(Vector2.ONE)
 	var ld := DomainData.of(world)
-	var site := world.domain.to_local(site_global).snapped(Vector2.ONE)
 	var s := SettlementState.new()
 	s.id = world.settlements.size()
 	s.name = wd.province_geo(player.capital).name
@@ -58,6 +65,29 @@ static func found_player_settlement(world: WorldState) -> SettlementState:
 		"text": "Sei persone arrivano a %s: %s. Non c'è un re, non c'è un castello: c'è la terra." % [
 			s.name, ", ".join(names)]})
 	return s
+
+
+## The valley of a realm's homeland: the one generated for it (start_setup.json → player.homeland) when it
+## exists, else the valley cut out of the continent around the best spot of its province.
+static func homeland_for(world: WorldState, realm: KingdomState) -> DomainState:
+	var wd := WorldData.get_instance()
+	var g := wd.province_geo(realm.capital)
+	var pc: Dictionary = (Defs.read_json(StartSetup.CONFIG_PATH) as Dictionary).get("player", {})
+	# a campaign can ask for another homeland, or for none ("none": the valley cut out of the continent)
+	var hid := String(world.flags.get("homeland", pc.get("homeland", "")))
+	var hm := DomainData.homeland_meta(hid)
+	if not hm.is_empty() and g != null:
+		# on the map of the world the homeland stands below the province's label point, so the seat of the community
+		# and the name of the realm do not cover each other — as far down as the province still reaches
+		var anchor := g.center
+		for f: float in [0.9, 0.75, 0.6, 0.45, 0.3]:
+			var q := g.center + Vector2(0.0, g.inner_radius_m * f)
+			if wd.province_at(q) == realm.capital:
+				anchor = q
+				break
+		return DomainState.for_homeland(hid, realm.capital, Vector2(float(hm["world_width_m"]), float(hm["world_height_m"])),
+			anchor, g.inner_radius_m * 0.6)
+	return DomainState.crop_around(choose_site(world, realm.capital), realm.capital, wd.size_m)
 
 
 ## "Aldo Valeri": the name and the surname of the family the person belongs to.

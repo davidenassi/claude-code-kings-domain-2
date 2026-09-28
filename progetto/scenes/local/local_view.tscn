@@ -15,6 +15,8 @@
 [ext_resource type="Script" path="res://map/terrain/domain_edge_layer.gd" id="13_edge"]
 [ext_resource type="Script" path="res://map/settlement/build_controller.gd" id="14_build"]
 [ext_resource type="Script" path="res://map/local_interaction.gd" id="15_interaction"]
+[ext_resource type="Script" path="res://map/terrain/mountain_layer.gd" id="16_mount"]
+[ext_resource type="Script" path="res://map/labels/local_labels.gd" id="17_labels"]
 
 [node name="LocalView" type="Node2D"]
 script = ExtResource("1_view")
@@ -38,6 +40,11 @@ camera_path = NodePath("../../WorldCamera")
 
 [node name="VegetationLayer" type="Node2D" parent="WorldView"]
 script = ExtResource("7_veg")
+camera_path = NodePath("../../WorldCamera")
+space = &"local"
+
+[node name="MountainLayer" type="MultiMeshInstance2D" parent="WorldView"]
+script = ExtResource("16_mount")
 camera_path = NodePath("../../WorldCamera")
 space = &"local"
 
@@ -77,3 +84,15 @@ script = ExtResource("3_camera")
 script = ExtResource("15_interaction")
 camera_path = NodePath("../WorldCamera")
 build_path = NodePath("../WorldView/BuildController")
+
+[node name="LocalHud" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="LocalLabels" type="Control" parent="LocalHud"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("17_labels")
+camera_path = NodePath("../../WorldCamera")

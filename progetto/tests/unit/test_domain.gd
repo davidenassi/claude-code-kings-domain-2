@@ -31,7 +31,7 @@ func test_a_new_campaign_has_its_valley_and_the_settlement_lives_in_it() -> void
 
 
 func test_local_and_global_metres_correspond() -> void:
-	var s := GameSession.create_new({"campaign_seed": 2102})
+	var s := GameSession.create_new({"campaign_seed": 2102, "homeland": "none"})
 	var d := s.world.domain
 	for p: Vector2 in [Vector2.ZERO, Vector2(123.5, 4000.25), d.size_m, d.center()]:
 		assert_true(d.to_local(d.to_global(p)).distance_to(p) < 0.001, "local -> global -> local is the identity")
@@ -43,7 +43,7 @@ func test_local_and_global_metres_correspond() -> void:
 
 ## The valley cut out of the continent grows exactly the trees and rocks the continent had there.
 func test_the_valley_keeps_the_trees_and_rocks_of_the_continent() -> void:
-	var s := GameSession.create_new({"campaign_seed": 2103})
+	var s := GameSession.create_new({"campaign_seed": 2103, "homeland": "none"})
 	var w := s.world
 	var d := w.domain
 	var ld := DomainData.of(w)
@@ -112,7 +112,7 @@ func test_the_valley_travels_with_the_save() -> void:
 ## A save of the single map (v6): everything in metres of the continent. The migration cuts its valley and
 ## moves every position and every tree key: the world after the migration is exactly the world before.
 func test_a_single_map_save_moves_into_its_valley_exactly() -> void:
-	var s := GameSession.create_new({"campaign_seed": 2106})
+	var s := GameSession.create_new({"campaign_seed": 2106, "homeland": "none"})   # the single map's own valley
 	var st := s.world.settlements[0]
 	SettlementPlanner.place_starter_village(s, st.id)
 	for m in 4:

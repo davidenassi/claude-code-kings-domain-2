@@ -23,6 +23,8 @@ static func create_new(options: Dictionary = {}) -> GameSession:
 	if seed_value == 0:
 		seed_value = int(Time.get_unix_time_from_system() * 1000.0) ^ randi()
 	s.world.rng = KDRng.new(seed_value)
+	if options.has("homeland"):
+		s.world.flags["homeland"] = String(options["homeland"])   # "none": a valley cut out of the continent
 	if WorldData.is_available():
 		StartSetup.apply(s.world)
 		SettlementSetup.found_player_settlement(s.world)

@@ -5,6 +5,8 @@ extends RefCounted
 var failures: PackedStringArray = PackedStringArray()
 var current_test: String = ""
 var assertions: int = 0
+## Tests that could not run here and said why (a fixture missing from the package): listed, never silent.
+var skipped: PackedStringArray = PackedStringArray()
 
 
 func before_each() -> void:
@@ -17,6 +19,11 @@ func after_each() -> void:
 
 func fail(message: String) -> void:
 	failures.append("%s: %s" % [current_test, message])
+
+
+## The test cannot run in this copy of the project: it is reported as SKIP with the reason.
+func skip(reason: String) -> void:
+	skipped.append("%s: %s" % [current_test, reason])
 
 
 func assert_true(condition: bool, message: String = "expected true") -> bool:

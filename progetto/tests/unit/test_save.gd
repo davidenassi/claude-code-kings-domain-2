@@ -44,6 +44,10 @@ func test_migrator_rejects_missing_or_future_versions() -> void:
 func test_saves_of_an_older_build_still_load_and_play_on() -> void:
 	for path: String in ["res://tests/fixtures/saves/phase18_village30.kdsave", "res://tests/fixtures/saves/phase18_town.kdsave"]:
 		var file := path.get_file()
+		if not FileAccess.file_exists(path):
+			# the saves of the older build are not part of this package (KINGSDOMAIN_REBIRTH_AUDIT.md §0.1)
+			skip("%s is not in this copy of the project" % file)
+			continue
 		# what the older build wrote, before any migration (save_version 5: "order" and "happiness")
 		var raw_file := FileAccess.open_compressed(path, FileAccess.READ, FileAccess.COMPRESSION_ZSTD)
 		var raw: Dictionary = JSON.parse_string(raw_file.get_as_text())

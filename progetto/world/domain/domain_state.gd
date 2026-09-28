@@ -85,6 +85,21 @@ static func crop_around(global_center: Vector2, province_id: int, world_size: Ve
 	return d
 
 
+## A generated homeland (Phase 2) standing for a province of the continent. On the map of the world the whole
+## valley is drawn inside its province: its centre on the province's centre, shrunk so it stays within it.
+static func for_homeland(homeland_id: String, province_id: int, size: Vector2, province_center: Vector2,
+		province_radius_m: float) -> DomainState:
+	var d := DomainState.new()
+	d.source = SOURCE_HOMELAND
+	d.homeland = homeland_id
+	d.home_province = province_id
+	d.size_m = size
+	d.global_scale = clampf(province_radius_m * 1.4 / maxf(size.x, size.y), 0.05, 0.6)
+	d.anchor_global = province_center
+	d.origin_global = province_center - size * 0.5 * d.global_scale
+	return d
+
+
 func to_dict() -> Dictionary:
 	return {
 		"source": source,
