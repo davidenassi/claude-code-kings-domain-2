@@ -1,6 +1,6 @@
 extends Node
-## Benchmark for real hardware:  godot --path game -- --benchmark
-## Visits every Phase 1 view, holds it for 5 s, records FPS / frame time / draw calls, prints a table
+## Benchmark for real hardware:  godot --path game -- --benchmark [--views=res://data/capture/slice_views.json]
+## Visits every view of the list (Phase 1 views by default), holds it for 5 s, records FPS / frame time / draw calls, prints a table
 ## and writes user://benchmark.json. Quits when done.
 
 const VIEWS := "res://data/capture/phase1_views.json"
@@ -19,7 +19,11 @@ func _ready() -> void:
 	if not "--benchmark" in OS.get_cmdline_user_args():
 		queue_free()
 		return
-	_views = JSON.parse_string(FileAccess.get_file_as_string(VIEWS))
+	var views_file := VIEWS
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--views="):
+			views_file = a.substr(8)
+	_views = JSON.parse_string(FileAccess.get_file_as_string(views_file))
 	_cam = get_tree().get_first_node_in_group("valley_camera")
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	_next()
