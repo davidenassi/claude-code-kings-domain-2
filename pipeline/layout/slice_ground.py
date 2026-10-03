@@ -175,24 +175,26 @@ def paint_tile(data, maps, region, tx, ty, tw, th):
     n_mid = fbm(XS, YS, 6.0, 12, 4)
     n_small = fbm(XS, YS, 1.3, 13, 3)
     n_blade = fbm(XS * 1.0, YS * 0.35, 0.22, 14, 2)          # short strokes (grass blades)
-    g_lit = srgb((132, 158, 58))
-    g_mid = srgb((92, 126, 44))
-    g_dark = srgb((62, 92, 36))
-    g_dry = srgb((150, 146, 70))
+    g_lit = srgb((126, 140, 64))
+    g_mid = srgb((92, 112, 48))
+    g_dark = srgb((58, 76, 32))
+    g_dry = srgb((158, 146, 84))
     t = np.clip(0.5 + n_big * 0.9 + n_mid * 0.5, 0, 1)[..., None]
     col = g_dark * (1 - t) + g_mid * t
     col = col * (1 - np.clip(n_mid * 2.2 - 0.3, 0, 1)[..., None] * 0.5) + g_lit * np.clip(n_mid * 2.2 - 0.3, 0, 1)[..., None] * 0.5
     dry = np.clip((n_big - 0.18) * 3.0, 0, 1)[..., None] * 0.55
     col = col * (1 - dry) + g_dry * dry
-    col *= (0.86 + 0.28 * np.clip(0.5 + n_blade * 1.4, 0, 1))[..., None]
-    col *= (0.93 + 0.14 * np.clip(0.5 + n_small, 0, 1))[..., None]
+    col *= (0.84 + 0.32 * np.clip(0.5 + n_blade * 1.5, 0, 1))[..., None]
+    col *= (0.90 + 0.18 * np.clip(0.5 + n_small, 0, 1))[..., None]
+    clumps = np.clip((fbm(XS, YS, 0.9, 16, 3) - 0.12) * 3.0, 0, 1)[..., None]
+    col = col * (1 - clumps * 0.28)
     # clover and wild flowers: tiny specks in clusters
     rnd = np.random.default_rng(5 + tx * 7 + ty * 13).random(XS.shape).astype(np.float32)
     cluster = np.clip(fbm(XS, YS, 9.0, 15, 3) * 2.5, 0, 1)
-    for c_, thr in (((236, 232, 220), 0.9965), ((240, 206, 70), 0.9975), ((186, 140, 220), 0.9985), ((226, 96, 120), 0.999)):
-        m = (rnd > thr - cluster * 0.006)
+    for c_, thr in (((226, 220, 200), 0.9992), ((232, 196, 72), 0.9990), ((170, 128, 200), 0.9994), ((214, 92, 110), 0.9996)):
+        m = (rnd > thr - cluster * 0.004)
         m = ndimage.binary_dilation(m, iterations=1)
-        col[m] = srgb(c_)
+        col[m] = col[m] * 0.35 + srgb(c_) * 0.65
 
     alpha = np.ones(XS.shape, np.float32)
 
@@ -217,8 +219,13 @@ def paint_tile(data, maps, region, tx, ty, tw, th):
         din = din + fbm(XS, YS, 2.5, seed, 3) * warp
         return smooth(-edge * 0.5, edge * 0.5, din)
 
-    earth = srgb((156, 124, 84)) * (0.82 + 0.3 * np.clip(0.5 + n_mid, 0, 1)[..., None])
-    earth = earth * (0.9 + 0.18 * np.clip(0.5 + n_blade, 0, 1)[..., None])
+    earth = srgb((160, 126, 82)) * (0.78 + 0.34 * np.clip(0.5 + n_mid, 0, 1)[..., None])
+    earth = earth * (0.86 + 0.24 * np.clip(0.5 + fbm(XS * 0.6, YS, 0.5, 17, 3) * 1.4, 0, 1)[..., None])
+    damp = np.clip((fbm(XS, YS, 4.0, 18, 3) - 0.2) * 2.5, 0, 1)[..., None]
+    earth = earth * (1 - damp * 0.22)
+    se, sid = voronoi(XS, YS, 0.16, 19.0, 1.0)
+    stones_ = (smooth(0.0, 0.012, se) * (sid > 0.86))[..., None]
+    earth = earth * (1 - stones_ * 0.35) + srgb((150, 138, 118)) * stones_ * 0.35
     soft_tr = [rect_poly(r["center"], r["size"], r["yaw"]) for r in gd["trampled"] if r.get("soft")]
     hard_tr = [rect_poly(r["center"], r["size"], r["yaw"]) for r in gd["trampled"] if not r.get("soft")]
     tr = soft_shape(soft_tr, 6.0, 3.5, 22) * np.clip(0.35 + n_mid * 1.6, 0, 1) * 0.75
@@ -251,21 +258,21 @@ def paint_tile(data, maps, region, tx, ty, tw, th):
             rows = 0.5 + 0.5 * np.sin(v * 2 * math.pi / 0.42)
             ears = fbm(u * 0.25, v * 1.0, 0.18, 31, 3)                # little vertical ear strokes
             tone = np.clip(0.5 + fbm(XS, YS, 7.0, 32, 3) * 0.9, 0, 1)
-            c = srgb((214, 168, 70)) * (1 - tone[..., None]) * 0.0 + srgb((210, 164, 66)) * tone[..., None] \
-                + srgb((176, 128, 48)) * (1 - tone[..., None])
+            c = srgb((204, 170, 92)) * tone[..., None] + srgb((164, 130, 66)) * (1 - tone[..., None])
             c = c * (0.72 + 0.4 * np.clip(0.5 + ears * 1.6, 0, 1))[..., None] * (0.9 + 0.12 * rows)[..., None]
             hi = np.clip((ears - 0.25) * 3, 0, 1)[..., None]
-            c = c * (1 - hi * 0.4) + srgb((246, 214, 120)) * hi * 0.4
+            c = c * (1 - hi * 0.4) + srgb((232, 208, 140)) * hi * 0.4
         elif f["crop"] == "plowed":
-            fur = 0.5 + 0.5 * np.sin(v * 2 * math.pi / 0.7 + fbm(XS, YS, 3.0, 33, 2) * 2.0)
+            fur = 0.5 + 0.5 * np.sin(v * 2 * math.pi / 0.8 + fbm(XS, YS, 3.0, 33, 2) * 2.0)
+            fur = fur ** 1.6                                             # narrow dark furrows, wide lit ridges
             cl_e, cl_id = voronoi(XS, YS, 0.12, 41.0, 1.0)
-            c = srgb((112, 78, 50)) * (0.62 + 0.55 * fur[..., None])
+            c = srgb((70, 48, 30)) * (1 - fur[..., None]) + srgb((140, 104, 68)) * fur[..., None]
             c = c * (0.85 + 0.3 * cl_id[..., None]) * (0.8 + 0.2 * smooth(0, 0.02, cl_e)[..., None])
         else:   # vegetable rows: soil lines with green clumps
             r_ = 0.5 + 0.5 * np.sin(v * 2 * math.pi / 0.9)
-            clump = smooth(0.55, 0.85, r_) * smooth(0.0, 0.35, fbm(u * 1.5, v, 0.35, 34, 2) + 0.2)
-            soil = srgb((104, 76, 50)) * (0.8 + 0.3 * np.clip(0.5 + n_small, 0, 1)[..., None])
-            leaf = srgb((84, 140, 56)) * (0.75 + 0.45 * np.clip(0.5 + fbm(XS, YS, 0.25, 35, 2), 0, 1)[..., None])
+            clump = smooth(0.35, 0.7, r_) * smooth(-0.2, 0.2, fbm(u * 1.5, v, 0.35, 34, 2) + 0.15)
+            soil = srgb((96, 70, 46)) * (0.8 + 0.3 * np.clip(0.5 + n_small, 0, 1)[..., None])
+            leaf = srgb((82, 124, 50)) * (0.7 + 0.5 * np.clip(0.5 + fbm(XS, YS, 0.25, 35, 2) * 1.3, 0, 1)[..., None])
             c = soil * (1 - clump[..., None]) + leaf * clump[..., None]
         # grassy headland, then the crop (soft irregular edge)
         e = smooth(0.4, 1.4 + fbm(XS, YS, 2.0, 36, 2) * 0.8, din)
@@ -292,14 +299,15 @@ def paint_tile(data, maps, region, tx, ty, tw, th):
         k = r["kind"]
         w = r["width"] * (1.0 + 0.12 * fbm(XS, YS, 9.0, 41, 2))
         edge_n = fbm(XS, YS, 1.1, 42, 3) * (0.5 if k != "urban" else 0.25)
-        core = smooth(w / 2 + 0.3, w / 2 - 0.4, d + edge_n)
+        edge_n = edge_n + fbm(XS, YS, 0.3, 48, 2) * (0.35 if k != "urban" else 0.1)      # grass tufts on the edge
+        core = smooth(w / 2 + 0.12, w / 2 - 0.18, d + edge_n)
         dirt = srgb((170, 136, 92)) * (0.85 + 0.25 * np.clip(0.5 + n_mid, 0, 1)[..., None])
         dirt = dirt * (0.9 + 0.15 * np.clip(0.5 + n_blade * 1.3, 0, 1)[..., None])
         if k in ("rural", "lane"):
-            rut = smooth(0.35, 0.0, np.abs(d - w * 0.22)) * 0.5
-            dirt = dirt * (1 - rut[..., None] * 0.28)
-            pebbles = smooth(0.0, 0.015, pe) * (pid > 0.72)
-            dirt = dirt * (1 - pebbles[..., None]) + srgb((196, 186, 168)) * pebbles[..., None] * (0.8 + 0.3 * pid[..., None])
+            rut = smooth(0.4, 0.0, np.abs(d - w * 0.22)) * 0.6
+            dirt = dirt * (1 - rut[..., None] * 0.34)
+            pebbles = smooth(0.0, 0.015, pe) * (pid > 0.9) * 0.6
+            dirt = dirt * (1 - pebbles[..., None]) + srgb((168, 156, 136)) * pebbles[..., None] * (0.8 + 0.3 * pid[..., None])
             mid_grass = smooth(0.7, 0.2, d) * np.clip(n_small * 2 + 0.1, 0, 1) * (k == "rural") * 0.0
             c = dirt
             blend(c, core * (1 - mid_grass))
@@ -310,11 +318,11 @@ def paint_tile(data, maps, region, tx, ty, tw, th):
             c = dirt * 0.95
             blend(c, core * np.clip(0.7 + n_small, 0, 1))
         else:   # urban cobbles: individual stones, mortar, worn dirt in the joints
-            stone = srgb((176, 164, 146)) * (0.72 + 0.42 * cid[..., None])
+            stone = srgb((174, 154, 124)) * (0.72 + 0.42 * cid[..., None])
             stone = stone * (0.88 + 0.16 * np.clip(0.5 + n_small, 0, 1)[..., None])
             joint = smooth(0.0, 0.045, ce)
             hl = smooth(0.03, 0.09, ce) * 0.12
-            c = srgb((96, 82, 62)) * (1 - joint[..., None]) + stone * joint[..., None] * (1.0 + hl[..., None])
+            c = srgb((92, 74, 54)) * (1 - joint[..., None]) + stone * joint[..., None] * (1.0 + hl[..., None])
             worn = np.clip((fbm(XS, YS, 3.5, 43, 3) - 0.15) * 2.5, 0, 1)[..., None] * 0.55
             c = c * (1 - worn) + dirt * worn
             blend(c, core)
@@ -325,18 +333,34 @@ def paint_tile(data, maps, region, tx, ty, tw, th):
     for pz in gd["plazas"]:
         m = raster_poly([pz["polygon"]])
         din = dist_inside(m)
-        fe, fid = voronoi(XS, YS, 0.62, 5.0, 0.8)
-        flag = srgb((184, 172, 152)) * (0.74 + 0.36 * fid[..., None])
+        # square frame (diagonal street grid): u along A = (0.707, -0.707), v along B = (0.707, 0.707)
+        u = (XS - YS) * 0.7071
+        v = (XS + YS) * 0.7071 + fbm(XS, YS, 6.0, 47, 2) * 0.35
+        rh = 0.58
+        row = np.floor(v / rh)
+        h1 = np.modf(np.abs(np.sin(row * 12.9898) * 43758.5453))[0]
+        cw = 0.62 + 0.55 * h1
+        uu = u + h1 * 3.1
+        colk = np.floor(uu / cw)
+        fu = uu / cw - colk
+        fv = v / rh - row
+        fe = np.minimum(np.minimum(fu, 1 - fu) * cw, np.minimum(fv, 1 - fv) * rh)      # m to the joint
+        fid = np.modf(np.abs(np.sin(row * 78.233 + colk * 12.9898) * 43758.5453))[0]
+        flag = srgb((188, 166, 128)) * (0.70 + 0.40 * fid[..., None])
         flag = flag * (0.86 + 0.2 * np.clip(0.5 + n_mid * 1.3, 0, 1)[..., None])
+        flag = flag * (0.92 + 0.1 * np.clip(0.5 + n_small * 1.5, 0, 1)[..., None])
         joint = smooth(0.0, 0.05, fe)
-        c = srgb((110, 96, 76)) * (1 - joint[..., None]) + flag * joint[..., None]
-        cob = srgb((170, 158, 140)) * (0.72 + 0.42 * cid[..., None])
-        cobc = srgb((96, 82, 62)) * (1 - smooth(0.0, 0.045, ce)[..., None]) + cob * smooth(0.0, 0.045, ce)[..., None]
-        margin = smooth(2.2, 1.2, din)[..., None]
+        c = srgb((100, 82, 60)) * (1 - joint[..., None]) + flag * joint[..., None]
+        cob = srgb((170, 150, 120)) * (0.72 + 0.42 * cid[..., None])
+        cobc = srgb((92, 74, 54)) * (1 - smooth(0.0, 0.045, ce)[..., None]) + cob * smooth(0.0, 0.045, ce)[..., None]
+        margin = smooth(1.8, 1.0, din)[..., None]
         c = c * (1 - margin) + cobc * margin
-        worn = np.clip((fbm(XS, YS, 5.0, 44, 3) - 0.2) * 2.0, 0, 1)[..., None] * 0.35
+        # packed earth over the stones where people and carts pass (as in the reference market)
+        worn = smooth(-0.08, 0.14, fbm(XS, YS, 5.0, 44, 3) + fbm(XS, YS, 1.2, 49, 2) * 0.3)
+        worn = np.maximum(worn, (fid < 0.12) * 0.9)                       # missing flags
+        worn = (worn * (1 - margin[..., 0] * 0.6))[..., None]
         c = c * (1 - worn) + earth * worn
-        e = smooth(0.0, 0.8 + fbm(XS, YS, 1.5, 45, 2) * 0.6, din)
+        e = smooth(0.0, 0.35, din + fbm(XS, YS, 1.5, 45, 2) * 0.3)
         blend(c, e)
 
     # ---------------- lighting, transparency (water, border)
@@ -347,7 +371,7 @@ def paint_tile(data, maps, region, tx, ty, tw, th):
     alpha *= smooth(1.0, 14.0, border + fbm(XS, YS, 8.0, 46, 3) * 8.0)
     # tonemap like the terrain (lin -> sRGB) with a touch of the illustrated grade
     l = (col * np.array([0.2126, 0.7152, 0.0722])).sum(-1, keepdims=True)
-    col = np.clip(l + (col - l) * 1.12, 0, None)
+    col = np.clip(l + (col - l) * 1.04, 0, None)
     srgb_col = np.clip(col, 0, 1) ** (1 / 2.2)
     ground = np.concatenate([srgb_col, alpha[..., None]], -1)
     g8 = (np.clip(ground, 0, 1) * 255 + 0.5).astype(np.uint8)

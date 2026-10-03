@@ -101,6 +101,14 @@ class G:
         self.link(fac, node.inputs["Fac"])
         return node.outputs["Color"]
 
+    def voronoi(self, vec, feature="F1", randomness=0.85):
+        """Voronoi with Scale fixed to 1 (the node's default of 5 made every stone 5x too small)."""
+        node = self.n("ShaderNodeTexVoronoi", feature=feature)
+        node.inputs["Scale"].default_value = 1.0
+        node.inputs["Randomness"].default_value = randomness
+        self.link(vec, node.inputs["Vector"])
+        return node
+
     def noise(self, vec=None, scale=2.0, detail=4.0, rough=0.55):
         node = self.n("ShaderNodeTexNoise")
         node.inputs["Scale"].default_value = scale
@@ -136,10 +144,24 @@ class G:
         return node.outputs["Vector"]
 
     def wall_vec(self, su=1.0, sv=1.0):
-        """(x + y, z) in object space: continuous mapping around axis-aligned boxes."""
+        """(x + y, z) on walls, (x, y) on horizontal faces (object space): continuous around boxes, no streaks
+        on wall tops and coping stones."""
         x, y, z = self.sep(self.coords("Object"))
-        u = self.math("ADD", x, y)
-        return self.comb(self.math("MULTIPLY", u, su), self.math("MULTIPLY", z, sv))
+        nz = self.sep(self.coords("Normal"))[2]
+        flat = self.math("GREATER_THAN", self.math("ABSOLUTE", nz), 0.6)
+        u = self.mix_f(self.math("ADD", x, y), x, flat)
+        v = self.mix_f(z, self.math("MULTIPLY", y, su / sv), flat)
+        return self.comb(self.math("MULTIPLY", u, su), self.math("MULTIPLY", v, sv))
+
+    def mix_f(self, a, b, fac):
+        """float lerp a -> b by fac (all sockets or numbers)."""
+        node = self.n("ShaderNodeMix", data_type="FLOAT")
+        for i, v in ((0, fac), (2, a), (3, b)):
+            if isinstance(v, (int, float)):
+                node.inputs[i].default_value = v
+            else:
+                self.link(v, node.inputs[i])
+        return node.outputs[0]
 
     def bump(self, height, strength=0.4, distance=0.03, normal=None):
         b = self.n("ShaderNodeBump")
@@ -201,43 +223,85 @@ def plaster(col=(226, 214, 186), dirt=(132, 112, 84)):
 
 @cached
 def stone(c1=(172, 160, 140), c2=(128, 122, 114), mortar=(92, 84, 72), sw=0.46, sh=0.30, rough_k=1.0):
-    """Individual stones: Voronoi cells (own colour), recessed mortar joints, bulging faces."""
+    """Coursed stone: horizontal courses of blocks (sw x sh m), joints shifted per course so the blocks have
+    irregular widths, own tone per block, soft rounded edges, recessed mortar. Horizontal faces get flags."""
     g = G("stone")
+    vec = g.wall_vec(1.0, 1.0)                                   # metres
+    u, v, _ = g.sep(vec)
+    # wobble: wavy courses and per-course random joint shifts -> hand-laid, not a brick wall
+    wob = g.noise(g.comb(g.math("MULTIPLY", u, 0.35), g.math("MULTIPLY", v, 0.35)), 1.0, 2)
+    v2 = g.math("ADD", v, g.math("MULTIPLY", g.math("SUBTRACT", wob, 0.5), sh * 0.5))
+    row = g.math("FLOOR", g.math("DIVIDE", v2, sh))
+    jit = g.noise(g.comb(g.math("MULTIPLY", u, 1.3 / sw), g.math("MULTIPLY", row, 3.7)), 1.0, 1)
+    u2 = g.math("ADD", u, g.math("MULTIPLY", g.math("SUBTRACT", jit, 0.5), sw * 1.1))
+    br = g.n("ShaderNodeTexBrick", offset=0.5, offset_frequency=2, squash=1.0, squash_frequency=2)
+    br.inputs["Scale"].default_value = 1.0
+    br.inputs["Brick Width"].default_value = sw
+    br.inputs["Row Height"].default_value = sh
+    br.inputs["Mortar Size"].default_value = 0.035
+    br.inputs["Mortar Smooth"].default_value = 0.55
+    br.inputs["Bias"].default_value = 0.0
+    br.inputs["Color1"].default_value = (1, 1, 1, 1)
+    br.inputs["Color2"].default_value = (0, 0, 0, 1)
+    br.inputs["Mortar"].default_value = (0, 0, 0, 1)
+    g.link(g.comb(u2, v2), br.inputs["Vector"])
+    tone = g.sep(br.outputs["Color"])[0]
+    stonec = g.ramp(tone, [(0.0, c2), (0.6, c1), (1.0, tuple(min(255, int(x * 1.07)) for x in c1))])
+    grain = g.noise(g.coords("Object"), 7.0, 3)
+    blot = g.noise(g.coords("Object"), 1.6, 3)
+    stonec = g.mix(stonec, g.ramp(grain, [(0.3, 0.93), (0.7, 1.04)]), 1.0, "MULTIPLY")
+    stonec = g.mix(stonec, g.ramp(blot, [(0.35, 0.86), (0.65, 1.04)]), 1.0, "MULTIPLY")
+    solid = g.math("SUBTRACT", 1.0, br.outputs["Fac"])           # 1 on the block, 0 in the joint
+    m = g.ramp(solid, [(0.0, 0.0), (0.35, 0.0), (0.7, 1.0)])
+    col = g.mix(mortar, stonec, g.sep(m)[0])
+    h = g.math("ADD", g.math("POWER", solid, 0.5), g.math("MULTIPLY", grain, 0.08))
+    return g.finish(col, ao_dark=0.4, normal=g.bump(h, 0.32 * rough_k, 0.04), rough=0.92)
+
+
+@cached
+def rubble(c1=(172, 160, 140), c2=(128, 122, 114), mortar=(92, 84, 72), sw=0.46, sh=0.30):
+    """Uncoursed rubble (irregular Voronoi stones): dry-stone walls, wells, foundations."""
+    g = G("rubble")
     vec = g.wall_vec(1.0 / sw, 1.0 / sh)
-    vo = g.n("ShaderNodeTexVoronoi", feature="F1")
-    vo.inputs["Randomness"].default_value = 0.85
-    g.link(vec, vo.inputs["Vector"])
-    vd = g.n("ShaderNodeTexVoronoi", feature="DISTANCE_TO_EDGE")
-    vd.inputs["Randomness"].default_value = 0.85
-    g.link(vec, vd.inputs["Vector"])
+    vo = g.voronoi(vec, "F1")
+    vd = g.voronoi(vec, "DISTANCE_TO_EDGE")
     cell = g.sep(vo.outputs["Color"])[0]
     stonec = g.ramp(cell, [(0.0, c2), (0.55, c1), (1.0, tuple(min(255, int(v * 1.08)) for v in c1))])
     grain = g.noise(g.coords("Object"), 9.0, 3)
     stonec = g.mix(stonec, g.ramp(grain, [(0.3, 0.94), (0.7, 1.04)]), 1.0, "MULTIPLY")
-    # each stone: lit top edge, darker lower part (rounded faces) -> readable individual stones
-    edge = g.math("MULTIPLY", vd.outputs["Distance"], 4.2, clamp=True)        # 0 at the joint
+    edge = g.math("MULTIPLY", vd.outputs["Distance"], 3.2, clamp=True)        # 0 at the joint
     mort = g.ramp(edge, [(0.0, 0.0), (0.22, 0.0), (0.55, 1.0)])
     col = g.mix(mortar, stonec, g.sep(mort)[0])
-    h = g.math("ADD", g.math("POWER", edge, 0.6), g.math("MULTIPLY", grain, 0.12))
-    return g.finish(col, ao_dark=0.38, normal=g.bump(h, 0.75 * rough_k, 0.06), rough=0.9)
+    h = g.math("ADD", g.math("POWER", edge, 0.6), g.math("MULTIPLY", grain, 0.1))
+    return g.finish(col, ao_dark=0.4, normal=g.bump(h, 0.3, 0.04), rough=0.92)
 
 
 @cached
 def paving(c1=(176, 166, 148), c2=(132, 124, 114), joint=(96, 86, 72), cell=0.42):
-    """Horizontal stone paving (x, y mapping): irregular flags, own colour each, dark joints."""
+    """Horizontal stone flags (x, y mapping): rows of rectangular flags of varying length, own tone each."""
     g = G("paving")
     x, y, z = g.sep(g.coords("Object"))
-    vec = g.comb(g.math("DIVIDE", x, cell), g.math("DIVIDE", y, cell))
-    vo = g.n("ShaderNodeTexVoronoi", feature="F1")
-    g.link(vec, vo.inputs["Vector"])
-    vd = g.n("ShaderNodeTexVoronoi", feature="DISTANCE_TO_EDGE")
-    g.link(vec, vd.inputs["Vector"])
-    cell_c = g.sep(vo.outputs["Color"])[0]
-    c = g.ramp(cell_c, [(0.0, c2), (1.0, c1)])
-    edge = g.math("MULTIPLY", vd.outputs["Distance"], 5.0, clamp=True)
-    m = g.ramp(edge, [(0.0, 0.0), (0.2, 0.0), (0.45, 1.0)])
+    wob = g.noise(g.comb(g.math("MULTIPLY", x, 0.5), g.math("MULTIPLY", y, 0.5)), 1.0, 2)
+    y2 = g.math("ADD", y, g.math("MULTIPLY", g.math("SUBTRACT", wob, 0.5), cell * 0.4))
+    row = g.math("FLOOR", g.math("DIVIDE", y2, cell * 1.2))
+    jit = g.noise(g.comb(g.math("MULTIPLY", x, 1.0 / cell), g.math("MULTIPLY", row, 3.1)), 1.0, 1)
+    x2 = g.math("ADD", x, g.math("MULTIPLY", g.math("SUBTRACT", jit, 0.5), cell * 1.4))
+    br = g.n("ShaderNodeTexBrick", offset=0.5, offset_frequency=2, squash=1.0, squash_frequency=2)
+    br.inputs["Scale"].default_value = 1.0
+    br.inputs["Brick Width"].default_value = cell * 1.7
+    br.inputs["Row Height"].default_value = cell * 1.2
+    br.inputs["Mortar Size"].default_value = 0.03
+    br.inputs["Mortar Smooth"].default_value = 0.5
+    br.inputs["Color1"].default_value = (1, 1, 1, 1)
+    br.inputs["Color2"].default_value = (0, 0, 0, 1)
+    g.link(g.comb(x2, y2), br.inputs["Vector"])
+    c = g.ramp(g.sep(br.outputs["Color"])[0], [(0.0, c2), (1.0, c1)])
+    grain = g.noise(g.coords("Object"), 6.0, 3)
+    c = g.mix(c, g.ramp(grain, [(0.3, 0.92), (0.7, 1.04)]), 1.0, "MULTIPLY")
+    solid = g.math("SUBTRACT", 1.0, br.outputs["Fac"])
+    m = g.ramp(solid, [(0.0, 0.0), (0.35, 0.0), (0.7, 1.0)])
     c = g.mix(joint, c, g.sep(m)[0])
-    return g.finish(c, ao_dark=0.4, normal=g.bump(edge, 0.5, 0.04), rough=0.9)
+    return g.finish(c, ao_dark=0.42, normal=g.bump(solid, 0.25, 0.03), rough=0.9)
 
 
 @cached
@@ -278,8 +342,8 @@ def roof(kind="thatch"):
         "thatch": ((104, 70, 32), (190, 144, 70), (236, 194, 112)),
         "thatch_old": ((82, 62, 38), (154, 118, 70), (194, 158, 104)),
         "shingle": ((62, 52, 44), (98, 82, 66), (128, 110, 90)),
-        "tile": ((112, 52, 36), (150, 72, 48), (176, 98, 68)),
-        "tile_dark": ((96, 50, 40), (128, 68, 50), (152, 90, 66)),
+        "tile": ((100, 56, 42), (136, 78, 58), (160, 102, 78)),
+        "tile_dark": ((86, 52, 44), (116, 70, 56), (140, 92, 72)),
         "slate": ((62, 66, 80), (92, 98, 114), (120, 126, 140)),
     }[kind]
     g = G("roof_" + kind)
@@ -303,7 +367,11 @@ def roof(kind="thatch"):
         nrm = g.bump(strands.outputs["Fac"], 0.9, 0.04)
         return g.finish(c, ao_dark=0.32, ao_dist=0.7, normal=nrm, rough=1.0)
     grain = g.noise(g.comb(g.math("MULTIPLY", u, 2.0), g.math("MULTIPLY", v, 12.0)), 5.0, 4)
-    tone = g.math("ADD", g.math("MULTIPLY", rnd, 0.75), g.math("MULTIPLY", grain, 0.25))
+    # tone: a little per element, mostly broad weathering patches (per-element noise read as a mosaic)
+    patches = g.noise(g.comb(g.math("MULTIPLY", u, 0.7), g.math("MULTIPLY", v, 0.9)), 1.0, 3)
+    tone = g.math("ADD", g.math("MULTIPLY", rnd, 0.32),
+                  g.math("ADD", g.math("MULTIPLY", g.math("SUBTRACT", patches, 0.5), 1.1), 0.34))
+    tone = g.math("ADD", tone, g.math("MULTIPLY", grain, 0.16))
     c = g.ramp(tone, [(0.0, pal[0]), (0.5, pal[1]), (1.0, pal[2])])
     if kind.startswith("tile") or kind == "shingle":
         moss = g.noise(uv, 1.6, 3)
@@ -457,10 +525,10 @@ ROOF_SPEC = {
     #            row height, element width (u), lift, jag, thickness, gap
     "thatch":   (0.30, 0.12, 0.035, 0.09, 0.12, 0.0),
     "thatch_old": (0.30, 0.12, 0.035, 0.09, 0.12, 0.0),
-    "shingle":  (0.26, 0.24, 0.035, 0.035, 0.045, 0.012),
-    "tile":     (0.24, 0.21, 0.04, 0.012, 0.05, 0.004),
-    "tile_dark": (0.24, 0.21, 0.04, 0.012, 0.05, 0.004),
-    "slate":    (0.2, 0.26, 0.025, 0.02, 0.03, 0.006),
+    "shingle":  (0.32, 0.3, 0.04, 0.035, 0.05, 0.014),
+    "tile":     (0.32, 0.27, 0.05, 0.014, 0.06, 0.005),
+    "tile_dark": (0.32, 0.27, 0.05, 0.014, 0.06, 0.005),
+    "slate":    (0.27, 0.34, 0.03, 0.02, 0.035, 0.008),
 }
 
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bs4vwy2fatl2i"
-path="res://.godot/imported/barracks@m045.png-f5f27264452da1e043b07a0a6c0a4859.ctex"
+uid="uid://clhsmh3siitdw"
+path="res://.godot/imported/cart_hay@090_sh.png-4395d33ca8691c0eebfbcd72991505f4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/slice/barracks@m045.png"
-dest_files=["res://.godot/imported/barracks@m045.png-f5f27264452da1e043b07a0a6c0a4859.ctex"]
+source_file="res://assets/sprites/slice/cart_hay@090_sh.png"
+dest_files=["res://.godot/imported/cart_hay@090_sh.png-4395d33ca8691c0eebfbcd72991505f4.ctex"]
 
 [params]
 

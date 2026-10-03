@@ -1,3 +1,5 @@
 [
- {"name": "S_MID", "x": 1492, "y": 970, "zoom": 0.45, "wait": 6}
+ {"name": "Q_MID", "x": 1492, "y": 970, "zoom": 0.45, "wait": 8},
+ {"name": "Q_CLOSE", "x": 1488, "y": 960, "zoom": 0.9, "wait": 8},
+ {"name": "Q_FARM", "x": 1440, "y": 1045, "zoom": 0.8, "wait": 8}
 ]

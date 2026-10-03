@@ -23,9 +23,9 @@ uniform sampler2D foam_tex : filter_linear_mipmap, repeat_enable;
 uniform float sin_el = 0.766;
 uniform float px_per_m = 32.0;
 uniform float detail_strength = 1.0;
-uniform vec3 water_deep = vec3(0.085, 0.25, 0.40);
-uniform vec3 water_mid = vec3(0.12, 0.38, 0.50);
-uniform vec3 water_shallow = vec3(0.22, 0.54, 0.56);
+uniform vec3 water_deep = vec3(0.10, 0.22, 0.26);     // teal, measured on the reference images
+uniform vec3 water_mid = vec3(0.16, 0.34, 0.36);
+uniform vec3 water_shallow = vec3(0.30, 0.46, 0.42);
 
 varying vec2 world;
 
@@ -107,11 +107,11 @@ void fragment() {
 			float broad = texture(water_normal, g / 90.0 + vec2(TIME * 0.002, 0.0)).b - 0.5;
 			wc *= 1.0 + broad * 0.18;
 			// painterly wave crests: sparse light strokes, across the current (rivers) or the wind (lake)
-			vec2 wdir = speed > 0.3 ? vec2(-dir.y, dir.x) : normalize(vec2(0.35, 1.0));
-			float warp = texture(water_normal, g / 23.0).b * 7.0;
-			float band = sin((dot(g, wdir) * 0.9 + warp) - TIME * (0.35 + fs * 0.4));
-			float mask = smoothstep(0.55, 0.75, texture(water_normal, g / 31.0 + vec2(0.0, TIME * 0.004)).b);
-			float crest = smoothstep(0.82, 0.97, band) * mask * smoothstep(0.4, 1.2, depth);
+			// (advected noise, not sin(dot(g, dir)): with g in the thousands of metres, a direction that changes
+			// from texel to texel of the flow map made the phase jump -> blocky crests)
+			float cr = flow_sample(water_normal, g / 7.0, dir * fs * 0.2, TIME * (0.12 + fs * 0.15)).b;
+			float mask = smoothstep(0.45, 0.7, texture(water_normal, g / 31.0 + vec2(0.0, TIME * 0.004)).b);
+			float crest = smoothstep(0.72, 0.88, cr) * mask * smoothstep(0.4, 1.2, depth);
 			float close = smoothstep(0.25, 0.8, cam_zoom);
 			wc = mix(wc, vec3(0.62, 0.78, 0.84) * mix(0.6, 1.0, lit), crest * mix(0.35, 0.55, close));
 			// sun caustics on the bed of the shallows (bright web, close views)

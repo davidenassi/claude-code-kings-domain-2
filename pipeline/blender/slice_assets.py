@@ -239,6 +239,29 @@ def make_catchers(specs, root):
     return out
 
 
+def make_holdouts(specs, root):
+    """Under-water cut: a camera-only holdout plane just below every water-level catcher (z < -0.5), so the
+    parts of piles, piers and wheel blades under the river surface are transparent in the sprite (the
+    game's water shows there instead of geometry floating on top of it)."""
+    out = []
+    for z, x0, x1, y0, y1 in specs:
+        if z > -0.5:
+            continue
+        bpy.ops.mesh.primitive_plane_add(size=1.0, location=((x0 + x1) / 2, (y0 + y1) / 2, z - 0.012))
+        h = bpy.context.object
+        h.scale = (x1 - x0, y1 - y0, 1)
+        h.name = "water_cut"
+        h.is_holdout = True
+        for k in ("visible_shadow", "visible_diffuse", "visible_glossy", "visible_transmission",
+                  "visible_volume_scatter"):
+            setattr(h, k, False)
+        if root is not None:
+            h.parent = root
+        out.append(h)
+    bpy.context.view_layer.update()
+    return out
+
+
 # ------------------------------------------------------------------------------------------------
 def parse_name(name):
     if "@" in name:
@@ -277,10 +300,12 @@ def render_one(name, samples, meta):
     else:
         root = R.apply_yaw(objs, yaw)
     catchers = None
+    holdouts = []
     ground = bpy.data.objects["ground"]
     ground.hide_render = False
     if extra.get("catchers"):
         catchers = make_catchers(extra["catchers"], root)
+        holdouts = make_holdouts(extra["catchers"], root)
         ground.hide_render = True
     bpy.context.view_layer.update()
     chims = []
@@ -292,7 +317,7 @@ def render_one(name, samples, meta):
     res = R.render_object([o for o in objs if o.type == "MESH" and not o.hide_render], name.replace("@", "_"),
                           samples=samples, shadow_samples=16, catchers=catchers)
     if catchers:
-        for c in catchers:
+        for c in catchers + holdouts:
             bpy.data.objects.remove(c, do_unlink=True)
         ground.hide_render = False
     # world-space offsets (metres, x east / y south) of attached points, rotated with the model
