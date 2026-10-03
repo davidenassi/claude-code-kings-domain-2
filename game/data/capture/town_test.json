@@ -1,0 +1,5 @@
+[
+ {"name": "TOWN_MID", "x": 1650, "y": 870, "zoom": 0.2, "wait": 10},
+ {"name": "TOWN_CLOSE", "x": 1640, "y": 868, "zoom": 0.55, "wait": 10},
+ {"name": "TOWN_FAR", "x": 1650, "y": 900, "zoom": 0.08, "wait": 8}
+]

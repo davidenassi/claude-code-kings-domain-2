@@ -74,6 +74,13 @@ def main():
         r = HM.build(quick=args.quick)
         h, water_z, E, acc = r["h"], r["water_z"], r["E"], r["acc"]
         np.savez(hpath, h=h, water_z=water_z, E=E, acc=acc)
+    hpath_final = os.path.join(CACHE, "height_final.npy")
+    # building platforms (castle plateau...)
+    for cx, cy, rx, ry, alt, fall in L.FLATTEN:
+        dn = np.sqrt(((xs - cx) / rx) ** 2 + ((ys - cy) / ry) ** 2)
+        wgt = np.clip(1.0 - (dn - 1.0) * min(rx, ry) / fall, 0.0, 1.0)
+        wgt = wgt * wgt * (3 - 2 * wgt)
+        h = (h * (1 - wgt) + alt * wgt).astype(np.float32)
     wet = (np.isfinite(water_z) & (water_z > h)).astype(np.float32)
     depth = np.where(wet > 0, water_z - h, 0.0).astype(np.float32)
     wl = np.where(wet > 0, water_z, h)
@@ -110,6 +117,7 @@ def main():
     np.save(os.path.join(CACHE, "open_land.npy"), forest["open"])
     np.save(os.path.join(CACHE, "slope.npy"), forest["slope"])
     np.save(os.path.join(CACHE, "wet.npy"), wet)
+    np.save(os.path.join(CACHE, "depth.npy"), depth)
     np.save(os.path.join(CACHE, "d_water.npy"), d_water)
     np.save(os.path.join(CACHE, "shadow.npy"), shadow)
 
@@ -131,7 +139,10 @@ def main():
     shore = smooth = np.clip(1.0 - depth / 0.7, 0, 1) * wet
     foam = np.clip(shore * 0.5 + np.clip((slope_w - 0.01) * 8.0, 0, 0.7) * wet, 0, 1)
     waterfall = (slope_w > 0.25) & (wet > 0)
-    foam = np.where(waterfall, 1.0, foam)
+    foam = np.where(waterfall, 0.8, foam)
+    # foam and spray spreading around the foot of falls and cascades
+    spray = ndimage.gaussian_filter(waterfall.astype(np.float32), 5.0) * 4.0
+    foam = np.maximum(foam, np.clip(spray, 0, 1) * wet)
     water_ground = np.stack([np.sqrt(np.clip(depth / 16.0, 0, 1)) * wet, 0.5 + 0.5 * fx * mag,
                              0.5 + 0.5 * fy * mag, foam], -1).astype(np.float32)
 
@@ -182,7 +193,7 @@ def main():
     r1x, r2x = bump(gx + e, gv)
     r1y, r2y = bump(gx, gv + e)
     r10, r20 = bump(gx, gv)
-    amp_r = rock * 2.6 + snow * 0.6 + veg * 0.25
+    amp_r = rock * 3.4 + snow * 0.6 + veg * 0.25
     amp_f = rock * 0.9 + veg * 0.12 + snow * 0.15
     ddx = ((r1x - r10) * amp_r + (r2x - r20) * amp_f) / e
     ddy = ((r1y - r10) * amp_r + (r2y - r20) * amp_f) / e
@@ -202,7 +213,7 @@ def main():
     sky_c = np.array(K.SKY_COLOR, np.float32)
     I_SUN, I_SKY = 1.78, 0.56
     light_s = (sun_c * (I_SUN * diffuse * shadow_s)[..., None] + sky_c * (I_SKY * skyf * ao_s)[..., None])
-    light_s *= np.clip(1.0 + cav_s * 0.10, 0.80, 1.18)[..., None]
+    light_s *= np.clip(1.0 + cav_s * (0.10 + 0.08 * rock), 0.70, 1.25)[..., None]
     del nx_, ny_, nz_, nl, ndl, diffuse, skyf, li
 
     mod = 1.0 + veg * (0.09 * f1 + 0.07 * f2) + forest_w * 0.10 * f1
@@ -294,6 +305,7 @@ def main():
     with open(os.path.join(K.GAME_DIR, "data", "valley", "terrain.json"), "w") as f:
         json.dump(meta, f, indent=1)
     np.save(os.path.join(CACHE, "hv.npy"), hv)
+    np.save(os.path.join(CACHE, "h_final.npy"), h)
     log(f"done in {time.time() - t0:.0f}s  ({Ws}x{Hs}px, {rows}x{cols} chunks)")
 
 

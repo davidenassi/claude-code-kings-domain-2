@@ -1,0 +1,6 @@
+[
+ {"name": "V_FAR", "x": 1536, "y": 1180, "zoom": 0.02, "wait": 6},
+ {"name": "V_MID", "x": 900, "y": 800, "zoom": 0.12, "wait": 6},
+ {"name": "V_CLOSE", "x": 760, "y": 800, "zoom": 0.6, "wait": 6},
+ {"name": "V_MTN", "x": 1900, "y": 450, "zoom": 0.1, "wait": 6}
+]

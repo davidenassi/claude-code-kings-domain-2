@@ -1,0 +1,14 @@
+[
+ {"name": "VALLEY_FAR", "x": 1536, "y": 1180, "zoom": 0.02, "wait": 10},
+ {"name": "VALLEY_MID", "x": 1660, "y": 960, "zoom": 0.085, "wait": 10},
+ {"name": "VALLEY_CLOSE", "x": 1655, "y": 900, "zoom": 0.28, "wait": 10},
+ {"name": "VILLAGE_CLOSE", "x": 1622, "y": 874, "zoom": 0.75, "wait": 14},
+ {"name": "FOREST_TEST", "x": 980, "y": 830, "zoom": 0.3, "wait": 10},
+ {"name": "WATER_TEST", "x": 846, "y": 352, "zoom": 0.32, "wait": 10},
+ {"name": "WATER_TEST_BRIDGE", "x": 1862, "y": 966, "zoom": 0.42, "wait": 10},
+ {"name": "WATER_TEST_LAKE", "x": 1250, "y": 1640, "zoom": 0.16, "wait": 10},
+ {"name": "CASTLE_CLOSE", "x": 1656, "y": 950, "zoom": 0.5, "wait": 10},
+ {"name": "FIELDS_MID", "x": 2080, "y": 1110, "zoom": 0.22, "wait": 10},
+ {"name": "MOUNTAINS_MID", "x": 1400, "y": 260, "zoom": 0.07, "wait": 10},
+ {"name": "CITIZENS_TOWN", "x": 1646, "y": 868, "zoom": 1.0, "wait": 16}
+]

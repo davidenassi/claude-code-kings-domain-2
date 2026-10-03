@@ -95,6 +95,13 @@ void fragment() {
 			// broad, slow brightness variation (current lines, sky reflection)
 			float broad = texture(water_normal, g / 90.0 + vec2(TIME * 0.002, 0.0)).b - 0.5;
 			wc *= 1.0 + broad * 0.18;
+			// painterly wave crests: sparse light strokes, across the current (rivers) or the wind (lake)
+			vec2 wdir = speed > 0.3 ? vec2(-dir.y, dir.x) : normalize(vec2(0.35, 1.0));
+			float warp = texture(water_normal, g / 23.0).b * 7.0;
+			float band = sin((dot(g, wdir) * 0.9 + warp) - TIME * (0.35 + fs * 0.4));
+			float mask = smoothstep(0.55, 0.75, texture(water_normal, g / 31.0 + vec2(0.0, TIME * 0.004)).b);
+			float crest = smoothstep(0.82, 0.97, band) * mask * smoothstep(0.4, 1.2, depth);
+			wc = mix(wc, vec3(0.55, 0.68, 0.76) * mix(0.6, 1.0, lit), crest * 0.35);
 			wc *= mix(0.5, 1.0, clamp(lit, 0.0, 1.0));
 
 			// transparency over the bed in the shallows, opaque in the deep
@@ -103,17 +110,26 @@ void fragment() {
 			a *= smoothstep(0.003, 0.06, w.r);
 			col = mix(base, wc, a);
 
+			// lapping foam line along the shore (breathes slowly)
+			float lap = 1.0 - smoothstep(0.03, 0.10, w.r);
+			float pulse = 0.55 + 0.45 * sin(TIME * 0.9 + texture(water_normal, g / 9.0).b * 12.0);
+			col = mix(col, vec3(0.86, 0.90, 0.90) * mix(0.7, 1.0, lit), lap * smoothstep(0.003, 0.03, w.r) * pulse * 0.55);
 			// foam: shore lines, rapids, waterfalls
 			float fn = flow_sample(foam_tex, g / 6.0, dir * fs * 0.25, TIME * (0.15 + fs * 0.2)).r;
 			float foam = w.a * smoothstep(0.35, 0.75, fn + w.a * 0.35);
 			foam += smoothstep(0.75, 1.0, w.a) * 0.5;
-			// falling water: fast streaks along the flow
-			if (speed > 2.2) {
-				vec2 sv = vec2(dot(g, vec2(-dir.y, dir.x)) * 1.6, dot(g, dir) * 0.25 - TIME * 2.2);
-				float streak = texture(foam_tex, sv).r;
-				foam = max(foam, smoothstep(0.3, 0.8, streak) * smoothstep(2.2, 3.2, speed));
-			}
+			float fall = smoothstep(2.6, 3.4, speed);
+			foam *= 1.0 - fall * 0.85;
 			col = mix(col, vec3(0.93, 0.96, 0.98) * mix(0.75, 1.0, lit), clamp(foam, 0.0, 0.92));
+			// falling water: streaks running down the flow, darker gaps showing the rock behind
+			if (fall > 0.0) {
+				vec2 across = vec2(-dir.y, dir.x);
+				vec2 sv = vec2(dot(g, across) * 2.2, dot(g, dir) * 0.12 - TIME * 1.6);
+				float st = texture(foam_tex, sv).r * 0.65 + texture(foam_tex, sv * vec2(2.3, 1.7) + 0.31).r * 0.35;
+				float streak = smoothstep(0.25, 0.85, st);
+				vec3 fallc = mix(vec3(0.42, 0.55, 0.62), vec3(0.95, 0.97, 0.99), streak) * mix(0.7, 1.05, lit);
+				col = mix(col, mix(base, fallc, 0.55 + 0.4 * streak), fall);
+			}
 		}
 	}
 	COLOR = vec4(col, 1.0);

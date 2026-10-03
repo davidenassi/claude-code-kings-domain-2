@@ -6,12 +6,17 @@ extends Node2D
 const TerrainLayer := preload("res://valley/terrain/terrain_layer.gd")
 const ValleyCamera := preload("res://valley/camera/valley_camera.gd")
 const Capture := preload("res://tools/capture.gd")
+const VegetationLayer := preload("res://valley/vegetation/vegetation_layer.gd")
+const TownBuilder := preload("res://valley/demo/town_builder.gd")
 
 var terrain: Node2D
 var ground: Node2D       # fields, roads, plazas
 var shadows: Node2D      # all object shadows, below every object
 var objects: Node2D      # y-sorted trees, buildings, citizens, props
 var camera: Camera2D
+var vegetation: RefCounted
+var town: RefCounted
+var bridges: Node2D     # bridges: above shadows, below every object (citizens walk on them)
 
 
 func _ready() -> void:
@@ -27,10 +32,23 @@ func _ready() -> void:
 	shadows.name = "Shadows"
 	add_child(shadows)
 
+	bridges = Node2D.new()
+	bridges.name = "Bridges"
+	add_child(bridges)
+
 	objects = Node2D.new()
 	objects.name = "Objects"
 	objects.y_sort_enabled = true
 	add_child(objects)
+
+	vegetation = VegetationLayer.new()
+	vegetation.build(objects, shadows)
+	town = TownBuilder.new()
+	town.build(ground, shadows, bridges, objects)
+
+	var clouds := preload("res://valley/fx/cloud_shadows.gd").new()
+	clouds.name = "CloudShadows"
+	add_child(clouds)
 
 	camera = ValleyCamera.new()
 	camera.name = "Camera"
@@ -38,7 +56,16 @@ func _ready() -> void:
 	add_child(camera)
 	camera.make_current()
 	camera.jump_to_ground(1600.0, 1000.0, 0.12)
+	camera.zoom_changed.connect(_on_zoom)
 
 	var cap := Capture.new()
 	cap.name = "Capture"
 	add_child(cap)
+	add_child(preload("res://tools/benchmark.gd").new())
+	add_child(preload("res://tools/perf_overlay.gd").new())
+
+
+func _on_zoom(z: float) -> void:
+	var smoke := get_node_or_null("Smoke")
+	if smoke:
+		smoke.visible = z > 0.09

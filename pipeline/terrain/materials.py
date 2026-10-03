@@ -19,22 +19,22 @@ def srgb(c):
 
 
 PAL = {
-    "grass": srgb((92, 106, 46)),
-    "grass_lush": srgb((70, 92, 40)),
-    "grass_dry": srgb((118, 112, 56)),
-    "meadow": srgb((100, 108, 48)),
+    "grass": srgb((86, 100, 46)),
+    "grass_lush": srgb((66, 86, 40)),
+    "grass_dry": srgb((110, 104, 54)),
+    "meadow": srgb((94, 102, 48)),
     "flowers": srgb((140, 128, 64)),
     "alpine": srgb((112, 106, 66)),
-    "forest": srgb((40, 50, 32)),
-    "forest_needles": srgb((58, 52, 36)),
+    "forest": srgb((44, 52, 34)),
+    "forest_needles": srgb((60, 54, 38)),
     "dirt": srgb((128, 102, 68)),
     "mud": srgb((80, 68, 50)),
     "sand": srgb((168, 152, 116)),
     "gravel": srgb((128, 122, 112)),
     "bed": srgb((104, 92, 70)),
-    "rock_warm": srgb((128, 118, 102)),
-    "rock_cool": srgb((100, 100, 104)),
-    "rock_dark": srgb((66, 64, 64)),
+    "rock_warm": srgb((116, 106, 92)),
+    "rock_cool": srgb((90, 90, 94)),
+    "rock_dark": srgb((58, 56, 56)),
     "snow": srgb((232, 236, 244)),
     "snow_shadow": srgb((206, 216, 236)),
 }
@@ -67,7 +67,12 @@ def forest_density(t, slope, wet, d_water, g):
     mountain_f *= smoothstep(0.85, 0.55, slope)                 # no trees on cliffs
     mountain_f *= 0.55 + 0.6 * n1
     patches = soft_poly(L.FOREST_PATCHES, shape, g, edge=70.0, seed=1, warp=60.0)
-    floor_f = patches * (0.65 + 0.5 * n2) + (n1 - 0.72) * 2.2 * (E < 0.03)
+    # natural groves and copses all over the valley floor (many sizes), thinner towards the centre
+    groves = N.fbm(g, 150.0, 409, 4) * 0.5 + 0.5
+    copses = N.fbm(g, 45.0, 410, 3) * 0.5 + 0.5
+    grove_f = smoothstep(0.555, 0.62, groves) * (0.6 + 0.6 * n2) + smoothstep(0.585, 0.64, copses) * 0.75
+    clearings = smoothstep(0.56, 0.62, N.fbm(g, 70.0, 411, 3) * 0.5 + 0.5)
+    floor_f = np.maximum(patches * (0.65 + 0.5 * n2) * (1 - 0.85 * clearings), grove_f * (E < 0.05))
     dens = np.maximum(mountain_f, floor_f)
     # river galleries: riparian trees along the banks
     gallery = smoothstep(26.0, 6.0, d_water) * smoothstep(1.0, 3.0, d_water) * (0.45 + 0.6 * n2)
@@ -105,6 +110,14 @@ def build(t, nrm, wet, depth, d_water, g):
     base = base * (1 - k_lush * 0.6) + PAL["grass_lush"][None, None] * k_lush * 0.6
     k_meadow = np.clip((n_mid + 0.15) * 1.6, 0, 1)[..., None] * 0.5
     base = base * (1 - k_meadow) + PAL["meadow"][None, None] * k_meadow
+    # mid-scale meadow mottling (patches of lusher / drier grass, clover, flowers) - painterly variation
+    n_patch = N.fbm(g, 26.0, 506, 3) + N.fbm(g, 9.0, 507, 2) * 0.5
+    k_p1 = np.clip(n_patch * 3.0, 0, 1)[..., None] * 0.45
+    k_p2 = np.clip(-n_patch * 3.0, 0, 1)[..., None] * 0.35
+    base = base * (1 - k_p1) + PAL["grass_lush"][None, None] * k_p1
+    base = base * (1 - k_p2) + PAL["grass_dry"][None, None] * k_p2
+    flowers = np.clip((N.fbm(g, 6.0, 508, 2) - 0.25) * 4.0, 0, 1) * np.clip(n_big + 0.3, 0, 1) * (E < 0.3)
+    base = base * (1 - flowers[..., None] * 0.25) + PAL["flowers"][None, None] * flowers[..., None] * 0.25
     # alpine meadow on mountains
     k_alp = (smoothstep(0.15, 0.5, E) * smoothstep(260.0, 420.0, h))[..., None]
     base = base * (1 - k_alp) + PAL["alpine"][None, None] * k_alp
@@ -128,7 +141,7 @@ def build(t, nrm, wet, depth, d_water, g):
 
     # forest floor
     dens, conifer, open_land = forest_density(t, slope, wet, d_water, g)
-    k_for = smoothstep(0.25, 0.7, dens)
+    k_for = smoothstep(0.1, 0.42, dens)
     fcol = PAL["forest"][None, None] * (1 - conifer[..., None] * 0.5) \
         + PAL["forest_needles"][None, None] * conifer[..., None] * 0.5
     alb = alb * (1 - k_for[..., None]) + fcol * k_for[..., None]
@@ -136,7 +149,7 @@ def build(t, nrm, wet, depth, d_water, g):
     # ---------------- rock ----------------
     # rock threshold falls with altitude: vegetated foothills, bare rock high up
     alt = smoothstep(220.0, 560.0, h + n_big * 80.0)
-    rock_slope = 0.92 - 0.40 * alt + n_mid * 0.22
+    rock_slope = 0.78 - 0.28 * alt + n_mid * 0.18
     rock_slope = rock_slope + t["cavity_neg"] * 0.06            # crests rockier, hollows greener
     k_rock = smoothstep(rock_slope - 0.18, rock_slope + 0.14, slope)
     k_rock = np.maximum(k_rock, smoothstep(0.35, 0.7, E) * smoothstep(560.0, 680.0, h + n_mid * 120.0))
@@ -148,7 +161,7 @@ def build(t, nrm, wet, depth, d_water, g):
     alb = alb * (1 - k_rock[..., None]) + rcol * k_rock[..., None]
 
     # ---------------- snow ----------------
-    snowline = 560.0 + n_big * 70.0 + n_mid * 30.0
+    snowline = 480.0 + n_big * 80.0 + n_mid * 35.0
     k_snow = smoothstep(snowline, snowline + 70.0, h) * smoothstep(1.05, 0.7, slope)
     # snow lingers in gullies a bit lower
     k_snow = np.maximum(k_snow, smoothstep(snowline - 120.0, snowline, h) * smoothstep(0.6, 2.0, -t["cavity_neg"])

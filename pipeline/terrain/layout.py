@@ -278,3 +278,8 @@ RIDGES = [
     ("W4", "S1", 0.6), ("S1", "S2", 0.7), ("S2", "S3", 0.7), ("S4", "S5", 0.7), ("S5", "S6", 0.7),
     ("N9", "E1", 0.62), ("E2", "S6", 0.7),
 ]
+
+# terrain flattened for construction: (cx, cy, rx, ry, altitude, falloff m)
+FLATTEN = [
+    (1652.0, 962.0, 22.0, 26.0, 136.0, 7.0),      # castle plateau on the Rocca
+]

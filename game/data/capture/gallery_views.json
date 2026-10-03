@@ -1,0 +1,5 @@
+[
+ {"name": "BUILDINGS_TEST", "px": 3000, "py": 1300, "zoom": 0.32, "wait": 10},
+ {"name": "BUILDINGS_TEST_B", "px": 3000, "py": 2900, "zoom": 0.3, "wait": 10},
+ {"name": "CITIZENS_TEST", "px": 330, "py": 4860, "zoom": 1.0, "wait": 14}
+]
