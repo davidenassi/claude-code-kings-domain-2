@@ -1,7 +1,7 @@
 shader_type canvas_item;
 // MultiMesh2D instance of an atlas sprite: INSTANCE_CUSTOM = atlas rect (u, v, w, h), COLOR = tint.
-// From far away crowns are averaged by mipmaps with their own dark interior: compensate so that
-// forests keep their teal-green mass instead of turning black.
+// Note: in fragment() COLOR already holds tint x texel (Godot multiplies the texture in) - it must not be
+// multiplied by texture(TEXTURE, UV) again.
 
 global uniform float cam_zoom;
 
@@ -10,9 +10,8 @@ void vertex() {
 }
 
 void fragment() {
-	vec4 c = texture(TEXTURE, UV);
+	// far away the crowns are averaged with their own shaded interior by the mipmaps: a light lift keeps
+	// the forests a readable teal-green mass
 	float far = 1.0 - smoothstep(0.035, 0.32, cam_zoom);
-	vec3 rgb = c.rgb * COLOR.rgb;
-	rgb = rgb * mix(1.0, 1.75, far) + vec3(0.0, 0.012, 0.03) * far;
-	COLOR = vec4(rgb, c.a);
+	COLOR.rgb = COLOR.rgb * mix(1.0, 1.12, far) + vec3(0.0, 0.006, 0.015) * far;
 }

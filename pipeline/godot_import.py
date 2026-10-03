@@ -22,6 +22,7 @@ RULES = [
     ("assets/terrain/water_*.png", {"compress/mode": "0", "process/fix_alpha_border": "false", "mipmaps/generate": "true"}),
     ("assets/terrain/heightgrid.png", {"compress/mode": "0", "process/fix_alpha_border": "false", "mipmaps/generate": "false"}),
     ("assets/terrain/watergrid.png", {"compress/mode": "0", "process/fix_alpha_border": "false", "mipmaps/generate": "false"}),
+    ("assets/terrain/groundlight.png", {"compress/mode": "0", "process/fix_alpha_border": "false", "mipmaps/generate": "false"}),
     ("assets/terrain/color_*.webp", {"compress/mode": "2", "mipmaps/generate": "true"}),
     ("assets/terrain/light_*.webp", {"compress/mode": "2", "mipmaps/generate": "true"}),
 ]

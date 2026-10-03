@@ -12,6 +12,7 @@ float vnoise(vec2 p) {
 
 void fragment() {
 	vec2 m = UV;
+	float light = pow(max(COLOR.a * 1.5, 0.0), 0.4545);
 	float detail = smoothstep(0.05, 0.3, cam_zoom);
 	// irregular setts (jittered rows), warm sandy joints, worn earth patches
 	vec2 c = m * vec2(3.4, 3.8);
@@ -21,14 +22,16 @@ void fragment() {
 	vec2 f = fract(c) - 0.5;
 	float jag = (hash(cell + 3.0) - 0.5) * 0.12;
 	float stone = smoothstep(0.5, 0.36, max(abs(f.x) * 0.95, abs(f.y)) + jag);
-	vec3 sc = mix(vec3(0.58, 0.54, 0.47), vec3(0.68, 0.63, 0.54), hash(cell));
-	vec3 col = mix(vec3(0.50, 0.44, 0.34), sc, stone * 0.9);
-	col = mix(vec3(0.60, 0.56, 0.48), col, detail * 0.85);
+	vec3 sc = mix(vec3(0.62, 0.55, 0.45), vec3(0.72, 0.65, 0.53), hash(cell));
+	sc *= 0.92 + 0.16 * hash(floor(c / 5.0));
+	vec3 col = mix(vec3(0.48, 0.41, 0.31), sc, stone * 0.9);
+	col = mix(vec3(0.62, 0.56, 0.46) * (0.94 + 0.12 * vnoise(m * 0.4)), col, detail * 0.85);
 	float n = vnoise(m * 0.18) * 0.6 + vnoise(m * 0.6) * 0.4;
 	float worn = smoothstep(0.55, 0.8, n);
 	col = mix(col, vec3(0.53, 0.45, 0.33), worn * 0.55);
 	col *= 0.94 + vnoise(m * 0.09) * 0.12;
 	float e = COLOR.b * 8.0;
+	col *= mix(0.86, 1.0, smoothstep(0.0, 2.0, e));
 	float a = smoothstep(0.0, 1.2 + n, e);
-	COLOR = vec4(col, a);
+	COLOR = vec4(col * light, a);
 }

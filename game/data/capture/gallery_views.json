@@ -1,5 +1,8 @@
 [
- {"name": "BUILDINGS_TEST", "px": 3000, "py": 1300, "zoom": 0.32, "wait": 10},
- {"name": "BUILDINGS_TEST_B", "px": 3000, "py": 2900, "zoom": 0.3, "wait": 10},
- {"name": "CITIZENS_TEST", "px": 330, "py": 4860, "zoom": 1.0, "wait": 14}
+ {"name": "BUILDINGS_TEST", "px": 2450, "py": 1100, "zoom": 0.34, "wait": 8},
+ {"name": "BUILDINGS_TEST_B", "px": 2450, "py": 3250, "zoom": 0.34, "wait": 8},
+ {"name": "BUILDINGS_TEST_C", "px": 2450, "py": 5300, "zoom": 0.34, "wait": 8},
+ {"name": "BUILDINGS_TEST_PROPS", "px": 1790, "py": 6250, "zoom": 0.6, "wait": 8},
+ {"name": "CITIZENS_TEST", "px": 220, "py": 7070, "zoom": 1.0, "wait": 14},
+ {"name": "CITIZENS_TEST_ZOOM", "px": 380, "py": 6960, "zoom": 2.0, "wait": 10}
 ]

@@ -58,12 +58,23 @@ void fragment() {
 		vec3 dg = mix(texture(d_grass, g / 5.0).rgb, texture(d_grass, g2 / 5.0).rgb, tb);
 		vec3 df = mix(texture(d_forest, g / 5.0).rgb, texture(d_forest, g2 / 5.0).rgb, tb);
 		vec3 ds = mix(texture(d_soil, g / 4.5).rgb, texture(d_soil, g2 / 4.5).rgb, tb);
-		vec3 dr = texture(d_rock, g / 13.0).rgb * 0.6 + texture(d_rock, g / 4.1 + 0.3).rgb * 0.4;
+		vec3 dr = texture(d_rock, g / 14.0).rgb * 0.6 + texture(d_rock, g2 / 8.0 + 0.3).rgb * 0.4;
+		dr = mix(vec3(0.5), dr, 0.75);
 		vec3 dn = texture(d_snow, g / 11.0).rgb;
 		float wg = clamp(1.0 - m.r - m.g - m.b - m.a, 0.0, 1.0);
 		vec3 d = dg * wg + df * m.a + ds * m.g + dr * m.r + dn * m.b;
 		d /= max(wg + m.r + m.g + m.b + m.a, 0.001);
 		base *= mix(vec3(1.0), d * 2.0, fade);
+	}
+	// ---------------- middle distance: broad painterly grass tufts and soil patches ----------------
+	float mfade = smoothstep(0.035, 0.11, cam_zoom) * detail_strength;
+	if (mfade > 0.001) {
+		float wgm = clamp(1.0 - m.r - m.g - m.b - m.a, 0.0, 1.0);
+		vec2 gm = mat2(vec2(0.8, -0.6), vec2(0.6, 0.8)) * g;
+		float t1 = dot(texture(d_grass, gm / 23.0).rgb, vec3(0.3333));
+		float t2 = dot(texture(d_soil, g / 31.0 + 0.5).rgb, vec3(0.3333));
+		float t3 = dot(texture(d_forest, gm / 19.0 + 0.2).rgb, vec3(0.3333));
+		base *= 1.0 + ((t1 - 0.5) * 0.5 * wgm + (t2 - 0.5) * 0.3 * m.g + (t3 - 0.5) * 0.4 * m.a) * mfade;
 	}
 	vec3 col = base;
 
@@ -124,11 +135,17 @@ void fragment() {
 			// falling water: streaks running down the flow, darker gaps showing the rock behind
 			if (fall > 0.0) {
 				vec2 across = vec2(-dir.y, dir.x);
-				vec2 sv = vec2(dot(g, across) * 2.2, dot(g, dir) * 0.12 - TIME * 1.6);
-				float st = texture(foam_tex, sv).r * 0.65 + texture(foam_tex, sv * vec2(2.3, 1.7) + 0.31).r * 0.35;
-				float streak = smoothstep(0.25, 0.85, st);
-				vec3 fallc = mix(vec3(0.42, 0.55, 0.62), vec3(0.95, 0.97, 0.99), streak) * mix(0.7, 1.05, lit);
-				col = mix(col, mix(base, fallc, 0.55 + 0.4 * streak), fall);
+				float turb = texture(water_normal, g / 4.0 + vec2(0.0, -TIME * 0.25)).b;
+				vec2 sv = vec2(dot(g, across) * 1.2 + turb * 0.9, dot(g, dir) * 0.09 - TIME * 1.3);
+				float st = texture(foam_tex, sv).r * 0.5 + texture(foam_tex, sv * vec2(2.7, 1.9) + 0.31).r * 0.3
+					+ texture(foam_tex, g / 2.5 + vec2(0.0, -TIME * 0.8)).r * 0.2;
+				// ropes and sheets of water across the fall, white spray where they break
+				float rope = texture(water_normal, vec2(dot(g, across) / 7.0, 0.37)).b;
+				float streak = smoothstep(0.12, 0.62, st + (rope - 0.5) * 0.5);
+				vec3 fallc = mix(vec3(0.50, 0.63, 0.70), vec3(0.97, 0.98, 1.0), streak) * mix(0.75, 1.05, lit);
+				float cover = smoothstep(0.004, 0.06, w.r) * (0.65 + 0.35 * streak);
+				col = mix(col, fallc, fall * cover);
+				col = mix(col, vec3(0.92, 0.95, 0.97), fall * 0.10);
 			}
 		}
 	}

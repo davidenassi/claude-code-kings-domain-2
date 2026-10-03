@@ -1,0 +1,5 @@
+[
+ {"name": "I_MID", "x": 1660, "y": 960, "zoom": 0.085, "wait": 8},
+ {"name": "I_TOWN", "x": 1655, "y": 870, "zoom": 0.28, "wait": 8},
+ {"name": "I_PLAZA", "x": 1622, "y": 874, "zoom": 0.75, "wait": 10}
+]

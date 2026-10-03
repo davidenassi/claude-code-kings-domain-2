@@ -910,6 +910,61 @@ def _(rng):
     return objs, (40.0, 50.0)
 
 
+@entry("church", 271)
+def _(rng):
+    """Parish church: stone nave with a steep tile roof, apse, buttresses, rose window and a bell tower
+    with a pyramid spire at the front corner (seen from the south)."""
+    W, D, Hw = 9.0, 18.0, 7.5
+    st = B.stone_mat("warm")
+    sg = B.stone_mat("grey")
+    objs = [B.box(W + 0.5, D + 0.5, 0.5, (0, 0, -0.05), B.stone_mat("dark"), name="plinth")]
+    objs.append(B.box(W, D, Hw, (0, 0, 0.4), st, name="nave"))
+    rf, zr = B.gable_roof(W, D, Hw + 0.4, 50, B.roof_mat("tile_red"), overhang=0.5, ridge_x=False)
+    objs.append(rf)
+    for y in (-D / 2, D / 2):
+        g = B.gable_tri(W, Hw + 0.4, zr - Hw - 0.4, st, thick=0.3)
+        g.location = (0, y, 0)
+        objs.append(g)
+    # apse
+    objs.append(B.cyl(3.6, 6.4, (0, D / 2, 0.4), st, verts=24, name="apse"))
+    objs.append(B.cone_roof(3.6, 3.0, 6.8, B.roof_mat("tile_red"), verts=24, overhang=0.35))
+    objs[-1].location = (0, D / 2, 0)
+    # buttresses along the sides
+    for y in (-5.5, -1.5, 2.5, 6.5):
+        for sx_ in (-1, 1):
+            objs.append(B.box(0.8, 0.9, 5.2, (sx_ * (W / 2 + 0.35), y, 0.4), sg))
+    # facade: portal, rose window
+    objs += B.door(0, -D / 2, "S", w=2.0, h=3.4)
+    rose = B.cyl(1.05, 0.25, (0, -D / 2 - 0.08, 5.9), B.dark_mat(), verts=20, rot=(math.pi / 2, 0, 0))
+    objs.append(rose)
+    objs.append(B.cyl(1.25, 0.18, (0, -D / 2 - 0.02, 5.9), sg, verts=20, rot=(math.pi / 2, 0, 0)))
+    for sx_ in (-1, 1):
+        for y in (-5.5, -1.5, 2.5, 6.5):
+            objs += B.window(sx_ * W / 2, y + 2.0, 3.2, "E" if sx_ > 0 else "W", w=0.55, h=2.3)
+    # bell tower at the south-west corner
+    tx, ty, T, TH = -W / 2 - 1.2, -D / 2 + 2.4, 4.4, 17.0
+    objs.append(B.box(T, T, TH, (tx, ty, 0), sg, name="belltower"))
+    objs.append(B.box(T + 0.4, T + 0.4, 0.5, (tx, ty, TH - 4.2), B.stone_mat("dark")))
+    objs.append(B.box(T + 0.4, T + 0.4, 0.5, (tx, ty, TH - 0.1), B.stone_mat("dark")))
+    for face, dx, dy in (("S", 0, -T / 2), ("W", -T / 2, 0), ("E", T / 2, 0)):
+        for k in (-0.8, 0.8):
+            off = (k, 0) if face == "S" else (0, k)
+            objs.append(B.box(0.7 if face == "S" else 0.2, 0.2 if face == "S" else 0.7, 2.2,
+                              (tx + dx + off[0], ty + dy + off[1], TH - 3.4), B.dark_mat()))
+    objs.append(B.box(0.25, 0.3, 1.2, (tx, ty - T / 2, 6.0), B.dark_mat()))
+    spire = B.cone_roof(T / 2 * 1.414, 7.5, TH + 0.4, B.roof_mat("slate"), verts=4, overhang=0.2)
+    spire.rotation_euler = (0, 0, math.pi / 4)
+    spire.location = (tx, ty, 0)
+    objs.append(spire)
+    objs.append(B.box(0.12, 0.12, 1.6, (tx, ty, TH + 7.6), B.dark_mat()))
+    objs.append(B.box(0.8, 0.12, 0.12, (tx, ty, TH + 8.6), B.dark_mat()))
+    # churchyard: a few graves and a low wall
+    objs.append(B.box(14.0, 0.5, 0.9, (-1.0, -D / 2 - 4.5, 0), sg))
+    for gx in (3.0, 4.6, 6.2):
+        objs.append(B.box(0.6, 0.2, 0.8, (gx, -D / 2 - 2.2, 0), sg))
+    return objs, (14.0, 24.0)
+
+
 def rotate_all(objs, yaw):
     c, s_ = math.cos(yaw), math.sin(yaw)
     for o in objs:

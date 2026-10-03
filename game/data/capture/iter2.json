@@ -1,0 +1,7 @@
+[
+ {"name": "I_MID", "x": 1660, "y": 960, "zoom": 0.085, "wait": 8},
+ {"name": "I_TOWN", "x": 1655, "y": 870, "zoom": 0.28, "wait": 8},
+ {"name": "I_ROCCA", "x": 1650, "y": 950, "zoom": 0.4, "wait": 8},
+ {"name": "I_MTN", "x": 1400, "y": 260, "zoom": 0.07, "wait": 8},
+ {"name": "I_FIELDS", "x": 2200, "y": 1080, "zoom": 0.2, "wait": 8}
+]

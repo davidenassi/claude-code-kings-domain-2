@@ -21,6 +21,11 @@ func build(ground: Node2D, shadows: Node2D, bridges: Node2D, objects: Node2D) ->
 	if data.is_empty():
 		return
 	db = SpriteDB.new()
+	# building shadows in their own node: hidden at far zoom, where they are 1-2 px (saves draw calls)
+	var bsh := Node2D.new()
+	bsh.name = "BuildingShadows"
+	shadows.add_child(bsh)
+	shadows = bsh
 	smoke_layer = Node2D.new()
 	smoke_layer.name = "Smoke"
 	objects.get_parent().add_child.call_deferred(smoke_layer)
@@ -29,7 +34,12 @@ func build(ground: Node2D, shadows: Node2D, bridges: Node2D, objects: Node2D) ->
 	ground.add_child(GroundBuilder.build_plazas(data["plazas"], "earth"))
 	ground.add_child(GroundBuilder.build_yards(data["yards"]))
 	ground.add_child(GroundBuilder.build_fields(data["fields"]))
-	ground.add_child(GroundBuilder.build_roads(data["roads"], func(x, y): return Vector2(x, y).distance_to(Vector2(1647, 868)) < 40.0))
+	var walls := PackedVector2Array()
+	for q in data.get("walls", []):
+		walls.append(Vector2(q[0], q[1]))
+	var in_town := func(x: float, y: float) -> bool:
+		return walls.size() > 2 and Geometry2D.is_point_in_polygon(Vector2(x, y), walls)
+	ground.add_child(GroundBuilder.build_roads(data["roads"], in_town))
 	ground.add_child(GroundBuilder.build_plazas(data["plazas"], "cobble"))
 	var n := 0
 	for b in data["buildings"]:
@@ -66,7 +76,7 @@ func build(ground: Node2D, shadows: Node2D, bridges: Node2D, objects: Node2D) ->
 		n += 1
 	counts["props"] = n
 	n = 0
-	for t in data["trees"]:
+	for t in data.get("trees", []):
 		var parts := db.make(t["type"], t["x"], t["y"], Proj.height_at(t["x"], t["y"]), t.get("scale", 1.0))
 		if parts.is_empty():
 			continue
@@ -74,7 +84,6 @@ func build(ground: Node2D, shadows: Node2D, bridges: Node2D, objects: Node2D) ->
 		shadows.add_child(parts["shadow"])
 		n += 1
 	counts["trees"] = n
-	counts["fences"] = _fences(shadows, objects)
 	citizens = CitizenLayer.new()
 	citizens.name = "Citizens"
 	objects.add_child(citizens)
@@ -103,30 +112,5 @@ func _windmill(b: Dictionary, z: float, shadows: Node2D, objects: Node2D) -> voi
 	shadows.add_child(sh)
 	objects.add_child(anim)
 	anim.setup(frames, sh, Proj.altitude_offset(z) - 3.0 * Proj.sin_el * Proj.px_per_m)
+	anim.body.material = base["sprite"].material
 
-
-func _fences(shadows: Node2D, objects: Node2D) -> int:
-	var n := 0
-	for f in data["fields"]:
-		if not f["fence"]:
-			continue
-		var poly: Array = f["polygon"]
-		for i in poly.size():
-			var a := Vector2(poly[i][0], poly[i][1])
-			var b := Vector2(poly[(i + 1) % poly.size()][0], poly[(i + 1) % poly.size()][1])
-			var d := b - a
-			var length := d.length()
-			# sprite heading in Blender coordinates (y north): angle of (dx, -dy), modulo 180
-			var ang := fposmod(rad_to_deg(atan2(-d.y, d.x)), 180.0)
-			var k := int(round(ang / 22.5)) % 8
-			var t := "fence_%04d" % int(round(k * 225.0))
-			var segs := int(length / 4.0)
-			for s in segs:
-				var c := a + d * ((s + 0.5) / segs)
-				var parts := db.make(t, c.x, c.y, Proj.height_at(c.x, c.y))
-				if parts.is_empty():
-					continue
-				objects.add_child(parts["body"])
-				shadows.add_child(parts["shadow"])
-				n += 1
-	return n

@@ -188,7 +188,7 @@ Animazioni (mulino, cittadini) = fotogrammi renderizzati. Direzioni dei cittadin
 | Problema | Tecnica |
 |---|---|
 | Valle grande (≈ 6000×5000 texel di terreno) | chunk 1024² → si disegnano solo quelli visibili (culling del CanvasItem) |
-| Decine di migliaia di alberi | **MultiMesh2D per chunk** (≈ 1 draw call ogni 256×256 m), istanze ordinate per profondità |
+| Decine di migliaia di alberi | **MultiMesh2D a strisce orizzontali di 32 m** (101 strisce per la valle), istanze ordinate per profondità; anche recinzioni e piccoli oggetti usano lo stesso atlante |
 | Ombre | strato ombre separato, anch'esso MultiMesh |
 | Molti edifici | atlanti condivisi → batching 2D di Godot |
 | Cittadini | nascosti / semplificati sotto una soglia di zoom; animazione a passo ridotto quando lontani |

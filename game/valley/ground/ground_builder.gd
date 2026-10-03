@@ -57,11 +57,44 @@ static func _quad_grid(poly: Array, step: float, verts: PackedVector2Array, uvs:
 			uvs.append(Vector2(q.dot(ax), q.dot(ay)))
 			# distance to the quad border (approximate, in metres)
 			var de: float = minf(minf(s, 1.0 - s) * p0.distance_to(p1), minf(t, 1.0 - t) * p0.distance_to(p3))
-			cols.append(Color(col.r, col.g, clampf(de / 8.0, 0.0, 1.0), 1.0))
+			cols.append(Color(col.r, col.g, clampf(de / 8.0, 0.0, 1.0), Proj.light_at(q.x, q.y) / 1.5))
 	for j in nv:
 		for i in nu:
 			var k := base + j * (nu + 1) + i
 			idx.append_array([k, k + 1, k + nu + 2, k, k + nu + 2, k + nu + 1])
+
+
+static func _poly_grid(poly: PackedVector2Array, step: float, verts: PackedVector2Array, uvs: PackedVector2Array,
+		cols: PackedColorArray, idx: PackedInt32Array) -> void:
+	## Regular grid over any simple polygon; COLOR.b = distance to the border (m / 8), 0 outside.
+	var bb := Rect2(poly[0], Vector2.ZERO)
+	for q in poly:
+		bb = bb.expand(q)
+	bb = bb.grow(step)
+	var nx := int(ceil(bb.size.x / step)) + 1
+	var ny := int(ceil(bb.size.y / step)) + 1
+	var base := verts.size()
+	var inside := PackedByteArray()
+	inside.resize(nx * ny)
+	for j in ny:
+		for i in nx:
+			var q := bb.position + Vector2(i, j) * step
+			var de := INF
+			for k in poly.size():
+				var cp := Geometry2D.get_closest_point_to_segment(q, poly[k], poly[(k + 1) % poly.size()])
+				de = minf(de, q.distance_to(cp))
+			var ins := Geometry2D.is_point_in_polygon(q, poly)
+			verts.append(Proj.project(q.x, q.y))
+			uvs.append(q)
+			cols.append(Color(0, 0, clampf(de / 8.0, 0.0, 1.0) if ins else 0.0, Proj.light_at(q.x, q.y) / 1.5))
+			inside[j * nx + i] = 1 if (ins or de < step) else 0
+	for j in ny - 1:
+		for i in nx - 1:
+			var k := j * nx + i
+			if inside[k] + inside[k + 1] + inside[k + nx] + inside[k + nx + 1] == 0:
+				continue
+			var b := base + k
+			idx.append_array([b, b + 1, b + nx + 1, b, b + nx + 1, b + nx])
 
 
 static func build_fields(fields: Array) -> MeshInstance2D:
@@ -142,7 +175,7 @@ static func build_roads(roads: Array, inside: Callable) -> MeshInstance2D:
 				var q: Vector2 = pts[i] + nrm * ww * side
 				verts.append(Proj.project(q.x, q.y))
 				uvs.append(Vector2(side + 0.5, dist))
-				cols.append(Color(kind, ww / 10.0, cob, 1.0))
+				cols.append(Color(kind, ww / 10.0, cob, Proj.light_at(q.x, q.y) / 1.5))
 		for i in pts.size() - 1:
 			var k := base + i * 2
 			idx.append_array([k, k + 1, k + 3, k, k + 3, k + 2])
@@ -160,7 +193,10 @@ static func build_plazas(plazas: Array, kind := "cobble") -> MeshInstance2D:
 		var poly := []
 		for q in p["polygon"]:
 			poly.append(Vector2(q[0], q[1]))
-		_quad_grid(poly, 3.0, verts, uvs, cols, idx, Color(0, 0, 0, 1), 0.0)
+		if poly.size() == 4:
+			_quad_grid(poly, 3.0, verts, uvs, cols, idx, Color(0, 0, 0, 1), 0.0)
+		else:
+			_poly_grid(PackedVector2Array(poly), 3.0, verts, uvs, cols, idx)
 	if kind == "earth":
 		# edge distance must be allowed to grow beyond 8 m for the wide soft border
 		pass
@@ -189,7 +225,7 @@ static func build_yards(yards: Array) -> MeshInstance2D:
 				var q := Vector2(cx - hw + u * hw * 2.0, cy - hd + v * hd * 2.0)
 				verts.append(Proj.project(q.x, q.y))
 				uvs.append(Vector2(u, v))
-				cols.append(Color(1, g, 0, 0.85))
+				cols.append(Color(1, g, 0, Proj.light_at(q.x, q.y) / 1.5))
 		for j in 2:
 			for i in 2:
 				var k := base + j * 3 + i

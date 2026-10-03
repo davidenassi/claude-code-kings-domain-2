@@ -169,9 +169,17 @@ func _update_person(p: Person, delta: float) -> void:
 
 
 func _process(delta: float) -> void:
-	var zoom: float = get_viewport().get_camera_2d().zoom.x if get_viewport().get_camera_2d() else 1.0
+	var cam := get_viewport().get_camera_2d()
+	var zoom: float = cam.zoom.x if cam else 1.0
 	visible = zoom >= HIDE_BELOW_ZOOM
 	if not visible:
 		return
+	# only the people near the view are animated (the others keep their place until seen again)
+	var view := Rect2()
+	if cam:
+		var size := get_viewport_rect().size / zoom
+		view = Rect2(cam.get_screen_center_position() - size * 0.5, size).grow(256.0)
 	for p in people:
+		if cam and not view.has_point(p.sprite.get_parent().position):
+			continue
 		_update_person(p, delta)

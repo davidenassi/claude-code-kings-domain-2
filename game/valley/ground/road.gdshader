@@ -15,6 +15,7 @@ void fragment() {
 	float kind = COLOR.r;
 	float width = COLOR.g * 10.0;
 	float cob = COLOR.b;
+	float light = pow(max(COLOR.a * 1.5, 0.0), 0.4545);
 	vec2 m = vec2((UV.x - 0.5) * width, UV.y);           // metres: x across from the centre
 	float d = abs(UV.x - 0.5) * 2.0;                       // 0 centre .. 1 edge
 	float n = vnoise(m * vec2(1.3, 0.35)) * 0.6 + vnoise(m * 3.1) * 0.4;
@@ -45,5 +46,5 @@ void fragment() {
 	col = mix(col, col * vec3(0.82, 0.84, 0.74), smoothstep(0.4, 0.9, d) * 0.6);
 	float a = 1.0 - edge;
 	if (kind < 0.25) a *= 0.85;
-	COLOR = vec4(col, a);
+	COLOR = vec4(col * light, a);
 }

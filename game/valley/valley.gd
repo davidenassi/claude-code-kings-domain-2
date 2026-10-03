@@ -69,3 +69,6 @@ func _on_zoom(z: float) -> void:
 	var smoke := get_node_or_null("Smoke")
 	if smoke:
 		smoke.visible = z > 0.09
+	var bsh := shadows.get_node_or_null("BuildingShadows")
+	if bsh:
+		bsh.visible = z > 0.035

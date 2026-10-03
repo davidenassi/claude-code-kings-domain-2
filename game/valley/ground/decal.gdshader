@@ -14,5 +14,5 @@ void fragment() {
 	float n = vnoise(UV * 9.0 + COLOR.g * 50.0) * 0.5 + vnoise(UV * 23.0) * 0.5;
 	float a = smoothstep(1.0, 0.35, r + (n - 0.5) * 0.7);
 	vec3 col = mix(vec3(0.50, 0.42, 0.29), vec3(0.58, 0.49, 0.34), n);
-	COLOR = vec4(col, a * COLOR.a);
+	COLOR = vec4(col * pow(max(COLOR.a * 1.5, 0.0), 0.4545), a * 0.85);
 }

@@ -12,6 +12,7 @@ float fbm(vec2 p) { return vnoise(p) * 0.5 + vnoise(p * 2.1 + 3.7) * 0.3 + vnois
 
 void fragment() {
 	vec2 m = UV;
+	float light = pow(max(COLOR.a * 1.5, 0.0), 0.4545);
 	float n = fbm(m / 9.0);
 	float fine = fbm(m * 0.9);
 	vec3 earth = mix(vec3(0.47, 0.39, 0.27), vec3(0.55, 0.46, 0.32), fine);
@@ -20,5 +21,5 @@ void fragment() {
 	vec3 col = mix(grass, earth, bare);
 	float e = COLOR.b * 8.0;
 	float a = smoothstep(0.0, 5.5 + n * 2.5, e) * mix(0.72, 0.95, bare);
-	COLOR = vec4(col, a);
+	COLOR = vec4(col * light, a);
 }

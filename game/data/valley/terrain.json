@@ -318,6 +318,7 @@
  "heightgrid": {
   "file": "heightgrid.png",
   "water_file": "watergrid.png",
+  "light_file": "groundlight.png",
   "cell_m": 2.0,
   "x0": 0.5,
   "y0": -639.5,

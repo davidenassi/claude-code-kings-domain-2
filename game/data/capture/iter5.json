@@ -1,0 +1,6 @@
+[
+ {"name": "I_FALL", "x": 846, "y": 352, "zoom": 0.32, "wait": 8},
+ {"name": "I_GORGE", "x": 2700, "y": 120, "zoom": 0.25, "wait": 8},
+ {"name": "I_BRIDGE", "x": 1862, "y": 966, "zoom": 0.42, "wait": 8},
+ {"name": "I_BRIDGE_B", "x": 1458, "y": 1004, "zoom": 0.5, "wait": 8}
+]

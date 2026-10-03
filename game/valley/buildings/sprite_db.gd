@@ -2,6 +2,8 @@ extends RefCounted
 ## Catalogue of pre-rendered sprites (buildings, props, trees) with anchors and shadows.
 
 const SHADOW_SHADER := preload("res://valley/buildings/shadow_sprite.gdshader")
+const GRADE_SHADER := preload("res://valley/buildings/building_grade.gdshader")
+static var _grade_mat: ShaderMaterial
 const BDIR := "res://assets/sprites/buildings/"
 
 var buildings: Dictionary = {}
@@ -74,10 +76,15 @@ func make(type: String, x: float, y: float, z: float, scale := 1.0) -> Dictionar
 		return {}
 	var root := Node2D.new()
 	root.name = type
+	if red and _grade_mat == null:
+		_grade_mat = ShaderMaterial.new()
+		_grade_mat.shader = GRADE_SHADER
 	root.position = Proj.ground_px(x, y)
 	var spr := Sprite2D.new()
 	spr.texture = body_tex
 	spr.centered = false
+	if red:
+		spr.material = _grade_mat
 	spr.scale = Vector2(scale, scale)
 	spr.position = Vector2(-anchor.x * scale, Proj.altitude_offset(z) - anchor.y * scale)
 	root.add_child(spr)

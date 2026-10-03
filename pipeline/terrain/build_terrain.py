@@ -32,6 +32,7 @@ from terrain import lighting as LT  # noqa: E402
 from terrain import materials as MT  # noqa: E402
 from terrain import noise as N  # noqa: E402
 from terrain import project as PJ  # noqa: E402
+from terrain.heightmap import smoothstep  # noqa: E402
 
 CACHE = os.path.join(K.CACHE_DIR, "terrain")
 OUT = os.path.join(K.GAME_DIR, "assets", "terrain")
@@ -105,8 +106,17 @@ def main():
     shadow = LT.cast_shadow(hv)
     ao = LT.ambient_occlusion(hv)
     sx, sy, sz = K.sun_dir_world()
+    # macro normals (large landforms) - the mountains read as big lit / shaded faces
+    nrm_m = LT.normals(ndimage.gaussian_filter(h, 9.0))
     # ground-space lighting inputs, sampled per screen pixel later
-    light_in = np.stack([nrm[0], nrm[1], nrm[2], shadow, ao, cav], -1).astype(np.float32)
+    light_in = np.stack([nrm[0], nrm[1], nrm[2], shadow, ao, cav, nrm_m[0], nrm_m[1], nrm_m[2]],
+                        -1).astype(np.float32)
+    # relative light of the ground (for decals drawn over the terrain: fields, roads, squares)
+    diff1 = np.clip((nrm[0] * sx + nrm[1] * sy + nrm[2] * sz + 0.10) / 1.10, 0, 1)
+    flat = 1.78 * np.clip((sz + 0.10) / 1.10, 0, 1) + 0.56
+    rel = (1.78 * diff1 * shadow + 0.56 * (0.55 + 0.45 * nrm[2]) * ao) / flat
+    ground_light = (np.clip(rel[::2, ::2] / 1.5, 0, 1) * 255 + 0.5).astype(np.uint8)
+    del diff1, rel, nrm_m
 
     # ------------------------------------------------------------------ materials
     log("materials")
@@ -189,12 +199,14 @@ def main():
     def bump(x, y):
         r1 = N.fbm_at(x, y, 5.0, p(611), 3, 2.1, 0.55)
         r2 = N.fbm_at(x, y, 1.6, p(612), 2, 2.0, 0.5)
+        # crags: ridged noise -> sharp crests and cracks on rock faces
+        r1 = r1 * 0.6 + (0.5 - np.abs(N.fbm_at(x, y, 7.5, p(613), 3, 2.0, 0.5))) * 0.9
         return r1, r2
     r1x, r2x = bump(gx + e, gv)
     r1y, r2y = bump(gx, gv + e)
     r10, r20 = bump(gx, gv)
     amp_r = rock * 3.4 + snow * 0.6 + veg * 0.25
-    amp_f = rock * 0.9 + veg * 0.12 + snow * 0.15
+    amp_f = rock * 0.30 + veg * 0.12 + snow * 0.15
     ddx = ((r1x - r10) * amp_r + (r2x - r20) * amp_f) / e
     ddy = ((r1y - r10) * amp_r + (r2y - r20) * amp_f) / e
     del r1x, r2x, r1y, r2y, r10, r20
@@ -207,6 +219,13 @@ def main():
     nz_ /= nl
     ndl = nx_ * sx + ny_ * sy + nz_ * sz
     diffuse = np.clip((ndl + 0.10) / 1.10, 0, 1)
+    # rock and snow: half of the light from the large landform, with more contrast (painterly facets)
+    ndl_m = li[..., 6] * sx + li[..., 7] * sy + li[..., 8] * sz
+    diff_m = np.clip((ndl_m + 0.10) / 1.10, 0, 1)
+    km = np.clip(rock + snow, 0, 1) * 0.42
+    diffuse = diffuse * (1 - km) + diff_m * km
+    diffuse = np.clip(diffuse + (diffuse - 0.55) * 0.25 * np.clip(rock + snow, 0, 1), 0, 1)
+    del ndl_m, diff_m, km
     shadow_s, ao_s, cav_s = li[..., 3], li[..., 4], li[..., 5]
     skyf = 0.55 + 0.45 * nz_
     sun_c = np.array(K.SUN_COLOR, np.float32)
@@ -218,7 +237,10 @@ def main():
 
     mod = 1.0 + veg * (0.09 * f1 + 0.07 * f2) + forest_w * 0.10 * f1
     strata = np.sin((gz + f3 * 9.0) * (2 * math.pi / 11.0)) * 0.5 + 0.5
-    mod += rock * (0.07 * (strata - 0.5) + 0.10 * f1 + 0.10 * f2)
+    # rock: structure at the scale of slabs and benches, little per-texel noise (no "gravel" speckle)
+    streak = N.fbm_at(gx * 0.9, gv * 0.10, 2.5, p(604), 3, 2.0, 0.5)    # water stains down the faces
+    mod += rock * (0.10 * (strata - 0.5) + 0.04 * f1 + 0.12 * f2 + 0.10 * streak)
+    del streak
     mod += snow * 0.03 * f2
     col = alb_s * mod[..., None] * light_s
     srgb = saturate(tonemap(col), 1.0)
@@ -280,6 +302,7 @@ def main():
     hg = np.stack([(q >> 8).astype(np.uint8), (q & 255).astype(np.uint8),
                    (w2 > 0.5).astype(np.uint8) * 255], -1)
     Image.fromarray(hg, "RGB").save(os.path.join(OUT, "heightgrid.png"), optimize=True)
+    Image.fromarray(ground_light, "L").save(os.path.join(OUT, "groundlight.png"), optimize=True)
     wl2 = np.where(wet > 0, wl, 0)[::2, ::2]
     qw = np.clip(np.round(wl2 * 32.0), 0, 65535).astype(np.uint16)
     Image.fromarray(np.stack([(qw >> 8).astype(np.uint8), (qw & 255).astype(np.uint8),
@@ -297,7 +320,8 @@ def main():
         "cols": cols,
         "chunks": chunks,
         "world": {"x0": HM.X0, "y0": HM.Y0, "w": HM.W, "h": HM.H},
-        "heightgrid": {"file": "heightgrid.png", "water_file": "watergrid.png", "cell_m": 2.0,
+        "heightgrid": {"file": "heightgrid.png", "water_file": "watergrid.png", "light_file": "groundlight.png",
+                       "cell_m": 2.0,
                        "x0": HM.X0 + 0.5, "y0": HM.Y0 + 0.5, "nx": int(h2.shape[1]),
                        "ny": int(h2.shape[0]), "scale": 1.0 / 32.0},
     }

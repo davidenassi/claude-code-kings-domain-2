@@ -151,18 +151,33 @@ def voronoi_edges(size, n, seed):
     return (d[:, 1] - d[:, 0]).reshape(size, size)
 
 
+def facets(size, n, seed, light=(-0.85, -0.5)):
+    """Tileable faceted plates: every Voronoi cell is a tilted plane lit from `light` -> chunky rock facets.
+    Returns (facet shade ~N(0,1), distance to the cell edge)."""
+    r = np.random.default_rng(seed)
+    pts = r.uniform(0, size, (n, 2))
+    tilt = r.normal(0, 1, (n, 2))
+    allp = np.concatenate([pts + [dx, dy] for dx in (-size, 0, size) for dy in (-size, 0, size)])
+    allt = np.concatenate([tilt] * 9)
+    yy, xx = np.mgrid[0:size, 0:size].astype(np.float32)
+    from scipy.spatial import cKDTree
+    d, i = cKDTree(allp).query(np.c_[xx.ravel(), yy.ravel()], k=2)
+    shade = (allt[i[:, 0], 0] * light[0] + allt[i[:, 0], 1] * light[1]).reshape(size, size)
+    edge = (d[:, 1] - d[:, 0]).reshape(size, size)
+    return shade / max(shade.std(), 1e-6), edge
+
+
 def rock():
-    n1 = spectral_noise(S, 1.4, 41, lo=8.0) * 0.12 + spectral_noise(S, 0.8, 42, lo=8.0) * 0.06
-    e = voronoi_edges(S, 70, 43)
-    cracks = np.exp(-e / 2.2) * 0.18
-    e2 = voronoi_edges(S, 260, 44)
-    cracks += np.exp(-e2 / 1.4) * 0.07
-    # light from the left: emboss the large plates
-    plates = spectral_noise(S, 2.0, 45)
-    emb = (np.roll(plates, 1, 1) - np.roll(plates, -1, 1)) * 0.06
-    lum = n1 - cracks + emb
-    lichen = np.clip(spectral_noise(S, 1.6, 46) - 1.3, 0, 1) * 0.25
-    tint = np.stack([lichen * 0.3, lichen * 0.35, -lichen * 0.2], -1)
+    big, e1 = facets(S, 26, 43)
+    small, e2 = facets(S, 140, 44)
+    # bevel: the lit / shaded rim of each plate (light from the west-south-west)
+    rim = np.clip(1.0 - e1 / 5.0, 0, 1)
+    lum = big * 0.06 + small * 0.035
+    lum -= np.exp(-e1 / 1.6) * 0.20 + np.exp(-e2 / 1.1) * 0.06            # cracks between the slabs
+    lum += rim * 0.03
+    lum += spectral_noise(S, 2.2, 45, lo=4.0) * 0.05 + spectral_noise(S, 1.2, 47, lo=12.0) * 0.02
+    lichen = np.clip(spectral_noise(S, 1.8, 46) - 1.4, 0, 1) * 0.2
+    tint = np.stack([lichen * 0.25, lichen * 0.3, -lichen * 0.15], -1)
     return to_mult(lum, (1.0, 1.0, 1.02), tint)
 
 

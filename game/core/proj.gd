@@ -14,6 +14,7 @@ var terrain_scale := 16.0          # Godot px per terrain texel
 
 var _hg := PackedFloat32Array()
 var _wl := PackedFloat32Array()
+var _lt := PackedFloat32Array()      # relative ground light (1 = flat ground in full sun)
 var _hg_nx := 0
 var _hg_ny := 0
 var _hg_x0 := 0.0
@@ -52,6 +53,15 @@ func _load_heightgrid() -> void:
 	var scale: float = hg["scale"]
 	_hg = _decode16("res://assets/terrain/" + String(hg["file"]), scale)
 	_wl = _decode16("res://assets/terrain/" + String(hg["water_file"]), scale)
+	if hg.has("light_file") and ResourceLoader.exists("res://assets/terrain/" + String(hg["light_file"])):
+		var img: Image = (load("res://assets/terrain/" + String(hg["light_file"])) as Texture2D).get_image()
+		if img.is_compressed():
+			img.decompress()
+		img.convert(Image.FORMAT_L8)
+		var data := img.get_data()
+		_lt.resize(_hg_nx * _hg_ny)
+		for i in _lt.size():
+			_lt[i] = float(data[i]) / 255.0 * 1.5
 
 
 func _decode16(path: String, scale: float) -> PackedFloat32Array:
@@ -114,6 +124,11 @@ func _sample(grid: PackedFloat32Array, x: float, y: float) -> float:
 
 func height_at(x: float, y: float) -> float:
 	return _sample(_hg, x, y)
+
+
+func light_at(x: float, y: float) -> float:
+	## Relative ground light (sun, cast shadows, ambient occlusion): 1 = flat ground in full sun.
+	return 1.0 if _lt.is_empty() else _sample(_lt, x, y)
 
 
 func water_level_at(x: float, y: float) -> float:

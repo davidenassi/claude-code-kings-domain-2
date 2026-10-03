@@ -23,6 +23,7 @@ from kd import const as K  # noqa: E402
 from terrain import heightmap as HM  # noqa: E402
 from terrain import layout as L  # noqa: E402
 from terrain import noise as N  # noqa: E402
+from terrain import parcels as PC  # noqa: E402
 
 CACHE = os.path.join(K.CACHE_DIR, "terrain")
 SPR = os.path.join(K.GAME_DIR, "assets", "sprites", "trees")
@@ -56,7 +57,7 @@ def grade_foliage(img, conifer=False):
     rgb = a[..., :3]
     lum = (rgb * np.array([0.3, 0.59, 0.11])).sum(-1, keepdims=True)
     green = np.clip((rgb[..., 1:2] - np.maximum(rgb[..., 0:1], rgb[..., 2:3])) * 6.0, 0, 1)
-    lifted = rgb ** (0.74 if conifer else 0.86)
+    lifted = rgb ** (1.0 if conifer else 1.08)
     teal = lifted * np.array([0.92, 1.0, 1.0]) + np.array([0.0, 0.0, 0.055]) * green
     l2 = (teal * np.array([0.3, 0.59, 0.11])).sum(-1, keepdims=True)
     teal = l2 + (teal - l2) * 0.86
@@ -65,17 +66,44 @@ def grade_foliage(img, conifer=False):
     return Image.fromarray((a * 255 + 0.5).astype(np.uint8), "RGBA")
 
 
+BSPR = os.path.join(K.GAME_DIR, "assets", "sprites", "buildings")
+
+
+def grade_rock(img):
+    """Rocks read as light, warm-grey stone with lit tops (reference), not as dark mossy lumps."""
+    a = np.asarray(img).astype(np.float32) / 255.0
+    rgb = a[..., :3]
+    lum = (rgb * np.array([0.3, 0.59, 0.11])).sum(-1, keepdims=True)
+    rgb = lum + (rgb - lum) * 0.45
+    rgb = np.clip(rgb * np.array([0.97, 0.955, 0.99]), 0, 1) ** 1.02
+    a[..., :3] = np.clip(rgb, 0, 1)
+    return Image.fromarray((a * 255 + 0.5).astype(np.uint8), "RGBA")
+
+
 def build_atlases():
     meta = json.load(open(os.path.join(SPR, "trees.json")))
+    src = {n: SPR for n in meta}
+    # small objects of the settlement (fences, props) share the atlas -> drawn by the same MultiMeshes
+    bpath = os.path.join(BSPR, "buildings.json")
+    if os.path.exists(bpath):
+        bmeta = json.load(open(bpath))
+        for n, m in bmeta.items():
+            if (n.startswith("fence_") or n.startswith("prop_")) and os.path.exists(os.path.join(BSPR, n + ".png")):
+                meta[n] = {"size": m["size"], "anchor": m["anchor"]}
+                src[n] = BSPR
     names = sorted(meta)
     rects, (aw, ah) = pack_atlas(names, meta)
     body = Image.new("RGBA", (aw, ah), (0, 0, 0, 0))
     shadow = Image.new("L", (aw, ah), 0)
     for n in names:
         x, y, w, h = rects[n]
-        body.paste(grade_foliage(Image.open(os.path.join(SPR, f"{n}.png")).convert("RGBA"),
-                                 conifer=n.split("_")[0] in ("fir", "spruce", "pine")), (x, y))
-        shadow.paste(Image.open(os.path.join(SPR, f"{n}_sh.png")), (x, y))
+        img = Image.open(os.path.join(src[n], f"{n}.png")).convert("RGBA")
+        if src[n] == SPR and n.startswith("rock_"):
+            img = grade_rock(img)
+        elif src[n] == SPR:
+            img = grade_foliage(img, conifer=n.split("_")[0] in ("fir", "spruce", "pine"))
+        body.paste(img, (x, y))
+        shadow.paste(Image.open(os.path.join(src[n], f"{n}_sh.png")).convert("L"), (x, y))
     os.makedirs(OUT, exist_ok=True)
     body.save(os.path.join(OUT, "trees_atlas.png"), optimize=True)
     # shadow atlas as RGBA black + alpha (simple to draw in Godot)
@@ -173,7 +201,7 @@ def main():
     my = rng.uniform(0, HM.H + HM.Y0, m)
     cx, cy = L.TOWN_CORE["center"]
     ok = (sample(wet, mx, my) < 0.5) & (sample(slope, mx, my) < 0.5) & (sample(dens, mx, my) < 0.1)
-    ok &= np.hypot(mx - cx, my - cy) > L.TOWN_CORE["radius"] + 40
+    ok &= np.hypot(mx - cx, my - cy) > L.TOWN_CORE["radius"] - 90
     cluster = N.fbm_at(mx.astype(np.float32), my.astype(np.float32), 90.0, N.perm(77), 3, 2.0, 0.5)
     hedge = np.abs(N.fbm_at(mx.astype(np.float32), my.astype(np.float32), 220.0, N.perm(78), 3, 2.0, 0.5))
     prob = np.clip(cluster * 3.0 - 0.1, 0, 1) * 0.03 + np.clip(0.035 - hedge, 0, 1) * 0.6 + 0.002
@@ -214,13 +242,90 @@ def main():
         ry = np.concatenate([ry, by])
         rsp = np.concatenate([rsp, rng.choice(["rock_a", "rock_d", "rock_f", "rock_b"], len(bx), p=[0.3, 0.35, 0.2, 0.15])])
         print("river boulders", len(bx))
+        # rocky banks: clusters of stones along the river edges (more on the outer, steeper banks)
+        k = 3_000_000
+        bx = rng.uniform(HM.X0, HM.X0 + HM.W, k)
+        by = rng.uniform(HM.Y0, HM.Y0 + HM.H, k)
+        bdw = sample(d_water, bx, by)
+        lake = HM.Water.lake_rnorm(bx, by) < 1.1
+        clus = N.fbm_at(bx.astype(np.float32), by.astype(np.float32), 30.0, N.perm(81), 2, 2.0, 0.5)
+        pb = np.where((bdw > 0.3) & (bdw < 2.8), 0.12, 0.0) * np.clip(clus * 3.0 + 0.3, 0, 1)
+        pb *= np.where(lake, 0.35, 1.0) * (1.0 + np.clip(sample(slope, bx, by) * 3.0, 0, 2))
+        ok = (rng.random(k) < pb) & (sample(wet, bx, by) < 0.5) & (sample(hz, bx, by) < 400)
+        ok &= np.hypot(bx - 1861, by - 962) > 30
+        ok &= np.hypot(bx - 1458, by - 1004) > 22
+        bx, by = bx[ok], by[ok]
+        rx = np.concatenate([rx, bx])
+        ry = np.concatenate([ry, by])
+        rsp = np.concatenate([rsp, rng.choice(["rock_a", "rock_b", "rock_d", "rock_f", "rock_c"], len(bx),
+                                              p=[0.25, 0.2, 0.3, 0.15, 0.1])])
+        print("bank rocks", len(bx))
+        # boulders framing the waterfalls and cascades (steep wet channels)
+        from scipy import ndimage as ndi
+        steep_wet = (wet > 0.5) & (slope > 0.42)
+        near_fall = ndi.binary_dilation(steep_wet, iterations=7) & (wet < 0.5)
+        fy, fx = np.nonzero(near_fall)
+        pick = rng.random(len(fx)) < 0.05
+        fx = fx[pick] + HM.X0 + rng.uniform(0, 1, pick.sum())
+        fy = fy[pick] + HM.Y0 + rng.uniform(0, 1, pick.sum())
+        rx = np.concatenate([rx, fx])
+        ry = np.concatenate([ry, fy])
+        rsp = np.concatenate([rsp, rng.choice(["rock_a", "rock_b", "rock_c", "rock_d", "rock_e", "rock_f"], len(fx))])
+        print("waterfall rocks", len(fx))
 
-    X = np.concatenate([x, mx, rx])
-    Y = np.concatenate([y, my, ry])
-    S = np.concatenate([species, ms, rsp])
-    SC = np.concatenate([scale, rng.uniform(0.8, 1.1, len(mx)), rng.uniform(0.7, 1.3, len(rx))])
+    # ---- hedgerows along a share of the pasture parcel boundaries (bocage countryside)
+    P = PC.load()
+    k = 1_600_000
+    hx = rng.uniform(HM.X0, HM.X0 + HM.W, k)
+    hy = rng.uniform(HM.Y0, HM.Y0 + HM.H, k)
+    pj = np.clip(((hy - HM.Y0) / PC.STEP).astype(int), 0, P["edge"].shape[0] - 1)
+    pi = np.clip(((hx - HM.X0) / PC.STEP).astype(int), 0, P["edge"].shape[1] - 1)
+    e = P["edge"][pj, pi]
+    ph = PC.pair_hash(P["id1"][pj, pi], P["id2"][pj, pi])
+    gaps = N.fbm_at(hx.astype(np.float32), hy.astype(np.float32), 22.0, N.perm(79), 2, 2.0, 0.5)
+    ok = (e < 1.1) & (ph < 0.4) & (gaps > -0.22)
+    ok &= (sample(dens, hx, hy) < 0.2) & (sample(slope, hx, hy) < 0.3) & (sample(wet, hx, hy) < 0.5)
+    ok &= (sample(hz, hx, hy) < 175.0) & (np.hypot(hx - 1660, hy - 858) > 150)
+    hx, hy = hx[ok], hy[ok]
+    hs = rng.choice(["bush_a", "bush_b", "bush_c", "bush_d", "oak_b", "oak_a", "beech_a", "birch_a", "poplar_a"],
+                    len(hx), p=[0.2, 0.17, 0.17, 0.14, 0.1, 0.07, 0.06, 0.05, 0.04])
+    print("hedgerow plants", len(hx))
+
+    # ---- the Rocca (castle hill): wooded, rocky flanks below the castle
+    k = 40_000
+    qx = rng.uniform(1520, 1740, k)
+    qy = rng.uniform(900, 1080, k)
+    qs = sample(slope, qx, qy)
+    on_hill = np.hypot(qx - 1630, (qy - 980) * 1.1) < 100
+    off_castle = (np.abs(qx - 1652) > 24) | (np.abs(qy - 962) > 27)
+    dry = (sample(wet, qx, qy) < 0.5) & (sample(d_water, qx, qy) > 2.0)
+    t_ok = on_hill & off_castle & dry & (qs > 0.12) & (qs < 1.0) & (rng.random(k) < np.where(qs > 0.25, 0.09, 0.04))
+    r_ok = on_hill & off_castle & dry & (qs > 0.38) & (rng.random(k) < 0.07)
+    tx_, ty_ = qx[t_ok], qy[t_ok]
+    ts_ = rng.choice(["oak_a", "oak_b", "beech_a", "pine_a", "pine_b", "bush_a", "bush_c", "bush_d", "birch_a"],
+                     len(tx_), p=[0.14, 0.14, 0.12, 0.14, 0.1, 0.12, 0.1, 0.08, 0.06])
+    rx2, ry2 = qx[r_ok], qy[r_ok]
+    rs2 = rng.choice(["rock_a", "rock_b", "rock_c", "rock_d", "rock_e", "rock_f"], len(rx2))
+    print("rocca trees", len(tx_), "rocks", len(rx2))
+
+    X = np.concatenate([x, mx, rx, hx, tx_, rx2])
+    Y = np.concatenate([y, my, ry, hy, ty_, ry2])
+    S = np.concatenate([species, ms, rsp, hs, ts_, rs2])
+    SC = np.concatenate([scale, rng.uniform(0.8, 1.1, len(mx)), rng.uniform(0.7, 1.3, len(rx)),
+                         rng.uniform(0.75, 1.05, len(hx)), rng.uniform(0.8, 1.1, len(tx_)),
+                         rng.uniform(1.0, 1.8, len(rx2))])
     keep = ~sample(lmask, X, Y)
     X, Y, S, SC = X[keep], Y[keep], S[keep], SC[keep]
+    # hand-placed vegetation of the settlement (orchards, hedges, garden and roadside trees)
+    tpath = os.path.join(K.GAME_DIR, "data", "valley", "demo_town.json")
+    if os.path.exists(tpath):
+        dv = json.load(open(tpath)).get("veg", [])
+        if dv:
+            X = np.concatenate([X, [v["x"] for v in dv]])
+            Y = np.concatenate([Y, [v["y"] for v in dv]])
+            S = np.concatenate([S, np.array([v["type"] for v in dv], dtype=object)])
+            SC = np.concatenate([SC, [v.get("scale", 1.0) for v in dv]])
+            print("settlement vegetation", len(dv))
     Z = sample(hz, X, Y)
     if os.path.exists(dpath):
         Z = Z + sample(np.load(dpath), X, Y) * 0.85     # boulders in streams sit at the water surface
