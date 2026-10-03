@@ -1,0 +1,12 @@
+[
+ {"name": "VERTICAL_SLICE_FAR", "x": 1474, "y": 992, "zoom": 0.21, "wait": 10},
+ {"name": "VERTICAL_SLICE_MID", "x": 1492, "y": 970, "zoom": 0.45, "wait": 10},
+ {"name": "VERTICAL_SLICE_CLOSE", "x": 1488, "y": 960, "zoom": 0.9, "wait": 14},
+ {"name": "MARKET_CLOSE", "x": 1490, "y": 950, "zoom": 1.0, "wait": 14},
+ {"name": "MILL_CLOSE", "x": 1510, "y": 1001, "zoom": 1.0, "wait": 14},
+ {"name": "MILITARY_CLOSE", "x": 1530, "y": 947, "zoom": 0.9, "wait": 14},
+ {"name": "RESIDENTIAL_CLOSE", "x": 1457, "y": 945, "zoom": 0.9, "wait": 14},
+ {"name": "RIVER_CLOSE", "x": 1462, "y": 1006, "zoom": 0.9, "wait": 14},
+ {"name": "FARM_CLOSE", "x": 1440, "y": 1045, "zoom": 0.8, "wait": 14},
+ {"name": "VALLEY_FAR_1B", "x": 1536, "y": 1180, "zoom": 0.02, "wait": 10}
+]

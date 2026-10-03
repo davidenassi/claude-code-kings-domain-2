@@ -23,9 +23,9 @@ uniform sampler2D foam_tex : filter_linear_mipmap, repeat_enable;
 uniform float sin_el = 0.766;
 uniform float px_per_m = 32.0;
 uniform float detail_strength = 1.0;
-uniform vec3 water_deep = vec3(0.105, 0.255, 0.365);
-uniform vec3 water_mid = vec3(0.165, 0.345, 0.435);
-uniform vec3 water_shallow = vec3(0.30, 0.46, 0.44);
+uniform vec3 water_deep = vec3(0.085, 0.25, 0.40);
+uniform vec3 water_mid = vec3(0.12, 0.38, 0.50);
+uniform vec3 water_shallow = vec3(0.22, 0.54, 0.56);
 
 varying vec2 world;
 
@@ -112,11 +112,16 @@ void fragment() {
 			float band = sin((dot(g, wdir) * 0.9 + warp) - TIME * (0.35 + fs * 0.4));
 			float mask = smoothstep(0.55, 0.75, texture(water_normal, g / 31.0 + vec2(0.0, TIME * 0.004)).b);
 			float crest = smoothstep(0.82, 0.97, band) * mask * smoothstep(0.4, 1.2, depth);
-			wc = mix(wc, vec3(0.55, 0.68, 0.76) * mix(0.6, 1.0, lit), crest * 0.35);
+			float close = smoothstep(0.25, 0.8, cam_zoom);
+			wc = mix(wc, vec3(0.62, 0.78, 0.84) * mix(0.6, 1.0, lit), crest * mix(0.35, 0.55, close));
+			// sun caustics on the bed of the shallows (bright web, close views)
+			float cau = smoothstep(0.66, 0.9, texture(water_normal, g / 3.2 + vec2(TIME * 0.05, -TIME * 0.035)).b)
+				* smoothstep(0.66, 0.9, texture(water_normal, g / 4.1 - vec2(TIME * 0.04, TIME * 0.02)).b);
+			wc += vec3(0.20, 0.26, 0.22) * cau * (1.0 - dd) * close * lit;
 			wc *= mix(0.5, 1.0, clamp(lit, 0.0, 1.0));
 
 			// transparency over the bed in the shallows, opaque in the deep
-			float a = clamp(0.35 + dd * 1.1, 0.0, 1.0);
+			float a = clamp(0.22 + dd * 1.2, 0.0, 1.0);
 			// soft shoreline
 			a *= smoothstep(0.003, 0.06, w.r);
 			col = mix(base, wc, a);

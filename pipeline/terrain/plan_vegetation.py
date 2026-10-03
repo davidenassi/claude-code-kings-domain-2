@@ -137,6 +137,11 @@ def layout_mask(shape):
         d.polygon([T(*q) for q in p["polygon"]], fill=255)
     for r in t["roads"]:
         d.line([T(*q) for q in r["points"]], fill=255, width=int(r["width"] + 5))
+    # the Phase 1B river quarter: only its own composed vegetation inside (orchards, gardens, yews)
+    sp = os.path.join(K.GAME_DIR, "data", "valley", "slice.json")
+    if os.path.exists(sp):
+        sx0, sy0, sx1, sy1 = json.load(open(sp))["region"]
+        d.rectangle([T(sx0 + 12, sy0 + 12), T(sx1 - 12, sy1 - 12)], fill=255)
     for b in t["buildings"]:
         w, dd = 12, 12
         if b["type"] == "castle":
@@ -318,8 +323,11 @@ def main():
     X, Y, S, SC = X[keep], Y[keep], S[keep], SC[keep]
     # hand-placed vegetation of the settlement (orchards, hedges, garden and roadside trees)
     tpath = os.path.join(K.GAME_DIR, "data", "valley", "demo_town.json")
+    spath = os.path.join(K.GAME_DIR, "data", "valley", "slice.json")
     if os.path.exists(tpath):
         dv = json.load(open(tpath)).get("veg", [])
+        if os.path.exists(spath):
+            dv = dv + json.load(open(spath)).get("veg", [])
         if dv:
             X = np.concatenate([X, [v["x"] for v in dv]])
             Y = np.concatenate([Y, [v["y"] for v in dv]])
@@ -361,7 +369,8 @@ def main():
             oy = gpx_y[i] + alt[i] - ay * sc - node_y
             buf[row, 0:8] = (w, 0, 0, ox, 0, hh, 0, oy)
             t = tint_v[i] * light[i]
-            buf[row, 8:12] = (t, t, t * 0.98, 1.0)
+            still = nm.startswith(("rock_", "fence_", "prop_", "snag"))
+            buf[row, 8:12] = (t, t, t * 0.98, 0.998 if still else 1.0)
             buf[row, 12:16] = (rx_ / aw, ry_ / ah, rw / aw, rh_ / ah)
         fn = f"strip_{s_id:03d}.bin"
         buf.tofile(os.path.join(OUT, fn))

@@ -213,163 +213,163 @@
   },
   {
    "file": "strip_034.bin",
-   "count": 1650,
+   "count": 1652,
    "node_y": 10982.013136553669,
    "y0_m": 448.0
   },
   {
    "file": "strip_035.bin",
-   "count": 1632,
+   "count": 1629,
    "node_y": 11766.442646307501,
    "y0_m": 480.0
   },
   {
    "file": "strip_036.bin",
-   "count": 1401,
+   "count": 1379,
    "node_y": 12550.872156061336,
    "y0_m": 512.0
   },
   {
    "file": "strip_037.bin",
-   "count": 1341,
+   "count": 1336,
    "node_y": 13335.30166581517,
    "y0_m": 544.0
   },
   {
    "file": "strip_038.bin",
-   "count": 1120,
+   "count": 1113,
    "node_y": 14119.731175569003,
    "y0_m": 576.0
   },
   {
    "file": "strip_039.bin",
-   "count": 1368,
+   "count": 1344,
    "node_y": 14904.160685322837,
    "y0_m": 608.0
   },
   {
    "file": "strip_040.bin",
-   "count": 1800,
+   "count": 1759,
    "node_y": 15688.59019507667,
    "y0_m": 640.0
   },
   {
    "file": "strip_041.bin",
-   "count": 2015,
+   "count": 2052,
    "node_y": 16473.0197048305,
    "y0_m": 672.0
   },
   {
    "file": "strip_042.bin",
-   "count": 2102,
+   "count": 2095,
    "node_y": 17257.449214584336,
    "y0_m": 704.0
   },
   {
    "file": "strip_043.bin",
-   "count": 2088,
+   "count": 2046,
    "node_y": 18041.87872433817,
    "y0_m": 736.0
   },
   {
    "file": "strip_044.bin",
-   "count": 2233,
+   "count": 2185,
    "node_y": 18826.308234092005,
    "y0_m": 768.0
   },
   {
    "file": "strip_045.bin",
-   "count": 2318,
+   "count": 2244,
    "node_y": 19610.73774384584,
    "y0_m": 800.0
   },
   {
    "file": "strip_046.bin",
-   "count": 1868,
+   "count": 1879,
    "node_y": 20395.16725359967,
    "y0_m": 832.0
   },
   {
    "file": "strip_047.bin",
-   "count": 1811,
+   "count": 1786,
    "node_y": 21179.596763353504,
    "y0_m": 864.0
   },
   {
    "file": "strip_048.bin",
-   "count": 1914,
+   "count": 1891,
    "node_y": 21964.026273107338,
    "y0_m": 896.0
   },
   {
    "file": "strip_049.bin",
-   "count": 2154,
+   "count": 2176,
    "node_y": 22748.455782861172,
    "y0_m": 928.0
   },
   {
    "file": "strip_050.bin",
-   "count": 2067,
+   "count": 1989,
    "node_y": 23532.885292615003,
    "y0_m": 960.0
   },
   {
    "file": "strip_051.bin",
-   "count": 2283,
+   "count": 2192,
    "node_y": 24317.314802368837,
    "y0_m": 992.0
   },
   {
    "file": "strip_052.bin",
-   "count": 1979,
+   "count": 1866,
    "node_y": 25101.74431212267,
    "y0_m": 1024.0
   },
   {
    "file": "strip_053.bin",
-   "count": 1374,
+   "count": 1366,
    "node_y": 25886.173821876506,
    "y0_m": 1056.0
   },
   {
    "file": "strip_054.bin",
-   "count": 1212,
+   "count": 1242,
    "node_y": 26670.60333163034,
    "y0_m": 1088.0
   },
   {
    "file": "strip_055.bin",
-   "count": 1602,
+   "count": 1619,
    "node_y": 27455.03284138417,
    "y0_m": 1120.0
   },
   {
    "file": "strip_056.bin",
-   "count": 1286,
+   "count": 1374,
    "node_y": 28239.462351138005,
    "y0_m": 1152.0
   },
   {
    "file": "strip_057.bin",
-   "count": 1370,
+   "count": 1346,
    "node_y": 29023.89186089184,
    "y0_m": 1184.0
   },
   {
    "file": "strip_058.bin",
-   "count": 1300,
+   "count": 1256,
    "node_y": 29808.321370645674,
    "y0_m": 1216.0
   },
   {
    "file": "strip_059.bin",
-   "count": 1652,
+   "count": 1685,
    "node_y": 30592.750880399504,
    "y0_m": 1248.0
   },
   {
    "file": "strip_060.bin",
-   "count": 1994,
+   "count": 1958,
    "node_y": 31377.18039015334,
    "y0_m": 1280.0
   },
@@ -381,151 +381,151 @@
   },
   {
    "file": "strip_062.bin",
-   "count": 2077,
+   "count": 2110,
    "node_y": 32946.039409661,
    "y0_m": 1344.0
   },
   {
    "file": "strip_063.bin",
-   "count": 1784,
+   "count": 1831,
    "node_y": 33730.46891941484,
    "y0_m": 1376.0
   },
   {
    "file": "strip_064.bin",
-   "count": 2092,
+   "count": 2112,
    "node_y": 34514.89842916867,
    "y0_m": 1408.0
   },
   {
    "file": "strip_065.bin",
-   "count": 2303,
+   "count": 2249,
    "node_y": 35299.327938922506,
    "y0_m": 1440.0
   },
   {
    "file": "strip_066.bin",
-   "count": 2469,
+   "count": 2437,
    "node_y": 36083.75744867634,
    "y0_m": 1472.0
   },
   {
    "file": "strip_067.bin",
-   "count": 2591,
+   "count": 2555,
    "node_y": 36868.186958430175,
    "y0_m": 1504.0
   },
   {
    "file": "strip_068.bin",
-   "count": 2221,
+   "count": 2214,
    "node_y": 37652.61646818401,
    "y0_m": 1536.0
   },
   {
    "file": "strip_069.bin",
-   "count": 2208,
+   "count": 2212,
    "node_y": 38437.04597793784,
    "y0_m": 1568.0
   },
   {
    "file": "strip_070.bin",
-   "count": 2057,
+   "count": 2052,
    "node_y": 39221.47548769168,
    "y0_m": 1600.0
   },
   {
    "file": "strip_071.bin",
-   "count": 2182,
+   "count": 2191,
    "node_y": 40005.904997445505,
    "y0_m": 1632.0
   },
   {
    "file": "strip_072.bin",
-   "count": 2126,
+   "count": 2124,
    "node_y": 40790.33450719934,
    "y0_m": 1664.0
   },
   {
    "file": "strip_073.bin",
-   "count": 1974,
+   "count": 1960,
    "node_y": 41574.76401695317,
    "y0_m": 1696.0
   },
   {
    "file": "strip_074.bin",
-   "count": 1993,
+   "count": 1972,
    "node_y": 42359.19352670701,
    "y0_m": 1728.0
   },
   {
    "file": "strip_075.bin",
-   "count": 1921,
+   "count": 1870,
    "node_y": 43143.62303646084,
    "y0_m": 1760.0
   },
   {
    "file": "strip_076.bin",
-   "count": 1791,
+   "count": 1788,
    "node_y": 43928.052546214676,
    "y0_m": 1792.0
   },
   {
    "file": "strip_077.bin",
-   "count": 1854,
+   "count": 1852,
    "node_y": 44712.48205596851,
    "y0_m": 1824.0
   },
   {
    "file": "strip_078.bin",
-   "count": 1498,
+   "count": 1479,
    "node_y": 45496.911565722345,
    "y0_m": 1856.0
   },
   {
    "file": "strip_079.bin",
-   "count": 1601,
+   "count": 1555,
    "node_y": 46281.34107547618,
    "y0_m": 1888.0
   },
   {
    "file": "strip_080.bin",
-   "count": 1455,
+   "count": 1394,
    "node_y": 47065.770585230006,
    "y0_m": 1920.0
   },
   {
    "file": "strip_081.bin",
-   "count": 1525,
+   "count": 1532,
    "node_y": 47850.20009498384,
    "y0_m": 1952.0
   },
   {
    "file": "strip_082.bin",
-   "count": 1662,
+   "count": 1673,
    "node_y": 48634.629604737675,
    "y0_m": 1984.0
   },
   {
    "file": "strip_083.bin",
-   "count": 1628,
+   "count": 1597,
    "node_y": 49419.05911449151,
    "y0_m": 2016.0
   },
   {
    "file": "strip_084.bin",
-   "count": 1473,
+   "count": 1457,
    "node_y": 50203.48862424534,
    "y0_m": 2048.0
   },
   {
    "file": "strip_085.bin",
-   "count": 1347,
+   "count": 1339,
    "node_y": 50987.91813399918,
    "y0_m": 2080.0
   },
   {
    "file": "strip_086.bin",
-   "count": 1739,
+   "count": 1738,
    "node_y": 51772.34764375301,
    "y0_m": 2112.0
   },
@@ -1192,5 +1192,5 @@
    ]
   }
  },
- "total": 157986
+ "total": 157233
 }

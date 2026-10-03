@@ -5,16 +5,18 @@ extends Node2D
 var frames: Array = []            # [{tex, sh, anchor}]
 var fps := 5.0
 var z_off := 0.0
+var x_off := 0.0
 var body: Sprite2D
 var shadow: Sprite2D
 var _t := 0.0
 var _last := -1
 
 
-func setup(p_frames: Array, p_shadow: Sprite2D, altitude_px: float) -> void:
+func setup(p_frames: Array, p_shadow: Sprite2D, altitude_px: float, offset_x := 0.0) -> void:
 	frames = p_frames
 	shadow = p_shadow
 	z_off = altitude_px
+	x_off = offset_x
 	body = Sprite2D.new()
 	body.centered = false
 	add_child(body)
@@ -24,7 +26,7 @@ func setup(p_frames: Array, p_shadow: Sprite2D, altitude_px: float) -> void:
 func _apply(i: int) -> void:
 	var f: Dictionary = frames[i]
 	body.texture = f["tex"]
-	body.position = Vector2(-f["anchor"].x, z_off - f["anchor"].y)
+	body.position = Vector2(x_off - f["anchor"].x, z_off - f["anchor"].y)
 	if shadow:
 		shadow.texture = f["sh"]
 		shadow.global_position = global_position + body.position

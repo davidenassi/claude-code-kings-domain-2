@@ -375,13 +375,13 @@ def route(a, b, kind, width, cut=False, pre=None, post=None, name=""):
 
 
 # ------------------------------------------------------------------------------------------------
-# Altavera: walls, gates, square, castle, bridges
-PLAZA_C = (1648.0, 862.0)
-WALL = [(1600, 925), (1545, 870), (1545, 820), (1580, 785), (1720, 785), (1775, 840), (1775, 880), (1725, 930)]
-GATES = {"N": ((1650, 785), "gatehouse", (0, -1)), "W": ((1545, 846), "gatehouse_ns", (-1, 0)),
-         "E": ((1775, 860), "gatehouse_ns", (1, 0))}
+# Altavera: the river quarter (Phase 1B vertical slice) is composed by layout/slice.py; here its area is
+# reserved and the country roads start from its exits. The castle stays on the Rocca.
+SL = json.load(open(os.path.join(K.GAME_DIR, "data", "valley", "slice.json")))
+SX0, SY0, SX1, SY1 = SL["region"]
+EX = SL["exits"]
+WALL = [(SX0 + 40, SY0 + 40), (SX1 - 40, SY0 + 40), (SX1 - 40, SY1 - 40), (SX0 + 40, SY1 - 40)]
 BA = ((1846.0, 939.0), (1877.0, 985.0))          # stone bridge over the Fiume Argento (N end, S end)
-BB = ((1464.0, 990.0), (1452.0, 1019.0))         # wooden bridge over the Torrente Bianco
 
 
 def stub(end, other, d=14.0):
@@ -390,90 +390,13 @@ def stub(end, other, d=14.0):
     return tuple(e + u * d)
 
 
-plazas.append({"kind": "cobble", "polygon": [[1628, 851], [1667, 848], [1670, 872], [1630, 876]]})
-OCC.add(1648, 862, 25, 16)
-plazas.append({"kind": "earth", "polygon": [list(q) for q in inset(WALL, 1.5)]})
-place("townhall", 1662, 836, force=True)
-place("church", 1689, 826, force=True)
 place("castle", 1652, 962, force=True, yard=False)
-place("well", 1646, 864, force=True, yard=False)
-STALLS = [(1634, 855), (1641, 854.5), (1655, 854), (1662, 854.5), (1635, 869.5), (1642, 870), (1656, 869.5),
-          (1663, 869)]
-for i, (sx, sy) in enumerate(STALLS):
-    buildings.append({"type": "stall_" + "abcde"[i % 5], "x": sx, "y": sy, "layer": "objects"})
-for px_, py_, pt_ in [(1637.5, 857.5, "prop_barrels"), (1658.5, 857, "prop_crates"), (1638.5, 872.5, "prop_sacks"),
-                      (1659.5, 872, "prop_barrels"), (1666.5, 862, "prop_cart"), (1631, 863, "prop_crates")]:
-    props.append({"type": pt_, "x": px_, "y": py_})
 buildings.append({"type": "bridge_argento", "x": 1861.4, "y": 962.1, "z": 108.11, "layer": "bridge"})
-buildings.append({"type": "bridge_bianco", "x": 1458.3, "y": 1004.4, "z": 108.67, "layer": "bridge"})
 OCC.add(1861, 962, 22, 26)
-OCC.add(1458, 1004, 9, 16)
-
-# wall ring (open towards the Rocca between the last and the first vertex)
-WALL_KIND = {}
-for i in range(len(WALL) - 1):
-    (x0, y0), (x1, y1) = WALL[i], WALL[i + 1]
-    dx, dy = x1 - x0, y1 - y0
-    if abs(dy) < 1:
-        t = "wall_000"
-    elif abs(dx) < 1:
-        t = "wall_090"
-    elif dx * dy < 0:
-        t = "wall_045"
-    else:
-        t = "wall_135"
-    L = math.hypot(dx, dy)
-    n = int(math.ceil(L / 11.6))
-    for k in range(n):
-        f = (k + 0.5) / n
-        x, y = x0 + dx * f, y0 + dy * f
-        if any(math.hypot(x - g[0][0], y - g[0][1]) < 9.0 for g in GATES.values()):
-            continue
-        buildings.append({"type": t, "x": round(x, 2), "y": round(y, 2), "layer": "objects"})
-    nx_, ny_ = -dy / L, dx / L
-    for k in range(int(L // 6) + 1):
-        f = k / max(int(L // 6), 1)
-        OCC.add(x0 + dx * f, y0 + dy * f, 3.5, 3.5)
-for (gx, gy), gt, _ in GATES.values():
-    place(gt, gx, gy, force=True, yard=False)
-for tx, ty in WALL:
-    place("wall_tower", tx, ty, force=True, yard=False)
-# intermediate towers on the long north side
-for tx in (1615, 1688):
-    place("wall_tower", tx, 785, force=True, yard=False)
-
-
-def gate_pt(key, d):
-    (gx, gy), _, (ux, uy) = GATES[key]
-    return (gx + ux * d, gy + uy * d)
-
-
-# streets inside the walls
-RING = inset(WALL, 13.0)
-ring_pts = []
-for i in range(len(RING)):
-    a, b = np.array(RING[i]), np.array(RING[(i + 1) % len(RING)])
-    ring_pts += [tuple(a), tuple(a + (b - a) * 0.5 + rng.normal(0, 1.2, 2))]
-ring_pts.append(ring_pts[0])
-TOWN_STREETS = [
-    ("main", [gate_pt("W", -2), (1578, 845), (1603, 851), (1626, 858)], 5.0),
-    ("main", [(1670, 858), (1695, 852), (1721, 857), (1745, 861), gate_pt("E", -2)], 5.0),
-    ("main", [gate_pt("N", -2), (1647, 812), (1641, 830), (1637, 849)], 4.8),
-    ("main", [(1660, 876), (1678, 896), (1696, 914), (1711, 940), (1700, 958), (1680, 964)], 4.2),
-    ("lane", ring_pts, 3.4),
-    ("lane", [(1592, 849), (1590, 826), (1594, 799)], 3.0),
-    ("lane", [(1712, 855), (1709, 828), (1713, 799)], 3.0),
-    ("lane", [(1600, 852), (1604, 880), (1611, 905)], 3.0),
-    ("lane", [(1724, 858), (1717, 884), (1708, 905)], 3.0),
-    ("lane", [(1628, 876), (1626, 896), (1631, 912)], 3.0),
-]
+OCC.add((SX0 + SX1) / 2, (SY0 + SY1) / 2, (SX1 - SX0) / 2, (SY1 - SY0) / 2)
 town_roads = []
-for kind, pts, w in TOWN_STREETS:
-    sm = catmull(pts, 4.0) if len(pts) > 2 else np.array(pts, float)
-    add_road(kind, sm, w)
-    town_roads.append((kind, roads[-1]["points"], w))
 
-# block the town interior for the country-road router (roads enter through the gates)
+# block the quarter for the country-road router (roads leave through its exits)
 town_mask = Image.new("L", (nx4, ny4), 0)
 ImageDraw.Draw(town_mask).polygon([(x / CELL, (y - Y0) / CELL) for x, y in WALL], fill=255)
 TOWN4 = np.asarray(town_mask) > 0
@@ -481,7 +404,7 @@ COST[TOWN4] = 1e30
 
 
 def in_town(x, y, margin=0.0):
-    return point_in_poly(x, y, WALL) and poly_edge_dist(x, y, WALL) >= margin
+    return (SX0 - margin <= x <= SX1 + margin) and (SY0 - margin <= y <= SY1 + margin)
 
 
 # ------------------------------------------------------------------------------------------------
@@ -528,18 +451,14 @@ print("hamlets:", {k: (round(v[0]), round(v[1])) for k, v in HAMLETS.items()})
 
 # ------------------------------------------------------------------------------------------------
 # country roads (order matters: trunks first, then branches that merge into them)
-gN, gW, gE = gate_pt("N", 12), gate_pt("W", 12), gate_pt("E", 12)
+gN, gW, gE = tuple(EX["north"]), tuple(EX["west"]), tuple(EX["east"])
 baN, baS = stub(BA[0], BA[1]), stub(BA[1], BA[0])
-bbN, bbS = stub(BB[0], BB[1]), stub(BB[1], BB[0])
-for g in ("N", "W", "E"):
-    add_road("main", [gate_pt(g, 2), gate_pt(g, 12.5)], 5.0)
-route(gE, baN, "main", 5.2, post=BA[0], name="E gate -> Argento bridge")
-route(gW, bbN, "main", 5.2, post=BB[0], name="W gate -> Bianco bridge")
+route(gE, baN, "main", 5.2, post=BA[0], name="quarter -> Argento bridge")
 H_ = HAMLETS
 LINKS = [
     # (from, to, kind, width, cut, pre)
     (BA[1], H_.get("Oltreponte"), "main", 5.0, False, "bridge"),
-    (BB[1], H_.get("Bianchetto"), "main", 5.0, False, "bridge_b"),
+    (gW, H_.get("Bianchetto"), "main", 5.0, False, "bridge_b"),
     (gN, H_.get("Borgo Cava"), "main", 4.8, False, None),
     (H_.get("Rivafonda"), baS, "lane", 4.0, True, None),
     (H_.get("Riva del Lago"), H_.get("Rivafonda"), "lane", 3.8, True, None),
@@ -559,15 +478,12 @@ for a, b, kind, w, cut, pre in LINKS:
     if pre == "bridge":
         route(baS, b, kind, w, pre=BA[1], name="Argento bridge -> Oltreponte")
     elif pre == "bridge_b":
-        route(bbS, b, kind, w, pre=BB[1], name="Bianco bridge -> Bianchetto")
+        route(gW, b, kind, w, name="quarter (south bank) -> Bianchetto")
     else:
         route(a, b, kind, w, cut=cut, name=f"{a} -> {b}")
 
 # ------------------------------------------------------------------------------------------------
 # key buildings in and around the town
-place("barracks", 1738, 812, force=True)
-place("blacksmith", 1567, 868, force=True)
-place("granary", 1574, 808, force=True)
 
 
 def place_near(btype, x, y, r=60.0, tries=400, **kw):
@@ -645,7 +561,7 @@ def frontage(pts, road_w, side, pred, gap=(0.0, 0.7), rich_r=70.0, max_n=999, ga
         dvec = (p[k + 1] - p[k]) / seg[k]
         nrm = np.array([-dvec[1], dvec[0]]) * side
         ns_street = abs(dvec[1]) > abs(dvec[0]) * 1.2
-        rich = math.hypot(pt[0] - PLAZA_C[0], pt[1] - PLAZA_C[1]) < rich_r and rng.random() < 0.7
+        rich = False
         base = pick_house(rich)
         bt = base + ("_e" if nrm[0] < 0 else "_w") if ns_street else base
         w, d = FOOT[bt]
@@ -677,49 +593,6 @@ def frontage(pts, road_w, side, pred, gap=(0.0, 0.7), rich_r=70.0, max_n=999, ga
         else:
             s += 1.5
     return n
-
-
-def town_pred(x, y):
-    return in_town(x, y, 7.0)
-
-
-n_front = 0
-for kind, p, w in town_roads:
-    for side in (1, -1):
-        n_front += frontage(p, w, side, town_pred, rich_r=70.0 if kind == "main" else 40.0)
-# infill: jittered candidates inside the ring, leaving a few courtyards with trees
-n_fill = 0
-cand = []
-for st, off in ((7.5, 0.0), (5.0, 2.5), (4.0, 1.3)):
-    xs_, ys_ = np.meshgrid(np.arange(1548 + off, 1775, st), np.arange(788 + off, 930, st))
-    cc = np.c_[xs_.ravel(), ys_.ravel()] + rng.uniform(-2.0, 2.0, (xs_.size, 2))
-    rng.shuffle(cc)
-    cand += list(cc)
-for cx, cy in cand:
-    if not in_town(cx, cy, 8.0):
-        continue
-    if N.fbm_at(np.array([cx], np.float32), np.array([cy], np.float32), 38.0, N.perm(5), 2, 2.0, 0.5)[0] > 0.33:
-        if OCC.free(cx, cy, 3, 3, 0.5) and road_clear(cx, cy, 2.5) and rng.random() < 0.25:
-            tree(str(rng.choice(["fruit_a", "fruit_b", "oak_b", "birch_b", "fruit_c"])), cx, cy,
-                 rng.uniform(0.7, 0.9))
-            OCC.add(cx, cy, 1.5, 1.5)
-        continue
-    base = SIMPLE[rng.integers(5)]
-    bt = base + str(rng.choice(["", "", "_e", "_w"]))
-    if place(bt, cx, cy, margin=0.3, road_gap=0.5):
-        n_fill += 1
-print(f"town houses: frontage {n_front}, infill {n_fill}")
-
-# suburbs outside the gates
-for r in list(roads):
-    if r["kind"] != "main":
-        continue
-    for side in (1, -1):
-        frontage(r["points"], r["width"], side,
-                 lambda x, y: (not in_town(x, y)) and min(math.hypot(x - gN[0], y - gN[1]),
-                                                          math.hypot(x - gW[0], y - gW[1]),
-                                                          math.hypot(x - gE[0], y - gE[1])) < 95,
-                 gap=(1.5, 7.0), max_n=6, garden=0.45, setback=1.5)
 
 
 # ------------------------------------------------------------------------------------------------
@@ -960,14 +833,6 @@ for i, r in enumerate(roads):
         pts = r["points"][::-1] if k % 2 else r["points"]
         citizens.append({"role": role, "mode": "carry" if rng.random() < 0.3 else "walk", "path": pts,
                          "start": round(float(rng.random()), 3), "speed": round(float(rng.uniform(1.0, 1.45)), 2)})
-for k in range(30):
-    x = rng.uniform(1630, 1668)
-    y = rng.uniform(851, 875)
-    citizens.append({"role": str(rng.choice(["citizen", "citizen", "merchant", "farmer", "builder"])),
-                     "mode": "wander", "spot": [round(x, 2), round(y, 2)], "radius": 13.0,
-                     "speed": round(float(rng.uniform(0.8, 1.2)), 2)})
-for sx, sy in STALLS:
-    citizens.append({"role": "merchant", "mode": "work", "spot": [sx, sy - 1.6], "dir": "S"})
 WORK = {"barracks": ("soldier", 5, (0, -6), 6.0), "blacksmith": ("builder", 1, (-3.0, -1.0), 0.5),
         "sawmill": ("woodcutter", 4, (-6, -4), 5.0), "quarry": ("miner", 4, (-2, -7), 6.0),
         "mine": ("miner", 3, (1, -7), 3.0), "farm": ("farmer", 2, (2, -8), 4.0), "granary": ("farmer", 1, (0, -5), 1.0),
@@ -983,13 +848,6 @@ for nm, (cx, cy) in HAMLETS.items():
     for k in range(3):
         citizens.append({"role": str(rng.choice(["citizen", "farmer", "farmer"])), "mode": "wander",
                          "spot": [round(cx, 2), round(cy, 2)], "radius": 16.0, "speed": 1.0})
-for key in GATES:
-    for d in (-1, 1):
-        (gx, gy), _, (ux, uy) = GATES[key]
-        citizens.append({"role": "soldier", "mode": "idle",
-                         "spot": [round(gx + ux * 9 - uy * 3 * d, 2), round(gy + uy * 9 + ux * 3 * d, 2)], "dir": "S"})
-for gx, gy in [(1840, 934), (1470, 986), (1682, 968)]:
-    citizens.append({"role": "soldier", "mode": "idle", "spot": [gx, gy], "dir": "S"})
 for f in fields:
     if f["crop"] in ("wheat", "green", "plowed", "barley", "hay") and rng.random() < 0.45:
         p = np.array(f["polygon"])

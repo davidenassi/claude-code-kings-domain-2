@@ -158,12 +158,26 @@ def _render_exr(path, samples):
     return px.reshape(h, w, 4)[::-1].copy()          # top row first
 
 
-def render_object(objs, name, ppm=None, samples=64, shadow_samples=24, with_shadow=True, rect=None):
+class _Group:
+    """Treat several shadow-catcher planes as one 'ground'."""
+
+    def __init__(self, objs):
+        self.objs = objs
+
+    def __setattr__(self, k, v):
+        if k == "objs":
+            object.__setattr__(self, k, v)
+        else:
+            for o in self.objs:
+                setattr(o, k, v)
+
+
+def render_object(objs, name, ppm=None, samples=64, shadow_samples=24, with_shadow=True, rect=None, catchers=None):
     """Render body + shadow of `objs` (already in the scene). Returns dict of float arrays."""
     ppm = ppm or K.SPRITE_PX_PER_M * K.SPRITE_SUPERSAMPLE
     rect = rect or object_extent(objs, with_shadow)
     rx, ry, ax, ay = frame_camera(rect, ppm)
-    ground = bpy.data.objects["ground"]
+    ground = _Group(catchers) if catchers else bpy.data.objects["ground"]
     # pass A: body with ground interaction (shadow catcher present)
     ground.hide_render = False
     for o in objs:
@@ -171,16 +185,19 @@ def render_object(objs, name, ppm=None, samples=64, shadow_samples=24, with_shad
     a = _render_exr(os.path.join(TMP, f"{name}_a.exr"), samples)
     # pass B: coverage only (no ground)
     ground.hide_render = True
-    b = _render_exr(os.path.join(TMP, f"{name}_b.exr"), 8)
+    b = _render_exr(os.path.join(TMP, f"{name}_b.exr"), 4)
     out = {"anchor": (ax, ay), "size": (rx, ry)}
     alpha = np.clip(b[..., 3], 0, 1)
     rgb = a[..., :3] / np.maximum(a[..., 3:4], 1e-4)      # un-premultiply (Cycles film is premultiplied)
     out["body"] = np.concatenate([rgb, alpha[..., None]], -1)
     if with_shadow:
         ground.hide_render = False
+        ink = bpy.context.scene.render.use_freestyle
+        bpy.context.scene.render.use_freestyle = False
         for o in objs:
             o.visible_camera = False
         c = _render_exr(os.path.join(TMP, f"{name}_c.exr"), shadow_samples)
+        bpy.context.scene.render.use_freestyle = ink
         for o in objs:
             o.visible_camera = True
         out["shadow"] = np.clip(c[..., 3], 0, 1)
@@ -207,7 +224,17 @@ def downsample(img, f):
     return img.reshape(h2, f, w2, f, *img.shape[2:]).mean(axis=(1, 3))
 
 
-def finish(res, supersample=None, grade=None):
+def sharpen(rgb, a, amount=0.45, radius=1.0):
+    """Unsharp mask on premultiplied colour (crisp illustrated detail at sprite resolution)."""
+    from scipy.ndimage import gaussian_filter
+    prem = rgb * a
+    blur = np.stack([gaussian_filter(prem[..., k], radius) for k in range(3)], -1)
+    ab = gaussian_filter(a[..., 0], radius)[..., None]
+    out = prem + amount * (prem - blur * np.where(ab > 1e-4, a / np.maximum(ab, 1e-4), 1.0))
+    return np.clip(out / np.maximum(a, 1e-4), 0, None)
+
+
+def finish(res, supersample=None, grade=None, crisp=0.0):
     """float render -> (body RGBA uint8, shadow L uint8, anchor) at sprite resolution."""
     f = supersample or K.SPRITE_SUPERSAMPLE
     body = res["body"]
@@ -218,6 +245,8 @@ def finish(res, supersample=None, grade=None):
     rgb = prem[..., :3] / np.maximum(a, 1e-4)
     if grade:
         rgb = grade(rgb)
+    if crisp > 0:
+        rgb = sharpen(rgb, a, crisp)
     srgb = tonemap(rgb)
     body8 = np.concatenate([srgb, a], -1)
     body8 = (np.clip(body8, 0, 1) * 255 + 0.5).astype(np.uint8)
@@ -297,3 +326,66 @@ def clear_objects(keep=("sun", "cam", "ground")):
     for m in list(bpy.data.meshes):
         if m.users == 0:
             bpy.data.meshes.remove(m)
+
+
+# ------------------------------------------------------------------------------------------------
+# Phase 1B: illustrated style (outlines, grade) and yaw
+def outlines(on=True, thickness=1.7, color=(0.075, 0.048, 0.03), alpha=0.72, crease=138.0):
+    """Freestyle ink lines on silhouettes, creases and borders (thin at sprite resolution)."""
+    sc = bpy.context.scene
+    sc.render.use_freestyle = on
+    if not on:
+        return
+    sc.render.line_thickness_mode = "ABSOLUTE"
+    vl = sc.view_layers[0]
+    fs = vl.freestyle_settings
+    fs.crease_angle = math.radians(crease)
+    ls = fs.linesets[0] if len(fs.linesets) else fs.linesets.new("ink")
+    ls.select_by_visibility = True
+    ls.visibility = "VISIBLE"
+    ls.select_by_edge_types = True
+    ls.select_silhouette = True
+    ls.select_border = True
+    ls.select_crease = True
+    ls.select_external_contour = True
+    if ls.linestyle is None:
+        ls.linestyle = bpy.data.linestyles.new("ink")
+    st = ls.linestyle
+    st.color = color
+    st.alpha = alpha
+    st.thickness = thickness
+    st.thickness_position = "INSIDE"
+    st.use_chaining = True
+
+
+def apply_yaw(objs, yaw_deg):
+    """Rotate a whole model about the vertical axis through its origin (facade south at yaw 0)."""
+    if not yaw_deg:
+        return None
+    root = bpy.data.objects.new("yaw_root", None)
+    bpy.context.scene.collection.objects.link(root)
+    for o in objs:
+        if o.parent is None:
+            o.parent = root
+    root.rotation_euler = (0.0, 0.0, math.radians(yaw_deg))
+    bpy.context.view_layer.update()
+    return root
+
+
+def grade_illustrated(rgb, sat=1.16, contrast=1.07, warm=(1.035, 1.0, 0.94), pivot=0.18):
+    """Illustrated grade (linear): richer colour, a little more contrast around the mid tones, warm light."""
+    l = (rgb * np.array([0.2126, 0.7152, 0.0722])).sum(-1, keepdims=True)
+    rgb = np.clip(l + (rgb - l) * sat, 0, None)
+    rgb = pivot * (np.maximum(rgb, 1e-6) / pivot) ** contrast
+    return rgb * np.array(warm)
+
+
+def illustrated_light(sun=6.3, sky=0.44):
+    """Phase 1B sprites: a little more direct sun, a little less sky -> stronger lit / shaded faces."""
+    sc = bpy.context.scene
+    sc.cycles.max_bounces = 3
+    sc.cycles.diffuse_bounces = 1
+    sc.cycles.glossy_bounces = 1
+    sc.cycles.adaptive_threshold = 0.03
+    bpy.data.objects["sun"].data.energy = sun
+    sc.world.node_tree.nodes["Background"].inputs["Strength"].default_value = sky

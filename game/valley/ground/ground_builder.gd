@@ -12,6 +12,8 @@ const CROPS := {"wheat": 0, "barley": 1, "plowed": 2, "green": 3, "hay": 4, "fla
 
 static func _mesh(verts: PackedVector2Array, uvs: PackedVector2Array, cols: PackedColorArray,
 		idx: PackedInt32Array) -> ArrayMesh:
+	if verts.is_empty() or idx.is_empty():
+		return null
 	var arr := []
 	arr.resize(Mesh.ARRAY_MAX)
 	arr[Mesh.ARRAY_VERTEX] = verts
@@ -26,7 +28,8 @@ static func _mesh(verts: PackedVector2Array, uvs: PackedVector2Array, cols: Pack
 static func _node(mesh: ArrayMesh, shader: Shader, name: String) -> MeshInstance2D:
 	var mi := MeshInstance2D.new()
 	mi.name = name
-	mi.mesh = mesh
+	if mesh != null:
+		mi.mesh = mesh
 	var mat := ShaderMaterial.new()
 	mat.shader = shader
 	mi.material = mat
