@@ -15,11 +15,14 @@ from scipy.cluster.vq import kmeans2
 
 PAIRS = [
     # (our screenshot, reference crop box (x0, y0, x1, y1) in the 1672x941 reference, label)
-    ("VALLEY_MID", (0, 0, 1672, 941), "insieme della valle"),
+    ("VALLEY_FAR", (0, 0, 1672, 941), "insieme della valle"),
+    ("VALLEY_MID", (300, 150, 1300, 700), "valle a media distanza"),
     ("VALLEY_CLOSE", (700, 250, 1350, 620), "città murata e castello"),
     ("FOREST_TEST", (0, 0, 600, 340), "foreste e montagne"),
     ("WATER_TEST_BRIDGE", (1050, 380, 1672, 720), "acqua, rive, ponti"),
+    ("WATER_TEST_LAKE", (900, 450, 1500, 800), "rive e isole"),
     ("FIELDS_MID", (550, 450, 1200, 820), "campi e villaggi"),
+    ("MOUNTAINS_MID", (0, 380, 420, 720), "montagne"),
 ]
 
 

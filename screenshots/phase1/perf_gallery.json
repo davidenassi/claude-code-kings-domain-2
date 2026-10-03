@@ -1,0 +1,68 @@
+[
+  {
+    "draw_calls": 99.0,
+    "frame_ms_cpu_render": 36.6,
+    "nodes": 256.0,
+    "objects": 535.0,
+    "primitives": 1070.0,
+    "static_mem_mb": 77.9,
+    "texture_mem_mb": 219.2,
+    "view": "BUILDINGS_TEST",
+    "vram_mb": 225.3
+  },
+  {
+    "draw_calls": 73.0,
+    "frame_ms_cpu_render": 31.7,
+    "nodes": 256.0,
+    "objects": 337.0,
+    "primitives": 674.0,
+    "static_mem_mb": 77.9,
+    "texture_mem_mb": 219.2,
+    "view": "BUILDINGS_TEST_B",
+    "vram_mb": 225.3
+  },
+  {
+    "draw_calls": 69.0,
+    "frame_ms_cpu_render": 28.4,
+    "nodes": 256.0,
+    "objects": 381.0,
+    "primitives": 762.0,
+    "static_mem_mb": 77.9,
+    "texture_mem_mb": 219.2,
+    "view": "BUILDINGS_TEST_C",
+    "vram_mb": 225.3
+  },
+  {
+    "draw_calls": 50.0,
+    "frame_ms_cpu_render": 29.4,
+    "nodes": 256.0,
+    "objects": 267.0,
+    "primitives": 534.0,
+    "static_mem_mb": 77.9,
+    "texture_mem_mb": 219.2,
+    "view": "BUILDINGS_TEST_PROPS",
+    "vram_mb": 225.3
+  },
+  {
+    "draw_calls": 36.0,
+    "frame_ms_cpu_render": 22.6,
+    "nodes": 256.0,
+    "objects": 281.0,
+    "primitives": 562.0,
+    "static_mem_mb": 77.9,
+    "texture_mem_mb": 219.2,
+    "view": "CITIZENS_TEST",
+    "vram_mb": 225.3
+  },
+  {
+    "draw_calls": 13.0,
+    "frame_ms_cpu_render": 22.5,
+    "nodes": 256.0,
+    "objects": 87.0,
+    "primitives": 174.0,
+    "static_mem_mb": 77.9,
+    "texture_mem_mb": 219.2,
+    "view": "CITIZENS_TEST_ZOOM",
+    "vram_mb": 225.3
+  }
+]

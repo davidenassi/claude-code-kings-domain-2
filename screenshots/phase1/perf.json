@@ -1,0 +1,156 @@
+[
+  {
+    "draw_calls": 550.0,
+    "frame_ms_cpu_render": 340.9,
+    "nodes": 2809.0,
+    "objects": 583.0,
+    "primitives": 573124.0,
+    "static_mem_mb": 131.8,
+    "texture_mem_mb": 515.8,
+    "view": "VALLEY_FAR",
+    "vram_mb": 530.1
+  },
+  {
+    "draw_calls": 891.0,
+    "frame_ms_cpu_render": 256.1,
+    "nodes": 2809.0,
+    "objects": 994.0,
+    "primitives": 226666.0,
+    "static_mem_mb": 131.9,
+    "texture_mem_mb": 515.8,
+    "view": "VALLEY_MID",
+    "vram_mb": 530.1
+  },
+  {
+    "draw_calls": 544.0,
+    "frame_ms_cpu_render": 293.2,
+    "nodes": 2809.0,
+    "objects": 585.0,
+    "primitives": 139852.0,
+    "static_mem_mb": 132.0,
+    "texture_mem_mb": 515.8,
+    "view": "VALLEY_CLOSE",
+    "vram_mb": 530.1
+  },
+  {
+    "draw_calls": 201.0,
+    "frame_ms_cpu_render": 222.4,
+    "nodes": 2809.0,
+    "objects": 209.0,
+    "primitives": 118586.0,
+    "static_mem_mb": 132.0,
+    "texture_mem_mb": 515.8,
+    "view": "VILLAGE_CLOSE",
+    "vram_mb": 530.1
+  },
+  {
+    "draw_calls": 104.0,
+    "frame_ms_cpu_render": 338.7,
+    "nodes": 2809.0,
+    "objects": 104.0,
+    "primitives": 176638.0,
+    "static_mem_mb": 132.0,
+    "texture_mem_mb": 515.8,
+    "view": "FOREST_TEST",
+    "vram_mb": 530.1
+  },
+  {
+    "draw_calls": 32.0,
+    "frame_ms_cpu_render": 342.2,
+    "nodes": 2809.0,
+    "objects": 32.0,
+    "primitives": 137754.0,
+    "static_mem_mb": 132.0,
+    "texture_mem_mb": 515.8,
+    "view": "FOREST_TEST_CLOSE",
+    "vram_mb": 530.1
+  },
+  {
+    "draw_calls": 28.0,
+    "frame_ms_cpu_render": 212.2,
+    "nodes": 2809.0,
+    "objects": 28.0,
+    "primitives": 77476.0,
+    "static_mem_mb": 132.0,
+    "texture_mem_mb": 515.8,
+    "view": "WATER_TEST",
+    "vram_mb": 530.1
+  },
+  {
+    "draw_calls": 40.0,
+    "frame_ms_cpu_render": 240.5,
+    "nodes": 2809.0,
+    "objects": 40.0,
+    "primitives": 112330.0,
+    "static_mem_mb": 132.0,
+    "texture_mem_mb": 515.8,
+    "view": "WATER_TEST_BRIDGE",
+    "vram_mb": 530.1
+  },
+  {
+    "draw_calls": 78.0,
+    "frame_ms_cpu_render": 243.3,
+    "nodes": 2809.0,
+    "objects": 78.0,
+    "primitives": 173294.0,
+    "static_mem_mb": 132.0,
+    "texture_mem_mb": 515.8,
+    "view": "WATER_TEST_LAKE",
+    "vram_mb": 530.1
+  },
+  {
+    "draw_calls": 186.0,
+    "frame_ms_cpu_render": 332.7,
+    "nodes": 2809.0,
+    "objects": 198.0,
+    "primitives": 126802.0,
+    "static_mem_mb": 132.0,
+    "texture_mem_mb": 515.8,
+    "view": "CASTLE_CLOSE",
+    "vram_mb": 530.1
+  },
+  {
+    "draw_calls": 91.0,
+    "frame_ms_cpu_render": 212.0,
+    "nodes": 2809.0,
+    "objects": 91.0,
+    "primitives": 152672.0,
+    "static_mem_mb": 132.0,
+    "texture_mem_mb": 515.8,
+    "view": "FIELDS_MID",
+    "vram_mb": 530.1
+  },
+  {
+    "draw_calls": 42.0,
+    "frame_ms_cpu_render": 246.9,
+    "nodes": 2809.0,
+    "objects": 42.0,
+    "primitives": 93290.0,
+    "static_mem_mb": 132.0,
+    "texture_mem_mb": 515.8,
+    "view": "HAMLET_CLOSE",
+    "vram_mb": 530.1
+  },
+  {
+    "draw_calls": 61.0,
+    "frame_ms_cpu_render": 276.1,
+    "nodes": 2809.0,
+    "objects": 61.0,
+    "primitives": 120330.0,
+    "static_mem_mb": 132.0,
+    "texture_mem_mb": 515.8,
+    "view": "MOUNTAINS_MID",
+    "vram_mb": 530.1
+  },
+  {
+    "draw_calls": 156.0,
+    "frame_ms_cpu_render": 202.7,
+    "nodes": 2809.0,
+    "objects": 159.0,
+    "primitives": 118378.0,
+    "static_mem_mb": 132.0,
+    "texture_mem_mb": 515.8,
+    "view": "CITIZENS_TOWN",
+    "vram_mb": 530.1
+  }
+]

@@ -11,6 +11,12 @@
   "footprint": [
    7.0,
    5.4
+  ],
+  "chimneys": [
+   [
+    -22.2,
+    -166.0
+   ]
   ]
  },
  "house_rich_a": {
@@ -25,6 +31,16 @@
   "footprint": [
    9.0,
    7.9
+  ],
+  "chimneys": [
+   [
+    -87.7,
+    -238.5
+   ],
+   [
+    65.1,
+    -238.5
+   ]
   ]
  },
  "windmill": {
@@ -39,7 +55,8 @@
   "footprint": [
    7.0,
    7.0
-  ]
+  ],
+  "chimneys": []
  },
  "house_a": {
   "anchor": [
@@ -53,6 +70,12 @@
   "footprint": [
    6.5,
    5.2
+  ],
+  "chimneys": [
+   [
+    -10.2,
+    -162.2
+   ]
   ]
  },
  "house_c": {
@@ -67,6 +90,12 @@
   "footprint": [
    8.4,
    5.0
+  ],
+  "chimneys": [
+   [
+    6.0,
+    -152.5
+   ]
   ]
  },
  "house_d": {
@@ -81,6 +110,12 @@
   "footprint": [
    7.5,
    5.6
+  ],
+  "chimneys": [
+   [
+    14.3,
+    -156.3
+   ]
   ]
  },
  "house_e": {
@@ -95,6 +130,12 @@
   "footprint": [
    5.6,
    4.8
+  ],
+  "chimneys": [
+   [
+    8.3,
+    -156.8
+   ]
   ]
  },
  "house_rich_b": {
@@ -109,6 +150,12 @@
   "footprint": [
    7.6,
    8.8
+  ],
+  "chimneys": [
+   [
+    8.7,
+    -234.2
+   ]
   ]
  },
  "house_rich_c": {
@@ -123,6 +170,16 @@
   "footprint": [
    10.0,
    7.2
+  ],
+  "chimneys": [
+   [
+    -69.2,
+    -281.8
+   ],
+   [
+    99.4,
+    -281.8
+   ]
   ]
  },
  "farm": {
@@ -137,6 +194,12 @@
   "footprint": [
    19.0,
    13.0
+  ],
+  "chimneys": [
+   [
+    -140.6,
+    -168.8
+   ]
   ]
  },
  "granary": {
@@ -171,31 +234,33 @@
  },
  "quarry": {
   "anchor": [
-   346.68,
-   361.39
+   351.44,
+   380.89
   ],
   "size": [
-   857,
-   536
+   820,
+   555
   ],
   "footprint": [
    24.0,
    14.0
-  ]
+  ],
+  "chimneys": []
  },
  "mine": {
   "anchor": [
-   285.1,
-   327.33
+   304.96,
+   349.33
   ],
   "size": [
-   713,
-   579
+   718,
+   601
   ],
   "footprint": [
    18.0,
    14.0
-  ]
+  ],
+  "chimneys": []
  },
  "market": {
   "anchor": [
@@ -209,7 +274,8 @@
   "footprint": [
    17.0,
    10.0
-  ]
+  ],
+  "chimneys": []
  },
  "blacksmith": {
   "anchor": [
@@ -223,7 +289,8 @@
   "footprint": [
    12.0,
    6.5
-  ]
+  ],
+  "chimneys": []
  },
  "barracks": {
   "anchor": [
@@ -237,6 +304,16 @@
   "footprint": [
    17.0,
    14.0
+  ],
+  "chimneys": [
+   [
+    -115.5,
+    -318.0
+   ],
+   [
+    125.9,
+    -318.0
+   ]
   ]
  },
  "stable": {
@@ -251,7 +328,8 @@
   "footprint": [
    24.0,
    8.0
-  ]
+  ],
+  "chimneys": []
  },
  "tower": {
   "anchor": [
@@ -265,7 +343,8 @@
   "footprint": [
    6.5,
    6.5
-  ]
+  ],
+  "chimneys": []
  },
  "wall_000": {
   "anchor": [
@@ -279,7 +358,8 @@
   "footprint": [
    12.0,
    2.2
-  ]
+  ],
+  "chimneys": []
  },
  "wall_045": {
   "anchor": [
@@ -293,7 +373,8 @@
   "footprint": [
    12.0,
    2.2
-  ]
+  ],
+  "chimneys": []
  },
  "wall_090": {
   "anchor": [
@@ -307,7 +388,8 @@
   "footprint": [
    12.0,
    2.2
-  ]
+  ],
+  "chimneys": []
  },
  "wall_135": {
   "anchor": [
@@ -321,7 +403,8 @@
   "footprint": [
    12.0,
    2.2
-  ]
+  ],
+  "chimneys": []
  },
  "wall_tower": {
   "anchor": [
@@ -335,7 +418,8 @@
   "footprint": [
    6.4,
    6.4
-  ]
+  ],
+  "chimneys": []
  },
  "gatehouse": {
   "anchor": [
@@ -349,7 +433,8 @@
   "footprint": [
    14.0,
    7.0
-  ]
+  ],
+  "chimneys": []
  },
  "townhall": {
   "anchor": [
@@ -363,7 +448,8 @@
   "footprint": [
    15.0,
    10.0
-  ]
+  ],
+  "chimneys": []
  },
  "castle": {
   "anchor": [
@@ -377,6 +463,12 @@
   "footprint": [
    40.0,
    50.0
+  ],
+  "chimneys": [
+   [
+    -122.9,
+    0.4
+   ]
   ]
  },
  "bridge_argento": {
@@ -391,7 +483,8 @@
   "footprint": [
    56.0,
    6.0
-  ]
+  ],
+  "chimneys": []
  },
  "bridge_bianco": {
   "anchor": [
@@ -405,7 +498,8 @@
   "footprint": [
    32.0,
    4.2
-  ]
+  ],
+  "chimneys": []
  },
  "stall_a": {
   "anchor": [
@@ -419,7 +513,8 @@
   "footprint": [
    4.0,
    2.4
-  ]
+  ],
+  "chimneys": []
  },
  "stall_b": {
   "anchor": [
@@ -433,7 +528,8 @@
   "footprint": [
    4.0,
    2.4
-  ]
+  ],
+  "chimneys": []
  },
  "stall_c": {
   "anchor": [
@@ -447,7 +543,8 @@
   "footprint": [
    4.0,
    2.4
-  ]
+  ],
+  "chimneys": []
  },
  "stall_d": {
   "anchor": [
@@ -461,7 +558,8 @@
   "footprint": [
    4.0,
    2.4
-  ]
+  ],
+  "chimneys": []
  },
  "stall_e": {
   "anchor": [
@@ -475,7 +573,8 @@
   "footprint": [
    4.0,
    2.4
-  ]
+  ],
+  "chimneys": []
  },
  "well": {
   "anchor": [
@@ -489,7 +588,8 @@
   "footprint": [
    2.6,
    2.6
-  ]
+  ],
+  "chimneys": []
  },
  "fence_0000": {
   "anchor": [
@@ -503,7 +603,8 @@
   "footprint": [
    4.0,
    0.2
-  ]
+  ],
+  "chimneys": []
  },
  "fence_0225": {
   "anchor": [
@@ -517,7 +618,8 @@
   "footprint": [
    4.0,
    0.2
-  ]
+  ],
+  "chimneys": []
  },
  "fence_0450": {
   "anchor": [
@@ -531,7 +633,8 @@
   "footprint": [
    4.0,
    0.2
-  ]
+  ],
+  "chimneys": []
  },
  "fence_0675": {
   "anchor": [
@@ -545,7 +648,8 @@
   "footprint": [
    4.0,
    0.2
-  ]
+  ],
+  "chimneys": []
  },
  "fence_0900": {
   "anchor": [
@@ -559,7 +663,8 @@
   "footprint": [
    4.0,
    0.2
-  ]
+  ],
+  "chimneys": []
  },
  "fence_1125": {
   "anchor": [
@@ -573,7 +678,8 @@
   "footprint": [
    4.0,
    0.2
-  ]
+  ],
+  "chimneys": []
  },
  "fence_1350": {
   "anchor": [
@@ -587,7 +693,8 @@
   "footprint": [
    4.0,
    0.2
-  ]
+  ],
+  "chimneys": []
  },
  "fence_1575": {
   "anchor": [
@@ -601,7 +708,8 @@
   "footprint": [
    4.0,
    0.2
-  ]
+  ],
+  "chimneys": []
  },
  "prop_barrels": {
   "anchor": [
@@ -615,7 +723,8 @@
   "footprint": [
    1.6,
    1.4
-  ]
+  ],
+  "chimneys": []
  },
  "prop_crates": {
   "anchor": [
@@ -629,7 +738,8 @@
   "footprint": [
    1.6,
    1.0
-  ]
+  ],
+  "chimneys": []
  },
  "prop_cart_hay": {
   "anchor": [
@@ -643,7 +753,8 @@
   "footprint": [
    3.4,
    1.6
-  ]
+  ],
+  "chimneys": []
  },
  "prop_cart": {
   "anchor": [
@@ -657,21 +768,23 @@
   "footprint": [
    3.4,
    1.6
-  ]
+  ],
+  "chimneys": []
  },
  "prop_logs": {
   "anchor": [
-   15.04,
-   81.52
+   64.0,
+   44.02
   ],
   "size": [
-   63,
-   149
+   161,
+   74
   ],
   "footprint": [
    3.5,
    2.0
-  ]
+  ],
+  "chimneys": []
  },
  "prop_haystack": {
   "anchor": [
@@ -685,7 +798,8 @@
   "footprint": [
    3.0,
    3.0
-  ]
+  ],
+  "chimneys": []
  },
  "prop_bales": {
   "anchor": [
@@ -699,21 +813,23 @@
   "footprint": [
    2.0,
    1.4
-  ]
+  ],
+  "chimneys": []
  },
  "prop_sacks": {
   "anchor": [
-   28.8,
-   40.39
+   25.76,
+   40.34
   ],
   "size": [
-   83,
-   57
+   79,
+   54
   ],
   "footprint": [
    1.4,
    1.2
-  ]
+  ],
+  "chimneys": []
  },
  "prop_scarecrow": {
   "anchor": [
@@ -727,7 +843,8 @@
   "footprint": [
    1.6,
    0.4
-  ]
+  ],
+  "chimneys": []
  },
  "house_a_e": {
   "anchor": [
@@ -1212,6 +1329,21 @@
   "footprint": [
    7.0,
    7.0
+  ],
+  "chimneys": []
+ },
+ "church": {
+  "anchor": [
+   340.23,
+   527.44
+  ],
+  "size": [
+   989,
+   872
+  ],
+  "footprint": [
+   14.0,
+   24.0
   ],
   "chimneys": []
  }

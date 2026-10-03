@@ -7,7 +7,27 @@ edifici, cittadini, strade, camera e un insediamento dimostrativo.
 Tutto ciò che si vede è **generato da codice** (Python + Blender 4.5 + Godot 4.7.2) e quindi rigenerabile e
 migliorabile. Nessun asset è stato disegnato a mano né preso da librerie esterne.
 
-<!-- SCREENSHOTS -->
+## Screenshot (1920×1080, catturati automaticamente dal gioco)
+
+Cartella: `screenshots/phase1/` — confronti con il riferimento in `screenshots/phase1/compare/`.
+
+| Richiesto | File | Cosa mostra |
+|---|---|---|
+| VALLEY_FAR | `VALLEY_FAR.png` | tutta la valle: catene montuose, gole con cascate, lago, fiumi, foreste, città, 14 borghi |
+| VALLEY_MID | `VALLEY_MID.png` | Altavera murata, castello sulla Rocca, confluenza, ponti, campi e borghi |
+| VALLEY_CLOSE | `VALLEY_CLOSE.png` | la città: piazza del mercato, palazzo comunale, chiesa, mura, castello |
+| VILLAGE_CLOSE | `VILLAGE_CLOSE.png` | case, vie acciottolate, bancarelle, cittadini, fumo dai camini |
+| FOREST_TEST | `FOREST_TEST.png`, `FOREST_TEST_CLOSE.png` | foresta da lontano (massa) e da vicino (alberi singoli), fiume con rive sassose |
+| WATER_TEST | `WATER_TEST.png`, `WATER_TEST_BRIDGE.png`, `WATER_TEST_LAKE.png` | cascata della valle sospesa, ponte in pietra sul Fiume Argento, rive del lago |
+| BUILDINGS_TEST | `BUILDINGS_TEST.png`, `_B`, `_C`, `_PROPS` | tutta la libreria di edifici con varianti, orientamenti e oggetti |
+| CITIZENS_TEST | `CITIZENS_TEST.png`, `CITIZENS_TEST_ZOOM.png` | 7 ruoli × fermo / cammina / trasporta / lavora |
+| (in più) | `CASTLE_CLOSE.png`, `FIELDS_MID.png`, `HAMLET_CLOSE.png`, `MOUNTAINS_MID.png`, `CITIZENS_TOWN.png` | castello, campi, borgo, montagne, piazza con cittadini |
+
+![VALLEY_FAR](screenshots/phase1/VALLEY_FAR.png)
+![VALLEY_MID](screenshots/phase1/VALLEY_MID.png)
+![VALLEY_CLOSE](screenshots/phase1/VALLEY_CLOSE.png)
+![VILLAGE_CLOSE](screenshots/phase1/VILLAGE_CLOSE.png)
+
 
 ---
 
@@ -48,7 +68,7 @@ schiuma di riva che "respira", rapide, **cascate con strisce che scendono e spru
 montagne sull'acqua, massi nei tratti bassi dei fiumi, alberi ripariali lungo le rive.
 
 ### 1.4 Foreste, siepi, rocce
-~165.000 istanze in 25 sprite di vegetazione (abeti ×4, pecci ×2, pini ×2, querce ×3, faggi ×2, betulle ×2,
+~158.000 istanze in 25 sprite di vegetazione (abeti ×4, pecci ×2, pini ×2, querce ×3, faggi ×2, betulle ×2,
 pioppi ×2, alberi da frutto ×3, cespugli ×4, albero secco) + 6 rocce. Ogni chioma è fatta di **migliaia di ciuffi
 di foglie/aghi istanziati** in Blender, con ombra portata separata. Distribuzione: boschi di conifere sui
 versanti fino al limite del bosco, boschi misti e boschetti sul fondovalle (con radure), boschi ripariali lungo
@@ -71,7 +91,7 @@ imposte, porte con gradino, camini, abbaini, merlature.
 | cava | parete rocciosa a gradoni, blocchi squadrati, gru a ruota |
 | miniera | ammasso roccioso, ingresso armato, binari, carrello, cumulo di minerale, capanno, lanterna |
 | mulino | mulino a torre con **pale animate (8 fotogrammi)** |
-| mercato | 5 bancarelle con tende a strisce e merci + pozzo |
+| mercato | 6 bancarelle con tende a strisce e merci + pozzo; 5 bancarelle singole per la piazza |
 | fabbro | casa in pietra + forgia aperta con **brace incandescente**, incudine, abbeveratoio |
 | caserma | edificio a due piani, cortile d'addestramento con fantocci, rastrelliera, stendardi |
 | stalla | stalle con mezze porte, fienile, recinto, abbeveratoio, balle |
@@ -86,15 +106,15 @@ imposte, porte con gradino, camini, abbaini, merlature.
 ### 1.6 Cittadini
 7 ruoli (contadino, boscaiolo, minatore, costruttore, mercante, soldato, cittadino) riconoscibili da abiti,
 copricapo e attrezzo; animazioni **idle (4), walk (8), carry (8), work (8)** in 5 direzioni renderizzate + 3
-specchiate = 8 direzioni. Nella demo ~250 cittadini camminano sulle strade, trasportano merci, lavorano nei
+specchiate = 8 direzioni. Nella demo ~400 cittadini camminano sulle strade, trasportano merci, lavorano nei
 campi, alla cava, alla miniera, alla segheria, si muovono in piazza, fanno la guardia alle porte.
 
 ### 1.7 Strade, campi, insediamento dimostrativo
 - Strade: **tracciate sul terreno con A\*** (costo di pendenza, acqua, bosco, rive) e fuse in una rete; i fiumi si
   attraversano solo sui ponti. Nastri lisci che seguono il terreno, larghezza variabile, solchi delle ruote,
   sassi, bordi erbosi irregolari; tre classi (strada maestra, vicolo, sentiero); **vie acciottolate dentro le mura**.
-- Campi: ~250 campi in patchwork irregolare attorno ai borghi (nessun rettangolo identico); colture grano, orzo,
-  terra arata, ortaggi a file, fieno a strisce, lino; **illuminati dal terreno** (pendenza, ombre delle
+- Campi: ~180 campi in patchwork irregolare attorno ai borghi (nessun rettangolo identico, niente strisce
+  sottili); colture grano, orzo, terra arata, ortaggi a file, fieno a strisce (lo shader ha anche il lino); **illuminati dal terreno** (pendenza, ombre delle
   montagne), leggibili da ogni distanza (righe vicine, fasce pittoriche da media distanza, filtrate contro
   l'aliasing); capezzagne erbose, recinti, siepi, covoni, spaventapasseri, carri.
 - **Altavera**: città murata con **cinta irregolare a otto lati** (torri, tre porte), vie curve, anello interno,
@@ -124,7 +144,37 @@ python godot_import.py                      # impostazioni di import (dati esatt
 pipeline/capture.sh res://data/capture/phase1_views.json <cartella>   # screenshot + misure
 ```
 
-<!-- PERF -->
+## 3. Prestazioni misurate
+
+Misure prese dal gioco durante la cattura degli screenshot (`screenshots/phase1/perf.json`), 1920×1080.
+
+| Vista | Draw call | Primitive | VRAM (MB) | ms CPU (llvmpipe) |
+|---|---|---|---|---|
+| VALLEY_FAR | 550 | 573.124 | 530 | 341 |
+| VALLEY_MID | 891 | 226.666 | 530 | 256 |
+| VALLEY_CLOSE | 544 | 139.852 | 530 | 293 |
+| VILLAGE_CLOSE | 201 | 118.586 | 530 | 222 |
+| FOREST_TEST | 104 | 176.638 | 530 | 339 |
+| FOREST_TEST_CLOSE | 32 | 137.754 | 530 | 342 |
+| WATER_TEST | 28 | 77.476 | 530 | 212 |
+| WATER_TEST_BRIDGE | 40 | 112.330 | 530 | 240 |
+| WATER_TEST_LAKE | 78 | 173.294 | 530 | 243 |
+| CASTLE_CLOSE | 186 | 126.802 | 530 | 333 |
+| FIELDS_MID | 91 | 152.672 | 530 | 212 |
+| HAMLET_CLOSE | 42 | 93.290 | 530 | 247 |
+| MOUNTAINS_MID | 61 | 120.330 | 530 | 276 |
+| CITIZENS_TOWN | 156 | 118.378 | 530 | 203 |
+
+- **Draw call**: massimo **891** (budget < 1.500). Le foreste (≈ 158.000 istanze) costano
+  ~100 draw call in tutto grazie alle strisce MultiMesh; recinzioni e oggetti sono nello stesso atlante.
+- **VRAM**: ~530 MB (budget < 1,5 GB).
+- **Tempo di frame**: la colonna "ms CPU" è il tempo di disegno su **llvmpipe** (OpenGL software sulla CPU del
+  container, senza GPU): non rappresenta gli FPS su un PC (vedi limite 1). Per la misura reale:
+  `godot --path game -- --benchmark` → `user://benchmark.json` con FPS medi e frame peggiore per ogni vista.
+- Ottimizzazioni attive: chunk del terreno con culling, vegetazione in 101 strisce MultiMesh, ombre degli edifici
+  nascoste allo zoom più lontano, cittadini animati solo vicino alla vista e nascosti da lontano, fumo nascosto
+  da lontano, dettaglio del terreno che si spegne con la distanza.
+
 
 ## 4. Confronto con il riferimento — dove il risultato è ancora inferiore
 
@@ -191,7 +241,7 @@ maggiore varietà di tetti, Rocca più alta e rocciosa, più borghi e isole/anse
 **3. Tempo di render Cycles su CPU**
 - PROBLEMA: ogni sprite richiede 3 passate Cycles (corpo, copertura, ombra) a 2× di risoluzione.
 - CAUSA: niente GPU per Cycles; 4 core.
-- LIMITE: l'intera libreria (≈ 90 sprite di edifici/oggetti, 31 di vegetazione, ~1.000 fotogrammi di cittadini)
+- LIMITE: l'intera libreria (79 sprite di edifici/oggetti, 31 di vegetazione, ~1.000 fotogrammi di cittadini)
   richiede alcune ore; i campioni sono stati tenuti a 32–40 per gli edifici e 16 per i cittadini (con denoiser
   OIDN). Su una macchina con GPU la stessa pipeline gira in pochi minuti con più campioni.
 - SOLUZIONE SCELTA: render in coda in background, script rigenerabili; nessun ritocco manuale.
@@ -223,8 +273,10 @@ maggiore varietà di tetti, Rocca più alta e rocciosa, più borghi e isole/anse
   con la stessa texture.
 - LIMITE: le draw call crescono con il numero di edifici visibili (≈ 1 per edificio + 1 per l'ombra).
 - SOLUZIONI: atlanti di edifici ordinati per profondità; MultiMesh per gli oggetti piccoli (recinzioni, oggetti).
-- SOLUZIONE SCELTA: misurato, rientra nel budget con ~420 edifici, ~250 recinzioni e ~260 oggetti; l'atlante
-  degli edifici è previsto in Fase 2, quando il giocatore potrà costruire molto di più.
+- SOLUZIONE SCELTA: recinzioni, oggetti, siepi e alberi dell'insediamento (~2.700) sono già nell'atlante
+  MultiMesh della vegetazione; restano nodi singoli i ~410 edifici (mura comprese). Misurato: massimo ~890 draw
+  call nella vista media della città, entro il budget. L'atlante degli edifici è previsto in Fase 2, quando il
+  giocatore potrà costruire molto di più.
 
 ## 6. Asset temporanei e definitivi
 
@@ -255,3 +307,10 @@ maggiore varietà di tetti, Rocca più alta e rocciosa, più borghi e isole/anse
   veniva moltiplicato due volte, scurendo alberi ed edifici): i colori ora corrispondono ai render di Blender.
 
 
+
+## 8. Stato
+
+La Fase 1 è completa nei contenuti richiesti (valle, acqua, foreste, montagne, campi, libreria di edifici,
+cittadini animati, strade, camera, insediamento dimostrativo, screenshot, confronto con il riferimento, misure).
+**La Fase 2 non è stata iniziata: si attende l'approvazione.** I punti della sezione 4 indicano dove la grafica può
+ancora crescere; se si preferisce, possono essere affrontati prima della Fase 2.
