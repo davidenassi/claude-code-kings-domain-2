@@ -1,0 +1,7 @@
+[
+ {"name": "T_FAR", "x": 1536, "y": 1180, "zoom": 0.02, "wait": 8},
+ {"name": "T_MID", "x": 1600, "y": 1000, "zoom": 0.12, "wait": 8},
+ {"name": "T_CLOSE", "x": 1700, "y": 1100, "zoom": 0.6, "wait": 8},
+ {"name": "T_FALL", "x": 845, "y": 360, "zoom": 0.35, "wait": 8},
+ {"name": "T_MTN", "x": 1700, "y": 200, "zoom": 0.15, "wait": 8}
+]

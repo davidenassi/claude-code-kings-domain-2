@@ -1,0 +1,27 @@
+{
+  "camera_elevation_deg": 50.0,
+  "sin_el": 0.766044443118978,
+  "cos_el": 0.6427876096865394,
+  "px_per_m": 32.0,
+  "sprite_px_per_m": 32.0,
+  "valley_w_m": 3072.0,
+  "valley_h_m": 2560.0,
+  "north_pad_m": 640.0,
+  "terrain_px_per_m": 2.0,
+  "terrain_chunk_px": 1024,
+  "sun_dir_world": [
+    -0.6735179422261546,
+    0.3140665743648518,
+    0.6691306063588582
+  ],
+  "sun_color": [
+    1.0,
+    0.93,
+    0.8
+  ],
+  "sky_color": [
+    0.52,
+    0.64,
+    0.86
+  ]
+}
