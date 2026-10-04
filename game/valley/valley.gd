@@ -60,6 +60,18 @@ func _ready() -> void:
 	var ring := preload("res://valley/fx/cloud_ring.gd").new()
 	ring.name = "CloudRing"
 	add_child(ring)
+	# colour grade over the whole valley view (warm light, richer colour, light vignette)
+	var grade_layer := CanvasLayer.new()
+	grade_layer.name = "Grade"
+	grade_layer.layer = 5
+	var grade := ColorRect.new()
+	grade.set_anchors_preset(Control.PRESET_FULL_RECT)
+	grade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var gm := ShaderMaterial.new()
+	gm.shader = preload("res://valley/fx/grade.gdshader")
+	grade.material = gm
+	grade_layer.add_child(grade)
+	add_child(grade_layer)
 
 	camera = ValleyCamera.new()
 	camera.name = "Camera"

@@ -289,8 +289,10 @@ mill_lane = [P(-14, 13), MILL + local_to_world(-2.0, 7.5, -25)]
 ground["roads"].append({"kind": "rural", "width": 3.4, "points": [P(-13, 12), (P(-13, 12) + mill_lane[1]) / 2 + np.array([2, 1]), mill_lane[1]]})
 deck = MILL + local_to_world(-2.0, -5.0, -25)
 cart = MILL + local_to_world(-6.5, 6.0, -25)
-person("farmer", "carry", path=[deck, MILL + local_to_world(-3.5, 4.0, -25), cart + np.array([1.0, 0.5])], speed=1.0)
-person("builder", "carry", path=[cart + np.array([-0.5, 1.0]), MILL + local_to_world(-1.0, 4.5, -25), deck], speed=0.9,
+# porters go round the west end of the mill (a path through the building put them on its roof)
+around = [MILL + local_to_world(-6.4, -4.4, -25), MILL + local_to_world(-6.6, 4.6, -25)]
+person("farmer", "carry", path=[deck] + around + [cart + np.array([1.0, 0.5])], speed=1.0)
+person("builder", "carry", path=[cart + np.array([-0.5, 1.0])] + around[::-1] + [deck], speed=0.9,
        start=0.5)
 person("artisan", "idle", spot=MILL + local_to_world(-4.0, -4.6, -25), face_yaw=180 - 25, anim="talk")
 animal("horse", "idle", cart + local_to_world(3.4, 0.0, -25), 0.5, dirn="E")
@@ -302,7 +304,7 @@ put("boat", *(MILL + local_to_world(-4.5, -8.6, -25)), -25)
 # 7. the smithy between the square and the mill
 SM = P(5, 26)
 building("smithy", SM[0], SM[1], -45, eco=[("tools_rack", -3.5, -3.6, 0), ("logs", -1.0, 4.5, 0)])
-person("artisan", "work", spot=SM + local_to_world(5.6, -1.6, -45), anim="work", face_yaw=-45 + 90)
+person("artisan", "work", spot=SM + local_to_world(6.0, -5.2, -45), anim="work", face_yaw=-45 + 90)   # in front of the forge
 ground["trampled"].append({"center": SM + local_to_world(1.0, -3.5, -45), "size": [14.0, 6.0], "yaw": -45})
 
 # ================================================================================================
@@ -407,7 +409,7 @@ put("lilypads", *(BR_C + np.array([-18.0, 2.0])))
 # trampled ground and greenery around every building (ecosystem rule)
 for o in objects:
     if o["kind"] == "building" and not o["sprite"].startswith(("stall", "tent")):
-        ground["trampled"].append({"center": [o["x"], o["y"]], "size": [14.0, 12.0], "yaw": 0, "soft": True})
+        ground["trampled"].append({"center": [o["x"], o["y"]], "size": [20.0, 17.0], "yaw": 0, "soft": True})
 for o in objects:
     if o["kind"] == "building" and o["sprite"].startswith("house"):
         for k in range(2):
@@ -478,7 +480,7 @@ for r in ground["roads"]:
         person(str(prng.choice(["farmer", "woman", "citizen", "builder", "woodcutter"])),
                "carry" if prng.random() < 0.35 else "walk", path=pts_, speed=round(float(prng.uniform(0.85, 1.2)), 2),
                start=round(float(prng.random()), 2))
-for q in (FARM + np.array([6.0, 4.0]), P(-14, -24), P(-28, -30), SM + np.array([4.0, 3.0])):
+for q in (FARM + np.array([6.0, 4.0]), P(-14, -24), P(-28, -30), SM + local_to_world(-2.0, -7.5, -45)):
     animal("chicken", "wander", q, 2.5)
 
 # ================================================================================================
@@ -493,7 +495,7 @@ extra_houses = [("house_town", -5.5, 25.0, 49, [("garden_bed", -2.0, 8.5, 0), ("
 for base, u, v, yaw, eco in extra_houses:
     q = P(u, v)
     building(base, q[0], q[1], yaw, eco=eco)
-    ground["trampled"].append({"center": [float(q[0]), float(q[1])], "size": [14.0, 12.0], "yaw": 0, "soft": True})
+    ground["trampled"].append({"center": [float(q[0]), float(q[1])], "size": [20.0, 17.0], "yaw": 0, "soft": True})
     g = q + local_to_world(-1.0, 8.5, yaw)
     ground["gardens"].append({"center": g, "size": [7.0, 5.0], "yaw": yaw})
     for k in range(2):
@@ -513,8 +515,8 @@ for base, u, v, yaw in (("crates", 36.5, 35.6, 45), ("barrels", 38.2, 36.4, 0), 
 for k, v in enumerate((20.2, 30.8)):
     for side, (du, fy) in enumerate(((0.0, 135), (1.3, -45))):
         person("soldier", "train", spot=P(22.6 + du, v), face_yaw=fy, anim="train", start=round(0.17 * k + 0.4 * side, 2))
-person("soldier", "carry", path=[P(36.0, 34.2), P(30.0, 34.0), P(24.6, 35.4)], speed=0.9)
-person("soldier", "idle", spot=P(25.6, 36.0), face_yaw=-45, anim="idle")
+person("soldier", "carry", path=[P(36.0, 34.2), P(30.0, 36.6), P(27.0, 37.0)], speed=0.9)
+person("soldier", "idle", spot=P(20.2, 34.2), face_yaw=-45, anim="idle")
 person("guard", "idle", spot=P(39.6, 25.0), face_yaw=-135, anim="idle")
 person("guard", "idle", spot=P(39.6, 27.8), face_yaw=-135, anim="idle")
 animal("horse", "idle", P(15.6, 24.0), 0.4, dirn="SW")
@@ -563,6 +565,112 @@ while placed < 70 and tries < 4000:
                     "y": round(float(q[1]), 2), "scale": round(float(drng.uniform(0.7, 1.0)), 2)})
     placed += 1
 print("density pass: trees/bushes", placed)
+
+# ================================================================================================
+# second pass after the self-critique (reference B: between the houses the ground is beaten earth, every
+# door has its footpath, gardens are fenced, trees grow in groups)
+grng = np.random.default_rng(321)
+
+
+def sprite_yaw(name):
+    y = name.split("@")[1]
+    return -int(y[1:]) if y.startswith("m") else int(y)
+
+
+def nearest_road_point(q):
+    best = None
+    for r in ground["roads"]:
+        if r["kind"] == "bridge":
+            continue
+        pts_ = r["points"]
+        for i in range(len(pts_) - 1):
+            a_, b_ = np.array(pts_[i], float), np.array(pts_[i + 1], float)
+            d = b_ - a_
+            t = np.clip(((q - a_) @ d) / max(d @ d, 1e-6), 0, 1)
+            pr = a_ + d * t
+            dist = float(np.linalg.norm(q - pr))
+            if best is None or dist < best[0]:
+                best = (dist, pr)
+    return best
+
+
+npaths = 0
+for o in list(objects):
+    if o["kind"] != "building" or not o["sprite"].startswith("house"):
+        continue
+    yaw = sprite_yaw(o["sprite"])
+    c = np.array([o["x"], o["y"]])
+    door = c + local_to_world(0.0, -4.6, yaw)
+    nr = nearest_road_point(door)
+    if nr is None or nr[0] < 2.5 or nr[0] > 32.0:
+        continue
+    mid = (door + nr[1]) / 2 + grng.normal(0, 0.8, 2)
+    ground["roads"].append({"kind": "path", "width": 1.8, "points": [door, mid, nr[1]]})
+    npaths += 1
+nfence = 0
+for g in list(ground["gardens"]):
+    t = math.radians(g["yaw"])
+    ax_, ay_ = np.array([math.cos(t), -math.sin(t)]), np.array([math.sin(t), math.cos(t)])
+    cc = np.array(g["center"], float)
+    hw, hd = g["size"][0] / 2 + 0.6, g["size"][1] / 2 + 0.6
+    poly = [cc - ax_ * hw - ay_ * hd, cc + ax_ * hw - ay_ * hd, cc + ax_ * hw + ay_ * hd, cc - ax_ * hw + ay_ * hd]
+    n0 = len(objects)
+    fence_poly(poly, base="fence", gaps=(int(grng.integers(0, 4)),))
+    nfence += len(objects) - n0
+groves = 0
+tries = 0
+while groves < 9 and tries < 600:
+    tries += 1
+    q = np.array([grng.uniform(x0_, x1_), grng.uniform(y0_, y1_)])
+    if not free(q, 9.0, 4.0):
+        continue
+    for k in range(int(grng.integers(5, 9))):
+        t_ = q + grng.normal(0, 3.6, 2)
+        if free(t_, 4.0, 1.5):
+            tree(str(grng.choice(["oak_a", "oak_b", "beech_a", "beech_b", "oak_c", "birch_a"])), t_[0], t_[1],
+                 round(float(grng.uniform(0.75, 1.05)), 2))
+    for k in range(4):
+        b_ = q + grng.normal(0, 5.0, 2)
+        if free(b_, 3.0, 1.0):
+            veg.append({"type": str(grng.choice(["bush_a", "bush_b", "bush_c", "bush_d"])), "x": round(float(b_[0]), 2),
+                        "y": round(float(b_[1]), 2), "scale": 0.85})
+    groves += 1
+print("second pass: footpaths", npaths, "fence segments", nfence, "groves", groves)
+
+# ================================================================================================
+# nobody stands inside a building: actors whose spot falls in a footprint (rendered sprite metadata) are
+# pushed out past the nearest side; merchants keep their place behind the stall counters
+_meta_p = os.path.join(K.GAME_DIR, "assets", "sprites", "slice", "slice.json")
+if os.path.exists(_meta_p):
+    _meta = json.load(open(_meta_p))
+    _fps = []
+    for o in objects:
+        mm_ = _meta.get(o["sprite"])
+        if mm_ and o["kind"] == "building":
+            y_ = o["sprite"].split("@")[1]
+            yaw_ = math.radians(-int(y_[1:]) if y_.startswith("m") else int(y_))
+            _fps.append((o["sprite"], np.array([o["x"], o["y"]]), np.array([math.cos(yaw_), -math.sin(yaw_)]),
+                         np.array([math.sin(yaw_), math.cos(yaw_)]), mm_["footprint"][0] / 2 + 0.6,
+                         mm_["footprint"][1] / 2 + 0.6))
+    moved = 0
+    for a_ in people + animals:
+        if "spot" not in a_ or (a_.get("role") == "merchant" or a_.get("anim") == "talk" and a_.get("mode") == "work"):
+            continue
+        q = np.array(a_["spot"], float)
+        for name_, c_, ax_, ay_, hw_, hd_ in _fps:
+            if name_.startswith("stall"):
+                continue
+            r_ = q - c_
+            u_, v_ = r_ @ ax_, r_ @ ay_
+            if abs(u_) < hw_ and abs(v_) < hd_:
+                if hw_ - abs(u_) < hd_ - abs(v_):
+                    u_ = math.copysign(hw_ + 0.3, u_)
+                else:
+                    v_ = math.copysign(hd_ + 0.3, v_)
+                q = c_ + ax_ * u_ + ay_ * v_
+                moved += 1
+        a_["spot"] = [round(float(q[0]), 2), round(float(q[1]), 2)]
+    print("actors moved out of buildings", moved)
 
 # ================================================================================================
 # district outline (for the countryside generator, vegetation masks and the ground painter)

@@ -198,6 +198,23 @@ def paint_tile(data, maps, region, tx, ty, tw, th):
 
     alpha = np.ones(XS.shape, np.float32)
 
+    # village grass (reference B): around the buildings the meadow is trodden, drier, with bare patches
+    vimg = Image.new("L", (W, Hh), 0)
+    vd = ImageDraw.Draw(vimg)
+    for o in data["objects"]:
+        if o.get("kind") == "building":
+            cx_, cy_ = (o["x"] - x0) * PPM, (o["y"] - y0) * PPM
+            r_ = 16.0 * PPM
+            vd.ellipse([cx_ - r_, cy_ - r_, cx_ + r_, cy_ + r_], fill=255)
+    vil = ndimage.gaussian_filter(np.asarray(vimg, np.float32) / 255.0, 6.0 * PPM)
+    vil = np.clip(vil * 1.6, 0, 1)
+    if vil.max() > 0:
+        trod = srgb((150, 138, 86)) * (0.85 + 0.25 * np.clip(0.5 + n_small, 0, 1)[..., None])
+        col = col * (1 - vil[..., None] * 0.32) + trod * vil[..., None] * 0.32
+        bare_m = np.clip((fbm(XS, YS, 3.0, 61, 3) - 0.08) * 3.2, 0, 1) * vil
+        bare = srgb((150, 120, 80)) * (0.8 + 0.3 * np.clip(0.5 + n_mid, 0, 1)[..., None])
+        col = col * (1 - bare_m[..., None] * 0.75) + bare * bare_m[..., None] * 0.75
+
     def blend(target, mask_soft):
         nonlocal col
         m = np.clip(mask_soft, 0, 1)[..., None]

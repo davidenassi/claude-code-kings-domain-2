@@ -381,7 +381,7 @@ def roof(kind="thatch"):
 
 
 @cached
-def rock(c1=(170, 166, 156), c2=(118, 114, 108), lichen=(132, 136, 84)):
+def rock(c1=(142, 138, 130), c2=(98, 95, 90), lichen=(118, 124, 74)):
     """Weathered boulder: mottled grey, darker cracks, lichen and moss patches on top."""
     g = G("rock")
     co = g.coords("Object")

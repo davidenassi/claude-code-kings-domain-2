@@ -58,13 +58,18 @@ class Beast:
         if k.startswith("horse"):
             body_c = (120, 74, 44) if k == "horse" else (52, 40, 34)
             mane_c = (40, 28, 22) if k == "horse" else (24, 20, 18)
-            self.dim = dict(body=(0.42, (1.0, 2.15, 1.0)), h=1.28, leg=0.66, legr=0.075, neck=0.75, head=0.5, sx=0.2,
-                            sy=0.62, tail=0.6)
+            # proportions of a riding horse: withers ~1.55 m, legs as long as the body is deep
+            self.dim = dict(h=1.5, leg=0.95, legr=0.06, neck=0.85, head=0.58, sx=0.19, sy=0.6, tail=0.6, thigh=0.42)
             body, mane, hoof = mat(body_c), mat(mane_c), mat((40, 34, 30))
-            self.parts["body"] = ellipsoid(0.42, (1.0, 2.15, 1.0), body)
-            self.parts["neck"] = P2.capsule(0.16, 0.8, body, scale=(1.0, 1.3, 1.0))
-            self.parts["head"] = P2.capsule(0.11, 0.55, body, scale=(0.9, 1.4, 1.0))
-            self.parts["mane"] = P2.capsule(0.06, 0.75, mane, scale=(0.8, 1.6, 1.0))
+            self.parts["body"] = ellipsoid(0.36, (1.0, 2.25, 1.0), body)
+            self.parts["chest"] = ellipsoid(0.3, (1.05, 0.9, 1.15), body)
+            self.parts["haunch"] = ellipsoid(0.33, (1.08, 1.0, 1.12), body)
+            self.parts["neck"] = P2.capsule(0.15, 0.85, body, scale=(0.85, 1.45, 1.0))
+            self.parts["head"] = P2.capsule(0.1, 0.58, body, scale=(0.85, 1.35, 1.0))
+            self.parts["mane"] = P2.capsule(0.05, 0.8, mane, scale=(0.7, 1.7, 1.0))
+            for name in ("FL", "FR", "BL", "BR"):
+                self.parts["thigh" + name] = P2.capsule(0.12 if name[0] == "B" else 0.1, 0.42, body,
+                                                        scale=(0.8, 1.25, 1.0))
             self.parts["tail"] = P2.capsule(0.07, 0.65, mane)
             self.parts["ear"] = K2.cyl(0.04, 0.14, (0, 0, -50), body, verts=6, r2=0.0)
             if k == "horse_dark":
@@ -151,17 +156,25 @@ class Beast:
             place["saddle"] = body @ Matrix.Translation((0, 0.05, 0.36))
         fwd = -1.0          # model front towards -Y (south) at yaw 0
         if k.startswith("horse"):
-            neck = body @ Matrix.Translation((0, fwd * 0.72, 0.18)) @ Matrix.Rotation(-0.75 + head_pitch * 0.9, 4, "X")
-            place["neck"] = neck @ Matrix.Translation((0, 0, 0.75)) @ Matrix.Rotation(math.pi, 4, "X")
-            place["mane"] = neck @ Matrix.Translation((0, 0.07, 0.8)) @ Matrix.Rotation(math.pi, 4, "X")
-            head = neck @ Matrix.Translation((0, 0, 0.78)) @ Matrix.Rotation(1.35, 4, "X")
+            place["chest"] = body @ Matrix.Translation((0, fwd * 0.5, 0.02))
+            place["haunch"] = body @ Matrix.Translation((0, -fwd * 0.52, 0.04))
+            # neck frame: +Z runs from the withers forwards and up (rotation about X tips +Z towards -Y = front);
+            # capsules hang from their joint down -Z, so each is placed at the far end of its segment
+            th = 0.62 + 1.25 * head_pitch
+            neck = body @ Matrix.Translation((0, fwd * 0.62, 0.2)) @ Matrix.Rotation(th, 4, "X")
+            L = d["neck"]
+            place["neck"] = neck @ Matrix.Translation((0, 0, L))
+            place["mane"] = neck @ Matrix.Translation((0, 0.11, L * 0.98))
+            al = -0.62 + 0.45 * head_pitch                  # head points forward-down (grazing: nose to the grass)
+            head = neck @ Matrix.Translation((0, 0, L)) @ Matrix.Rotation(al - th, 4, "X")
             place["head"] = head
-            place["ear"] = neck @ Matrix.Translation((0.05, 0.02, 0.9))
-            place["tail"] = body @ Matrix.Translation((0, -fwd * 0.88, 0.2)) @ Matrix.Rotation(-0.35 + 0.08 * math.sin(ph), 4, "X")
+            place["ear"] = neck @ Matrix.Translation((0.05, 0.06, L + 0.12))
+            place["tail"] = body @ Matrix.Translation((0, -fwd * 0.95, 0.22)) @ Matrix.Rotation(-0.35 + 0.08 * math.sin(ph), 4, "X")
         elif k == "cow":
-            neck = body @ Matrix.Translation((0, fwd * 0.7, 0.1)) @ Matrix.Rotation(-1.1 + head_pitch, 4, "X")
-            place["neck"] = neck @ Matrix.Translation((0, 0, 0.35)) @ Matrix.Rotation(math.pi, 4, "X")
-            head = neck @ Matrix.Translation((0, 0, 0.42)) @ Matrix.Rotation(1.2, 4, "X")
+            th = 1.0 + 1.0 * head_pitch
+            neck = body @ Matrix.Translation((0, fwd * 0.7, 0.1)) @ Matrix.Rotation(th, 4, "X")
+            place["neck"] = neck @ Matrix.Translation((0, 0, 0.4))
+            head = neck @ Matrix.Translation((0, 0, 0.4)) @ Matrix.Rotation(-0.5 + 0.4 * head_pitch - th, 4, "X")
             place["head"] = head
             place["ear"] = neck @ Matrix.Translation((0, 0, 0.45))
             place["tail"] = body @ Matrix.Translation((0, -fwd * 0.8, 0.25)) @ Matrix.Rotation(-0.15, 4, "X")
@@ -187,6 +200,8 @@ class Beast:
             sy = d["sy"] * (fwd if name.startswith("F") else -fwd)
             top = W @ Matrix.Translation((sx, sy, d["leg"] + bob * 0.5)) @ Matrix.Rotation(swing[name], 4, "X")
             place["leg" + name] = top
+            if "thigh" + name in self.parts:
+                place["thigh" + name] = top @ Matrix.Translation((0, 0, 0.12))
             foot = (top @ Matrix.Translation((0, 0, -d["leg"]))).to_translation()
             place["hoof" + name] = Matrix.Translation((foot.x, foot.y, max(foot.z - 0.03, 0.0))) @ W
         for name, o in self.parts.items():

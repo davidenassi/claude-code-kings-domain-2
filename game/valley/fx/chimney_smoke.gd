@@ -20,7 +20,15 @@ static func puff() -> Texture2D:
 	return _puff
 
 
-static func make(pos: Vector2) -> CPUParticles2D:
+static func make(pos: Vector2) -> Node2D:
+	## A puff plume (smoke_plume.gd): the CPUParticles2D emitter below was never drawn by the
+	## compatibility renderer in the captures, so smoke is now a small deterministic sprite loop.
+	var plume: Node2D = preload("res://valley/fx/smoke_plume.gd").new()
+	plume.position = pos
+	return plume
+
+
+static func make_particles(pos: Vector2) -> CPUParticles2D:
 	var p := CPUParticles2D.new()
 	p.texture = puff()
 	p.position = pos

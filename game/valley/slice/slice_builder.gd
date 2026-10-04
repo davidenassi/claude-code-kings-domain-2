@@ -79,9 +79,10 @@ func build(ground: Node2D, shadows: Node2D, bridges: Node2D, objects: Node2D, fx
 			var p := Proj.ground_px(x, y) + Vector2(0, Proj.altitude_offset(z)) + Vector2(c[0], c[1])
 			var s := Smoke.make(p)
 			if forge:
-				s.amount = 18
-				s.scale_amount_max = 0.8
-				s.color = Color(0.62, 0.6, 0.58)
+				s.tint = Color(0.5, 0.48, 0.47)
+				s.alpha = 0.62
+				s.grow = 1.4
+				s.life = 5.0
 			smoke.add_child(s)
 		if o.has("wheel"):
 			_mill_wheel(o, sm, x, y, z, objects, sh_root, fx)

@@ -1,0 +1,194 @@
+{
+ "horse": {
+  "cell": [
+   128,
+   112
+  ],
+  "anchor": [
+   64,
+   92
+  ],
+  "rows": {
+   "idle_S": 0,
+   "idle_SE": 1,
+   "idle_E": 2,
+   "idle_NE": 3,
+   "idle_N": 4,
+   "walk_S": 5,
+   "walk_SE": 6,
+   "walk_E": 7,
+   "walk_NE": 8,
+   "walk_N": 9,
+   "graze_S": 10,
+   "graze_SE": 11,
+   "graze_E": 12,
+   "graze_NE": 13,
+   "graze_N": 14
+  },
+  "frames": {
+   "idle": 4,
+   "walk": 8,
+   "graze": 4
+  }
+ },
+ "horse_dark": {
+  "cell": [
+   128,
+   112
+  ],
+  "anchor": [
+   64,
+   92
+  ],
+  "rows": {
+   "idle_S": 0,
+   "idle_SE": 1,
+   "idle_E": 2,
+   "idle_NE": 3,
+   "idle_N": 4,
+   "walk_S": 5,
+   "walk_SE": 6,
+   "walk_E": 7,
+   "walk_NE": 8,
+   "walk_N": 9,
+   "graze_S": 10,
+   "graze_SE": 11,
+   "graze_E": 12,
+   "graze_NE": 13,
+   "graze_N": 14
+  },
+  "frames": {
+   "idle": 4,
+   "walk": 8,
+   "graze": 4
+  }
+ },
+ "cow": {
+  "cell": [
+   112,
+   96
+  ],
+  "anchor": [
+   56,
+   80
+  ],
+  "rows": {
+   "idle_S": 0,
+   "idle_SE": 1,
+   "idle_E": 2,
+   "idle_NE": 3,
+   "idle_N": 4,
+   "walk_S": 5,
+   "walk_SE": 6,
+   "walk_E": 7,
+   "walk_NE": 8,
+   "walk_N": 9,
+   "graze_S": 10,
+   "graze_SE": 11,
+   "graze_E": 12,
+   "graze_NE": 13,
+   "graze_N": 14
+  },
+  "frames": {
+   "idle": 4,
+   "walk": 8,
+   "graze": 4
+  }
+ },
+ "pig": {
+  "cell": [
+   72,
+   56
+  ],
+  "anchor": [
+   36,
+   44
+  ],
+  "rows": {
+   "idle_S": 0,
+   "idle_SE": 1,
+   "idle_E": 2,
+   "idle_NE": 3,
+   "idle_N": 4,
+   "walk_S": 5,
+   "walk_SE": 6,
+   "walk_E": 7,
+   "walk_NE": 8,
+   "walk_N": 9,
+   "graze_S": 10,
+   "graze_SE": 11,
+   "graze_E": 12,
+   "graze_NE": 13,
+   "graze_N": 14
+  },
+  "frames": {
+   "idle": 4,
+   "walk": 8,
+   "graze": 4
+  }
+ },
+ "sheep": {
+  "cell": [
+   72,
+   60
+  ],
+  "anchor": [
+   36,
+   48
+  ],
+  "rows": {
+   "idle_S": 0,
+   "idle_SE": 1,
+   "idle_E": 2,
+   "idle_NE": 3,
+   "idle_N": 4,
+   "walk_S": 5,
+   "walk_SE": 6,
+   "walk_E": 7,
+   "walk_NE": 8,
+   "walk_N": 9,
+   "graze_S": 10,
+   "graze_SE": 11,
+   "graze_E": 12,
+   "graze_NE": 13,
+   "graze_N": 14
+  },
+  "frames": {
+   "idle": 4,
+   "walk": 8,
+   "graze": 4
+  }
+ },
+ "chicken": {
+  "cell": [
+   40,
+   40
+  ],
+  "anchor": [
+   20,
+   32
+  ],
+  "rows": {
+   "idle_S": 0,
+   "idle_SE": 1,
+   "idle_E": 2,
+   "idle_NE": 3,
+   "idle_N": 4,
+   "walk_S": 5,
+   "walk_SE": 6,
+   "walk_E": 7,
+   "walk_NE": 8,
+   "walk_N": 9,
+   "graze_S": 10,
+   "graze_SE": 11,
+   "graze_E": 12,
+   "graze_NE": 13,
+   "graze_N": 14
+  },
+  "frames": {
+   "idle": 4,
+   "walk": 6,
+   "graze": 4
+  }
+ }
+}

@@ -7,6 +7,8 @@ const DIRS := ["S", "SE", "E", "NE", "N", "NE", "E", "SE"]
 const FLIP := [false, false, false, false, false, true, true, true]
 const FPS := {"idle": 3.0, "walk": 9.0, "carry": 8.0, "work": 7.0, "talk": 5.0, "train": 7.0, "graze": 2.5}
 const HIDE_BELOW_ZOOM := 0.07
+const PEOPLE_SCALE := 1.15
+const PEOPLE_SCALE_KINDS := ["farmer", "woodcutter", "builder", "artisan", "merchant", "guard", "soldier", "citizen", "woman"]
 
 var metas := {}            # kind -> atlas meta (cell, anchor, rows, frames)
 var textures := {}
@@ -36,6 +38,7 @@ class Actor:
 	var wait := 0.0
 	var heading := 0
 	var t := 0.0
+	var sc := 1.0
 
 
 func _ready() -> void:
@@ -94,6 +97,11 @@ func add_actor(kind: String, d: Dictionary) -> void:
 	sh.position = Vector2(float(a.meta["anchor"][0]) + 3.0, float(a.meta["anchor"][1]) - 1.0)
 	a.spr.add_child(sh)
 	a.holder = Node2D.new()
+	if kind in PEOPLE_SCALE_KINDS:
+		# figures drawn larger than life, as in the references (scale the sprite, never the holder:
+		# the holder's child offset includes the altitude, thousands of px)
+		a.sc = PEOPLE_SCALE
+		a.spr.scale = Vector2.ONE * a.sc
 	a.holder.add_child(a.spr)
 	add_child(a.holder)
 	if d.has("path"):
@@ -197,7 +205,7 @@ func _update(a: Actor, delta: float) -> void:
 	var z := _surface_z(a.pos)
 	var ax: float = m["anchor"][0]
 	var ay: float = m["anchor"][1]
-	a.spr.position = Vector2(-ax if not a.spr.flip_h else -(float(cell[0]) - ax), Proj.altitude_offset(z) - ay)
+	a.spr.position = Vector2((-ax if not a.spr.flip_h else -(float(cell[0]) - ax)) * a.sc, Proj.altitude_offset(z) - ay * a.sc)
 
 
 func _process(delta: float) -> void:
