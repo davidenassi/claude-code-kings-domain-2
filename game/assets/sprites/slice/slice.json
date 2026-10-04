@@ -455,5 +455,53 @@
   ],
   "yaw": 0,
   "chimneys": []
+ },
+ "church@m045": {
+  "anchor": [
+   384.97,
+   615.21
+  ],
+  "size": [
+   1077,
+   861
+  ],
+  "footprint": [
+   14.0,
+   22.0
+  ],
+  "yaw": -45,
+  "chimneys": []
+ },
+ "grave_stone@000": {
+  "anchor": [
+   19.2,
+   44.05
+  ],
+  "size": [
+   61,
+   54
+  ],
+  "footprint": [
+   0.8,
+   1.6
+  ],
+  "yaw": 0,
+  "chimneys": []
+ },
+ "haystack@000": {
+  "anchor": [
+   52.94,
+   94.45
+  ],
+  "size": [
+   173,
+   137
+  ],
+  "footprint": [
+   2.8,
+   2.8
+  ],
+  "yaw": 0,
+  "chimneys": []
  }
 }
