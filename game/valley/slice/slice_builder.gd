@@ -163,8 +163,9 @@ func _mill_wheel(o: Dictionary, sm: Dictionary, x: float, y: float, z: float, ob
 	foam.initial_velocity_min = 25.0
 	foam.initial_velocity_max = 70.0
 	foam.gravity = Vector2(0, 160)
-	foam.scale_amount_min = 2.0
-	foam.scale_amount_max = 4.5
+	foam.texture = preload("res://valley/fx/smoke_plume.gd").puff_texture()     # soft drops, not square pixels
+	foam.scale_amount_min = 0.06
+	foam.scale_amount_max = 0.16
 	foam.color = Color(0.92, 0.96, 1.0, 0.75)
 	var ramp := Gradient.new()
 	ramp.set_color(0, Color(1, 1, 1, 0.9))

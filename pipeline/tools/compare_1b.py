@@ -34,9 +34,36 @@ def palette(img, k=10):
     return [(c[i], cnt[i] / cnt.sum()) for i in order]
 
 
+def pair(left, right, l_label, r_label, out_path, H=760):
+    """Generic LEFT | RIGHT sheet (before / after), same layout as the reference sheets."""
+    r = Image.open(left).convert("RGB")
+    o = Image.open(right).convert("RGB")
+    r = r.resize((int(r.width * H / r.height), H), Image.LANCZOS)
+    o = o.resize((int(o.width * H / o.height), H), Image.LANCZOS)
+    sheet = Image.new("RGB", (r.width + o.width + 30, H + 84), (24, 22, 20))
+    sheet.paste(r, (10, 64))
+    sheet.paste(o, (r.width + 20, 64))
+    d = ImageDraw.Draw(sheet)
+    d.text((10, 16), l_label, fill=(240, 230, 200), font=font(28))
+    d.text((r.width + 20, 16), r_label, fill=(240, 230, 200), font=font(28))
+    sheet.save(out_path, optimize=True)
+    print("wrote", os.path.basename(out_path))
+
+
 def main():
     shots, out = sys.argv[1], sys.argv[2]
     os.makedirs(out, exist_ok=True)
+    # before / after sheets (optional: python tools/compare_1b.py <shots> <out> --before <iter1 dir>)
+    if "--before" in sys.argv:
+        before = sys.argv[sys.argv.index("--before") + 1]
+        for v in ("VERTICAL_SLICE_MID", "VERTICAL_SLICE_CLOSE", "MILITARY_CLOSE", "MILL_CLOSE"):
+            if os.path.exists(os.path.join(before, v + ".png")) and os.path.exists(os.path.join(shots, v + ".png")):
+                pair(os.path.join(before, v + ".png"), os.path.join(shots, v + ".png"), f"ITERAZIONE 1 — {v}",
+                     f"ITERAZIONE 2 (dopo l'autocritica) — {v}", os.path.join(out, f"ITERATION_{v}.png"))
+        p1 = os.path.join(ROOT, "screenshots", "phase1", "VILLAGE_CLOSE.png")
+        if os.path.exists(p1) and os.path.exists(os.path.join(shots, "VERTICAL_SLICE_CLOSE.png")):
+            pair(p1, os.path.join(shots, "VERTICAL_SLICE_CLOSE.png"), "FASE 1 — VILLAGE_CLOSE",
+                 "FASE 1B — VERTICAL_SLICE_CLOSE", os.path.join(out, "PHASE1_VS_PHASE1B.png"))
     H = 760
     for name, ref_file, shot, label in SHEETS:
         p = os.path.join(shots, shot + ".png")

@@ -23,9 +23,9 @@ uniform sampler2D foam_tex : filter_linear_mipmap, repeat_enable;
 uniform float sin_el = 0.766;
 uniform float px_per_m = 32.0;
 uniform float detail_strength = 1.0;
-uniform vec3 water_deep = vec3(0.10, 0.22, 0.26);     // teal, measured on the reference images
-uniform vec3 water_mid = vec3(0.16, 0.34, 0.36);
-uniform vec3 water_shallow = vec3(0.30, 0.46, 0.42);
+uniform vec3 water_deep = vec3(0.10, 0.23, 0.27);     // teal, measured on the reference images
+uniform vec3 water_mid = vec3(0.17, 0.39, 0.41);      // (shallows a little brighter and greener: the
+uniform vec3 water_shallow = vec3(0.34, 0.54, 0.47);  //  references show the bed through clear water)
 
 varying vec2 world;
 

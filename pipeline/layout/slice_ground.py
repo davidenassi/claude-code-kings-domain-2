@@ -199,14 +199,16 @@ def paint_tile(data, maps, region, tx, ty, tw, th):
     alpha = np.ones(XS.shape, np.float32)
 
     # village grass (reference B): around the buildings the meadow is trodden, drier, with bare patches
-    vimg = Image.new("L", (W, Hh), 0)
+    # (mask at 1 px/m, blurred, then enlarged: a full-resolution blur of this radius took minutes per tile)
+    lw, lh = W // PPM + 2, Hh // PPM + 2
+    vimg = Image.new("L", (lw, lh), 0)
     vd = ImageDraw.Draw(vimg)
     for o in data["objects"]:
         if o.get("kind") == "building":
-            cx_, cy_ = (o["x"] - x0) * PPM, (o["y"] - y0) * PPM
-            r_ = 16.0 * PPM
-            vd.ellipse([cx_ - r_, cy_ - r_, cx_ + r_, cy_ + r_], fill=255)
-    vil = ndimage.gaussian_filter(np.asarray(vimg, np.float32) / 255.0, 6.0 * PPM)
+            cx_, cy_ = o["x"] - x0, o["y"] - y0
+            vd.ellipse([cx_ - 16.0, cy_ - 16.0, cx_ + 16.0, cy_ + 16.0], fill=255)
+    vlow = ndimage.gaussian_filter(np.asarray(vimg, np.float32) / 255.0, 6.0)
+    vil = ndimage.zoom(vlow, PPM, order=1)[:Hh, :W]
     vil = np.clip(vil * 1.6, 0, 1)
     if vil.max() > 0:
         trod = srgb((150, 138, 86)) * (0.85 + 0.25 * np.clip(0.5 + n_small, 0, 1)[..., None])
