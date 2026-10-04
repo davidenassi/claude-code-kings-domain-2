@@ -183,9 +183,13 @@ def render_object(objs, name, ppm=None, samples=64, shadow_samples=24, with_shad
     for o in objs:
         o.visible_camera = True
     a = _render_exr(os.path.join(TMP, f"{name}_a.exr"), samples)
-    # pass B: coverage only (no ground)
+    # pass B: coverage only (no ground, no ink: lines that Freestyle draws over geometry hidden by a holdout
+    # - under water / under ground - fall outside this coverage and vanish)
     ground.hide_render = True
+    ink0 = bpy.context.scene.render.use_freestyle
+    bpy.context.scene.render.use_freestyle = False
     b = _render_exr(os.path.join(TMP, f"{name}_b.exr"), 4)
+    bpy.context.scene.render.use_freestyle = ink0
     out = {"anchor": (ax, ay), "size": (rx, ry)}
     alpha = np.clip(b[..., 3], 0, 1)
     rgb = a[..., :3] / np.maximum(a[..., 3:4], 1e-4)      # un-premultiply (Cycles film is premultiplied)
@@ -356,6 +360,28 @@ def outlines(on=True, thickness=1.7, color=(0.075, 0.048, 0.03), alpha=0.72, cre
     st.thickness = thickness
     st.thickness_position = "INSIDE"
     st.use_chaining = True
+    # helper planes (shadow catchers, under-water / under-ground cuts) never get ink
+    ls.select_by_collection = True
+    ls.collection = no_ink()
+    ls.collection_negation = "EXCLUSIVE"
+    if "ground" in bpy.data.objects:
+        to_no_ink(bpy.data.objects["ground"])
+
+
+def no_ink():
+    """Collection of helper objects excluded from the ink lines."""
+    c = bpy.data.collections.get("no_ink")
+    if c is None:
+        c = bpy.data.collections.new("no_ink")
+        bpy.context.scene.collection.children.link(c)
+    return c
+
+
+def to_no_ink(o):
+    c = no_ink()
+    for oc in list(o.users_collection):
+        oc.objects.unlink(o)
+    c.objects.link(o)
 
 
 def apply_yaw(objs, yaw_deg):

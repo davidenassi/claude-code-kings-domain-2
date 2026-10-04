@@ -704,7 +704,7 @@ def stable(rng):
     # inside: hay, mangers, saddles on the rail, buckets
     for k in range(4):
         x = -w / 2 + 1.5 + k * w / 4
-        objs.append(K2.box(1.9, 1.2, 0.8, (x, d / 2 - 0.8, 0), K2.roof("thatch"), bevel=0.06))
+        objs.append(K2.box(1.9, 1.2, 0.8, (x, d / 2 - 0.8, 0), K2.straw("X"), bevel=0.06))
         objs.append(K2.box(1.5, 0.45, 0.55, (x, -d / 2 + 0.7, 0), K2.planks((110, 80, 52), 0.2, False, 0.3)))
     objs.append(K2.box(w - 1, 0.1, 0.1, (0, -d / 2 + 0.25, 1.15), tm))
     for k in range(3):
@@ -712,8 +712,8 @@ def stable(rng):
                               scale=(1.2, 0.6, 0.5), segs=8))
         objs.append(K2.box(0.5, 0.06, 0.4, (-3.0 + k * 2.6, -d / 2 + 0.2, 0.95), K2.cloth((150, 30, 32))))
     for k in range(3):
-        objs.append(K2.box(1.0, 0.6, 0.5, (w / 2 + 1.0, -1.2 + k * 0.7, 0), K2.roof("thatch"), bevel=0.05))
-    objs.append(K2.box(1.0, 0.6, 0.5, (w / 2 + 1.0, -0.85, 0.5), K2.roof("thatch"), bevel=0.05))
+        objs.append(K2.box(1.0, 0.6, 0.5, (w / 2 + 1.0, -1.2 + k * 0.7, 0), K2.straw("X"), bevel=0.05))
+    objs.append(K2.box(1.0, 0.6, 0.5, (w / 2 + 1.0, -0.85, 0.5), K2.straw("X"), bevel=0.05))
     objs += K2.barrel(-w / 2 - 0.7, -d / 2 + 0.4, 0.0, 0.3, 0.7)
     objs += LMbanner(-w / 2 + 0.3, -d / 2 - 0.05, 2.45)
     return objs, (w + 2, d + 1)
@@ -758,7 +758,7 @@ def target(rng):
     objs.append(K2.beam((-0.6, 0.35, 0), (0, 0.1, 1.9), 0.09, tm))
     objs.append(K2.beam((0.6, 0.35, 0), (0, 0.1, 1.9), 0.09, tm))
     objs.append(K2.beam((0, 0.9, 0), (0, 0.15, 1.6), 0.09, tm))
-    t = K2.cyl(0.62, 0.22, (0, 0, 0), K2.roof("thatch"), verts=24, rot=(math.pi / 2 + 0.15, 0, 0))
+    t = K2.cyl(0.62, 0.22, (0, 0, 0), K2.straw("Z"), verts=24, rot=(math.pi / 2 + 0.15, 0, 0))
     t.location = (0, 0.05, 1.15)
     objs.append(t)
     for k, (r, col) in enumerate(((0.5, (232, 224, 204)), (0.36, (176, 40, 36)), (0.22, (232, 224, 204)), (0.1, (176, 40, 36)))):

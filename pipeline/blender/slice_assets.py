@@ -201,7 +201,7 @@ HOUSES = {
                         wood=(122, 86, 54), chimneys=(("W", 0.0),), porch=True, woodpile=("E", 3.0), flowers=0.0),
     # 6: merchant house: two plastered storeys (ochre), tile hip roof, door canopy, shutters
     "house_merchant": dict(w=8.6, d=7.0, storeys=("plaster", "timber"), roof="tile_dark", pitch=42, hip=True,
-                           plaster=(222, 188, 132), frame="chevron", chimneys=(("N", -1.5),), canopy="tile",
+                           plaster=(214, 194, 156), frame="chevron", chimneys=(("N", -1.5),), canopy="tile",
                            shutters=(120, 52, 44), flowers=0.7, barrels=((3.6, -4.0),)),
     # 7: tall narrow town house, gable to the street, three storeys
     "house_tall": dict(w=5.4, d=7.6, storeys=("stone", "timber", "timber"), fh=2.6, roof="tile", pitch=54,
@@ -234,19 +234,18 @@ def make_catchers(specs, root):
         g.data.materials.append(bpy.data.materials["ground_mat"])
         if root is not None:
             g.parent = root
+        R.to_no_ink(g)
         out.append(g)
     bpy.context.view_layer.update()
     return out
 
 
 def make_holdouts(specs, root):
-    """Under-water cut: a camera-only holdout plane just below every water-level catcher (z < -0.5), so the
-    parts of piles, piers and wheel blades under the river surface are transparent in the sprite (the
-    game's water shows there instead of geometry floating on top of it)."""
+    """Under-water / under-ground cut: a camera-only holdout plane just below every catcher, so the parts of
+    piles, piers, abutments and wheel blades under the river surface or the bank are transparent in the
+    sprite (the game's water and terrain show there instead of geometry drawn on top of them)."""
     out = []
     for z, x0, x1, y0, y1 in specs:
-        if z > -0.5:
-            continue
         bpy.ops.mesh.primitive_plane_add(size=1.0, location=((x0 + x1) / 2, (y0 + y1) / 2, z - 0.012))
         h = bpy.context.object
         h.scale = (x1 - x0, y1 - y0, 1)
@@ -257,6 +256,7 @@ def make_holdouts(specs, root):
             setattr(h, k, False)
         if root is not None:
             h.parent = root
+        R.to_no_ink(h)
         out.append(h)
     bpy.context.view_layer.update()
     return out

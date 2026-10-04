@@ -177,7 +177,7 @@ class Person:
         self.load = self._load(r["carry"])
 
     def _hat(self, kind):
-        straw = K2.roof("thatch")
+        straw = K2.straw("X")
         if kind == "straw":
             self.parts["hat"] = K2.cyl(0.29, 0.035, (0, 0, -50), straw, verts=22)
             self.parts["hat2"] = K2.cyl(0.15, 0.13, (0, 0, -50), straw, verts=16, r2=0.1)

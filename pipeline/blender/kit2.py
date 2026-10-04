@@ -339,8 +339,8 @@ def roof(kind="thatch"):
     """Roof elements (built geometry) read the per-element attribute 'rnd' and the UV (u along the ridge,
     v up the slope)."""
     pal = {
-        "thatch": ((104, 70, 32), (190, 144, 70), (236, 194, 112)),
-        "thatch_old": ((82, 62, 38), (154, 118, 70), (194, 158, 104)),
+        "thatch": ((80, 62, 34), (150, 120, 70), (204, 174, 114)),       # olive-golden, as in reference C
+        "thatch_old": ((70, 58, 40), (126, 106, 72), (172, 150, 108)),
         "shingle": ((62, 52, 44), (98, 82, 66), (128, 110, 90)),
         "tile": ((100, 56, 42), (136, 78, 58), (160, 102, 78)),
         "tile_dark": ((86, 52, 44), (116, 70, 56), (140, 92, 72)),
@@ -358,7 +358,7 @@ def roof(kind="thatch"):
         strands.inputs["Detail"].default_value = 4.0
         g.link(g.comb(u, g.math("MULTIPLY", v, 0.15)), strands.inputs["Vector"])
         patches = g.noise(g.comb(u, g.math("MULTIPLY", v, 1.6)), 0.9, 3)
-        tone = g.math("ADD", g.math("MULTIPLY", strands.outputs["Fac"], 0.42),
+        tone = g.math("ADD", g.math("MULTIPLY", strands.outputs["Fac"], 0.55),
                       g.math("ADD", g.math("MULTIPLY", rnd, 0.22), g.math("MULTIPLY", patches, 0.5)))
         tone = g.math("SUBTRACT", tone, 0.08)
         c = g.ramp(tone, [(0.0, pal[0]), (0.5, pal[1]), (1.0, pal[2])])
@@ -378,6 +378,43 @@ def roof(kind="thatch"):
         c = g.mix(c, (98, 100, 60), g.math("MULTIPLY", g.math("SUBTRACT", moss, 0.64, clamp=True), 1.4, clamp=True))
     return g.finish(c, ao_dark=0.3, ao_dist=0.6, normal=g.bump(grain, 0.25, 0.01),
                     rough=0.6 if kind == "slate" else 0.85)
+
+
+@cached
+def rock(c1=(170, 166, 156), c2=(118, 114, 108), lichen=(132, 136, 84)):
+    """Weathered boulder: mottled grey, darker cracks, lichen and moss patches on top."""
+    g = G("rock")
+    co = g.coords("Object")
+    big = g.noise(co, 1.4, 4)
+    fine = g.noise(co, 9.0, 3)
+    c = g.ramp(g.math("ADD", g.math("MULTIPLY", big, 0.8), g.math("MULTIPLY", fine, 0.3)), [(0.3, c2), (0.7, c1)])
+    crack = g.n("ShaderNodeTexVoronoi", feature="DISTANCE_TO_EDGE")
+    crack.inputs["Scale"].default_value = 2.2
+    g.link(co, crack.inputs["Vector"])
+    cr = g.ramp(crack.outputs["Distance"], [(0.0, 0.62), (0.05, 1.0)])
+    c = g.mix(c, cr, 1.0, "MULTIPLY")
+    nz = g.sep(g.coords("Normal"))[2]
+    top = g.math("MULTIPLY", g.math("SUBTRACT", nz, 0.45, clamp=True), 2.0, clamp=True)
+    moss = g.math("MULTIPLY", top, g.math("MULTIPLY", g.math("SUBTRACT", g.noise(co, 3.0, 3), 0.48, clamp=True), 4.0, clamp=True))
+    c = g.mix(c, lichen, moss)
+    return g.finish(c, ao_dark=0.38, normal=g.bump(g.math("ADD", big, g.math("MULTIPLY", fine, 0.4)), 0.5, 0.06), rough=0.9)
+
+
+@cached
+def straw(axis="Z", old=False):
+    """Loose straw / hay on any shape (object coordinates, no UVs): fibres along `axis`, clumps, sun-bleached
+    tips. Haystacks (Z), bales and cart loads (X), skeps."""
+    pal = ((82, 62, 38), (154, 118, 70), (194, 158, 104)) if old else ((112, 80, 38), (184, 146, 78), (226, 194, 124))
+    g = G("straw_" + axis + ("_old" if old else ""))
+    x, y, z = g.sep(g.coords("Object"))
+    k = {"X": (0.12, 1.0, 1.0), "Y": (1.0, 0.12, 1.0), "Z": (1.0, 1.0, 0.12)}[axis]
+    vec = g.comb(g.math("MULTIPLY", x, k[0] * 34.0), g.math("MULTIPLY", y, k[1] * 34.0), g.math("MULTIPLY", z, k[2] * 34.0))
+    fib = g.noise(vec, 1.0, 6, 0.7)
+    clump = g.noise(g.coords("Object"), 2.2, 3)
+    tone = g.math("ADD", g.math("MULTIPLY", fib, 0.9), g.math("MULTIPLY", g.math("SUBTRACT", clump, 0.5), 0.8))
+    tone = g.math("SUBTRACT", tone, 0.1)
+    c = g.ramp(tone, [(0.0, pal[0]), (0.45, pal[1]), (0.85, pal[2])])
+    return g.finish(c, ao_dark=0.3, ao_dist=0.5, normal=g.bump(fib, 0.8, 0.03), rough=1.0)
 
 
 @cached
@@ -411,10 +448,6 @@ def dark_glass():
 
 def iron():
     return flat((58, 58, 62), rough=0.45, noise=0.1, metal=0.7)
-
-
-def straw():
-    return roof("thatch")
 
 
 # ------------------------------------------------------------------------------------------------
@@ -473,6 +506,21 @@ def sphere(r, loc=(0, 0, 0), mat=None, scale=(1, 1, 1), segs=10, name="sph"):
     o.scale = scale
     for poly in o.data.polygons:
         poly.use_smooth = True
+    return o
+
+
+def shaggy(o, strength=0.09, size=0.22, levels=2):
+    """Irregular, tufty surface (hay, straw heaps): simple subdivision + cloud-noise displacement."""
+    sub = o.modifiers.new("sub", "SUBSURF")
+    sub.subdivision_type = "SIMPLE"
+    sub.levels = sub.render_levels = levels
+    tex = bpy.data.textures.get("hay_noise_%g" % size) or bpy.data.textures.new("hay_noise_%g" % size, "CLOUDS")
+    tex.noise_scale = size
+    tex.noise_depth = 2
+    d = o.modifiers.new("disp", "DISPLACE")
+    d.texture = tex
+    d.strength = strength
+    d.mid_level = 0.5
     return o
 
 

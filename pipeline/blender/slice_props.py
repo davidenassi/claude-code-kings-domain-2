@@ -54,8 +54,11 @@ def cart(rng, load="hay"):
     for sy in (-1, 1):
         objs.append(K2.beam((L / 2, sy * 0.35, 0.62), (L / 2 + 1.8, sy * 0.4, 0.15), 0.07, tm))
     if load == "hay":
-        bm = K2.sphere(1.0, (0, 0, 1.15), K2.roof("thatch"), scale=(1.35, 0.85, 0.55), segs=14)
-        objs.append(bm)
+        # heaped hay: overlapping lumps (irregular silhouette), loose straw fibres
+        for k, (hx, hy, hz, sx, sy, sz) in enumerate(((0.0, 0.0, 1.05, 1.35, 0.82, 0.5), (-0.55, 0.12, 1.35, 0.75, 0.6, 0.4),
+                                                       (0.5, -0.1, 1.3, 0.8, 0.62, 0.42), (0.05, 0.2, 1.55, 0.6, 0.45, 0.3))):
+            objs.append(K2.shaggy(K2.sphere(1.0, (hx + rng.uniform(-0.05, 0.05), hy, hz), K2.straw("X"),
+                                            scale=(sx, sy, sz), segs=18), 0.14, 0.18))
     elif load == "goods":
         objs += K2.barrel(-0.7, -0.3, 0.72, 0.28, 0.7)
         objs += K2.barrel(-0.7, 0.32, 0.72, 0.28, 0.7)
@@ -138,8 +141,8 @@ def _sacks(rng):
 
 @reg("haystack", 810)
 def _haystack(rng):
-    objs = [K2.cyl(1.4, 1.4, (0, 0, 0), K2.roof("thatch"), verts=20, r2=1.25)]
-    objs.append(K2.sphere(1.3, (0, 0, 1.35), K2.roof("thatch"), scale=(1.0, 1.0, 0.95), segs=16))
+    objs = [K2.shaggy(K2.cyl(1.4, 1.4, (0, 0, 0), K2.straw("Z"), verts=24, r2=1.25), 0.12, 0.2)]
+    objs.append(K2.shaggy(K2.sphere(1.3, (0, 0, 1.35), K2.straw("Z"), scale=(1.0, 1.0, 0.95), segs=20), 0.12, 0.2))
     objs.append(K2.cyl(0.06, 0.8, (0, 0, 2.4), K2.timber(), verts=6))
     return objs, (2.8, 2.8)
 
@@ -148,10 +151,10 @@ def _haystack(rng):
 def _bales(rng):
     objs = []
     for (x, y, z, r) in ((0, 0, 0, 0.1), (1.05, 0.1, 0, -0.1), (0.5, 0.05, 0.5, 0.05), (0.2, 0.75, 0, 0.6)):
-        objs.append(K2.box(1.0, 0.6, 0.5, (x, y, z), K2.roof("thatch"), rot=(0, 0, r), bevel=0.06))
+        objs.append(K2.box(1.0, 0.6, 0.5, (x, y, z), K2.straw("X"), rot=(0, 0, r), bevel=0.1))
         for k in (-0.25, 0.25):
             objs.append(K2.box(0.03, 0.62, 0.52, (x + k * math.cos(r), y + k * math.sin(r), z - 0.005),
-                               K2.flat((120, 92, 52)), rot=(0, 0, r)))
+                               K2.flat((64, 46, 28)), rot=(0, 0, r)))
     return objs, (2.2, 1.6)
 
 
@@ -452,7 +455,7 @@ def _bee(rng):
     for k in range(3):
         x = -1.0 + k * 1.0
         objs.append(K2.box(0.7, 0.6, 0.35, (x, 0, 0), K2.timber()))
-        objs.append(K2.cyl(0.32, 0.65, (x, 0, 0.35), K2.roof("thatch"), verts=12, r2=0.12))
+        objs.append(K2.cyl(0.32, 0.65, (x, 0, 0.35), K2.straw("X"), verts=12, r2=0.12))
     return objs, (3.0, 0.8)
 
 
@@ -494,9 +497,9 @@ def _pot(rng):
 @reg("rocks_bank", 837)
 def _rb(rng):
     objs = []
-    st = K2.stone((168, 160, 146), (122, 118, 112), (96, 92, 86), 0.9, 0.7)
+    st = K2.rock()
     for k in range(6):
-        r = rng.uniform(0.35, 0.8)
+        r = rng.uniform(0.45, 1.05)
         o = K2.sphere(r, (rng.uniform(-1.4, 1.4), rng.uniform(-0.6, 0.6), r * 0.35), st,
                       scale=(rng.uniform(1.0, 1.4), rng.uniform(0.8, 1.1), rng.uniform(0.6, 0.9)), segs=7)
         for poly in o.data.polygons:

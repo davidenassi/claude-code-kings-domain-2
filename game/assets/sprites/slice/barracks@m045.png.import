@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bumoqv6446je7"
-path="res://.godot/imported/beehives@045_sh.png-2c497c7f553f20b82436a5cc9613848a.ctex"
+uid="uid://dyqodm0h8oohm"
+path="res://.godot/imported/barracks@m045.png-f5f27264452da1e043b07a0a6c0a4859.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/slice/beehives@045_sh.png"
-dest_files=["res://.godot/imported/beehives@045_sh.png-2c497c7f553f20b82436a5cc9613848a.ctex"]
+source_file="res://assets/sprites/slice/barracks@m045.png"
+dest_files=["res://.godot/imported/barracks@m045.png-f5f27264452da1e043b07a0a6c0a4859.ctex"]
 
 [params]
 

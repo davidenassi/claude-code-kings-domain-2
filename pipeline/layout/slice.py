@@ -415,6 +415,50 @@ for o in objects:
                         "y": round(float(q[1]), 2), "scale": 0.8})
 
 # ================================================================================================
+# riverbanks (references B/C: boulders, reeds and bushes all along the water, not a bare edge)
+# own rng, after every other random draw, so the rest of the layout does not move
+brng = np.random.default_rng(77)
+
+
+def near_bridge(q, m=5.0):
+    d = q - BR_C
+    return abs(d @ BR_DIR) < BR_LEN / 2 + 3.0 and abs(d @ np.array([-BR_DIR[1], BR_DIR[0]])) < m
+
+
+def near_obj(q, m):
+    return any((q[0] - o["x"]) ** 2 + (q[1] - o["y"]) ** 2 < m * m for o in objects)
+
+
+for x in np.arange(BR_C[0] - 52.0, MILL[0] + 36.0, 3.2):
+    col = [wet(x, y) for y in np.arange(BR_C[1] - 45.0, BR_C[1] + 45.0, 0.5)]
+    ys = np.arange(BR_C[1] - 45.0, BR_C[1] + 45.0, 0.5)
+    for i in range(1, len(col)):
+        if col[i] == col[i - 1]:
+            continue
+        land = -1.0 if col[i] else 1.0                       # direction from the shore towards land (y)
+        shore = np.array([x + brng.uniform(-1.2, 1.2), ys[i]])
+        if near_bridge(shore) or np.linalg.norm(shore - MILL) < 14.0 or near_obj(shore, 2.5):
+            continue
+        r = brng.random()
+        if r < 0.42:
+            q = shore + np.array([0.0, land * brng.uniform(0.0, 1.2)])
+            if brng.random() < 0.5:
+                put("rocks_bank", q[0], q[1], 0)
+            else:
+                veg.append({"type": str(brng.choice(["rock_a", "rock_b", "rock_c", "rock_d"])), "x": round(float(q[0]), 2),
+                            "y": round(float(q[1]), 2), "scale": round(float(brng.uniform(0.7, 1.1)), 2)})
+        elif r < 0.64:
+            q = shore + np.array([0.0, -land * brng.uniform(0.2, 0.9)])
+            put("reeds", q[0], q[1])
+        q = shore + np.array([brng.uniform(-1, 1), land * brng.uniform(2.5, 5.0)])
+        if brng.random() < 0.45 and not near_obj(q, 3.0) and not near_bridge(q, 4.0):
+            veg.append({"type": str(brng.choice(["bush_a", "bush_b", "bush_c", "bush_d"])), "x": round(float(q[0]), 2),
+                        "y": round(float(q[1]), 2), "scale": round(float(brng.uniform(0.7, 1.0)), 2)})
+        if brng.random() < 0.08 and not near_obj(q, 5.0) and not near_bridge(q, 6.0):
+            veg.append({"type": str(brng.choice(["birch_a", "poplar_a", "oak_b"])), "x": round(float(q[0] + 1.5), 2),
+                        "y": round(float(q[1] + land * 2.0), 2), "scale": 0.85})
+
+# ================================================================================================
 # district outline (for the countryside generator, vegetation masks and the ground painter)
 pts = np.array([[o["x"], o["y"]] for o in objects] + [list(p) for f in ground["fields"] for p in f["polygon"]])
 REGION = [float(pts[:, 0].min() - 26), float(pts[:, 1].min() - 26), float(pts[:, 0].max() + 26), float(pts[:, 1].max() + 26)]
