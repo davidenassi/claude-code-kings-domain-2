@@ -353,7 +353,7 @@ def roof(kind="thatch"):
     if kind.startswith("thatch"):
         # straw: fine strands along the slope + clumps
         strands = g.n("ShaderNodeTexWave", wave_type="BANDS", bands_direction="X")
-        strands.inputs["Scale"].default_value = 26.0
+        strands.inputs["Scale"].default_value = 16.0          # ~2 px strands at 32 px/m (26 blurred to flat)
         strands.inputs["Distortion"].default_value = 9.0
         strands.inputs["Detail"].default_value = 4.0
         g.link(g.comb(u, g.math("MULTIPLY", v, 0.15)), strands.inputs["Vector"])
@@ -415,7 +415,7 @@ def straw(axis="Z", old=False, thatch=False):
     fib = g.noise(vec, 1.0, 6, 0.7)
     clump = g.noise(g.coords("Object"), 2.2, 3)
     tone = g.math("ADD", g.math("MULTIPLY", fib, 0.9), g.math("MULTIPLY", g.math("SUBTRACT", clump, 0.5), 0.8))
-    tone = g.math("SUBTRACT", tone, 0.1)
+    tone = g.math("SUBTRACT", tone, 0.32 if thatch else 0.1)
     c = g.ramp(tone, [(0.0, pal[0]), (0.45, pal[1]), (0.85, pal[2])])
     return g.finish(c, ao_dark=0.3, ao_dist=0.5, normal=g.bump(fib, 0.8, 0.03), rough=1.0)
 
