@@ -1,0 +1,112 @@
+[
+  {
+    "draw_calls": 621.0,
+    "frame_ms_cpu_render": 318.4,
+    "nodes": 2434.0,
+    "objects": 701.0,
+    "primitives": 131036.0,
+    "static_mem_mb": 129.4,
+    "texture_mem_mb": 682.5,
+    "view": "VERTICAL_SLICE_FAR",
+    "vram_mb": 696.5
+  },
+  {
+    "draw_calls": 485.0,
+    "frame_ms_cpu_render": 214.2,
+    "nodes": 2434.0,
+    "objects": 524.0,
+    "primitives": 108942.0,
+    "static_mem_mb": 129.4,
+    "texture_mem_mb": 682.5,
+    "view": "VERTICAL_SLICE_MID",
+    "vram_mb": 696.5
+  },
+  {
+    "draw_calls": 243.0,
+    "frame_ms_cpu_render": 198.1,
+    "nodes": 2434.0,
+    "objects": 247.0,
+    "primitives": 100562.0,
+    "static_mem_mb": 129.4,
+    "texture_mem_mb": 682.5,
+    "view": "VERTICAL_SLICE_CLOSE",
+    "vram_mb": 696.5
+  },
+  {
+    "draw_calls": 238.0,
+    "frame_ms_cpu_render": 190.2,
+    "nodes": 2434.0,
+    "objects": 244.0,
+    "primitives": 97772.0,
+    "static_mem_mb": 129.4,
+    "texture_mem_mb": 682.5,
+    "view": "MARKET_CLOSE",
+    "vram_mb": 696.5
+  },
+  {
+    "draw_calls": 77.0,
+    "frame_ms_cpu_render": 197.0,
+    "nodes": 2434.0,
+    "objects": 81.0,
+    "primitives": 91814.0,
+    "static_mem_mb": 129.4,
+    "texture_mem_mb": 682.5,
+    "view": "MILL_CLOSE",
+    "vram_mb": 696.5
+  },
+  {
+    "draw_calls": 225.0,
+    "frame_ms_cpu_render": 198.7,
+    "nodes": 2434.0,
+    "objects": 248.0,
+    "primitives": 97762.0,
+    "static_mem_mb": 129.4,
+    "texture_mem_mb": 682.5,
+    "view": "MILITARY_CLOSE",
+    "vram_mb": 696.5
+  },
+  {
+    "draw_calls": 163.0,
+    "frame_ms_cpu_render": 194.4,
+    "nodes": 2434.0,
+    "objects": 163.0,
+    "primitives": 97612.0,
+    "static_mem_mb": 129.4,
+    "texture_mem_mb": 682.5,
+    "view": "RESIDENTIAL_CLOSE",
+    "vram_mb": 696.5
+  },
+  {
+    "draw_calls": 84.0,
+    "frame_ms_cpu_render": 209.0,
+    "nodes": 2434.0,
+    "objects": 102.0,
+    "primitives": 91700.0,
+    "static_mem_mb": 129.4,
+    "texture_mem_mb": 682.5,
+    "view": "RIVER_CLOSE",
+    "vram_mb": 696.5
+  },
+  {
+    "draw_calls": 110.0,
+    "frame_ms_cpu_render": 165.9,
+    "nodes": 2434.0,
+    "objects": 128.0,
+    "primitives": 90620.0,
+    "static_mem_mb": 129.4,
+    "texture_mem_mb": 682.5,
+    "view": "FARM_CLOSE",
+    "vram_mb": 696.5
+  },
+  {
+    "draw_calls": 658.0,
+    "frame_ms_cpu_render": 335.3,
+    "nodes": 2434.0,
+    "objects": 752.0,
+    "primitives": 559934.0,
+    "static_mem_mb": 129.4,
+    "texture_mem_mb": 682.5,
+    "view": "VALLEY_FAR_1B",
+    "vram_mb": 696.5
+  }
+]
