@@ -34,12 +34,54 @@ Confronti (tavole REFERENCE | CURRENT, gioco non ritoccato, tavolozza k-means so
 | `compare/ITERATION_*.png` | iterazione 1 → 2 (prima e dopo l'autocritica) | |
 | `compare/PHASE1_VS_PHASE1B.png` | Fase 1 → Fase 1B | |
 
-La prima versione completa (iterazione 1) è conservata in `screenshots/phase1b/iter1/` con le sue tavole.
+La prima versione completa (iterazione 1) è in `screenshots/phase1b/iter1/` con le sue tavole; la revisione intermedia
+(solo edifici, JPEG) in `screenshots/phase1b/review0/`.
 
 ![MID](screenshots/phase1b/VERTICAL_SLICE_MID.png)
 ![CLOSE](screenshots/phase1b/VERTICAL_SLICE_CLOSE.png)
 ![MILITARY](screenshots/phase1b/MILITARY_CLOSE.png)
 ![MILL](screenshots/phase1b/MILL_CLOSE.png)
+
+---
+
+## Autocritica — ELEMENTO / REFERENCE / CURRENT / GAP / AZIONE
+
+Ho fatto **due giri di autocritica**, ciascuno seguito da un passaggio di miglioramento. Ogni volta ho aperto gli
+screenshot del gioco e li ho confrontati direttamente con i riferimenti A, B, C e D.
+
+### Giro 0 — revisione intermedia (edifici e terreno, persone non ancora renderizzate)
+
+Catture: `screenshots/phase1b/review0/`. Correzioni fatte **prima** dell'iterazione 1:
+
+| ELEMENTO | REFERENCE | CURRENT (giro 0) | GAP | AZIONE |
+|---|---|---|---|---|
+| Densità | B: case vicine, ogni vuoto riempito | 9 case sparse, grandi prati vuoti | **grande** | +4 case (sprite già renderizzati), 70 alberi e cespugli nei vuoti lontano da strade, tetti e acqua |
+| Ruota del mulino | C: grande ruota sull'acqua | ruota disegnata **4,5 m fuori posto**, sulla riva | difetto | agganciata a `objects[-1]`, che era l'ultimo prop del mulino; ora agganciata al mulino (misurata in gioco) |
+| Zona militare | D: cortile pieno, stendardi, soldati | cortile vuoto | medio | +11 prop (casse, botti, sacchi, rastrelliera, tavolo, carro, 2 stendardi), duellanti, guardie alla porta, cavallo |
+| Macchie grigie | — | massi della collina come macchie grigie accanto alla caserma | piccolo | esclusi dall'area del quartiere (+25 m) |
+| Prop sbagliati (foglio degli sprite) | — | lapide su una piastra verde, manichino "uccello", fontana azzurro piscina, campanile con cono rotondo | piccolo | tumuli di terra, manichino imbottito, acqua verde-acqua, cuspide piramidale |
+
+### Giro 1 → iterazione 2 (versione completa con persone e animali)
+
+Catture dell'iterazione 1: `screenshots/phase1b/iter1/` con le tavole in `iter1/compare/`. Correzioni fatte
+nell'iterazione 2 (le catture ufficiali in `screenshots/phase1b/` sono dopo queste correzioni):
+
+| ELEMENTO | REFERENCE | CURRENT (iter. 1) | GAP | AZIONE (iter. 2) |
+|---|---|---|---|---|
+| Suolo del villaggio | B/C: tra le case terra battuta, sentierini a ogni porta, erba solo a chiazze | prati verdi uniformi tra le case | **grande** | erba "di villaggio" (più secca, calpestata, chiazze di terra) entro ~16 m dagli edifici; terra battuta più larga intorno alle case (20×17 m); 9 sentieri dalle porte alla strada |
+| Densità e verde | B: orti recintati, alberi a gruppi | orti aperti, alberi isolati | medio | orti recintati (57 segmenti di steccato con un varco), 9 boschetti |
+| Fumo dei camini | B/C: fumo da quasi ogni camino | **assente**: gli emettitori CPUParticles2D esistevano (verificato: 10 nodi, visibili) ma non venivano disegnati | difetto | nuovo fumo a sprite (`fx/smoke_plume.gd`: 7 sbuffi in ciclo); fucina più scura. Verificato in cattura |
+| Cavalli e mucca | D: cavalli riconoscibili | "palloncini" con collo e testa rovesciati | difetto | catena collo → testa corretta, proporzioni da cavallo da sella (garrese 1,5 m, gambe lunghe, petto e groppa); atlanti rifatti |
+| Persone | C/D: figure grandi e leggibili | figure piccole | medio | disegnate 1,15 volte più grandi (scalando lo sprite, non il nodo: un primo tentativo spostava tutti sui tetti, trovato in cattura e corretto) |
+| Persone dentro gli edifici | — | 14 attori con il punto in un'impronta (orto dentro casa, soldato nella tenda, galline in casa, portatori attraverso il mulino) | piccolo | controllo automatico nel layout con le impronte renderizzate: 9 spostati oltre il lato più vicino; portatori che girano intorno al mulino; i mercanti restano dietro il banco |
+| Colore generale | A–D: luce calda, toni dorati e bruni | verde dominante | medio | grade nel renderer (caldo, saturazione 1,08, contrasto 1,07, vignetta leggera) + erba di villaggio. È un effetto del gioco, applicato a ogni frame, non un ritocco degli screenshot |
+| Acqua | B/C: turchese, fondo visibile | blu-verde scuro | medio | acqua bassa più chiara e verde; schiuma del mulino a gocce invece di quadratini; massi di riva più scuri (erano quasi bianchi) |
+| Nuvole (A) | nuvole volumetriche con base in ombra | dischi bianchi piatti | medio | cumuli con volume (normali da un campo d'altezza, luce da nord-ovest, base in ombra) |
+| Paglia dei tetti | C: paglia spessa, irregolare | fili troppo fini (si perdevano) | medio | fili più grossi; **resta** più pulita del riferimento (§15) |
+| Angolo di camera | ~35–40° di elevazione, più facciata | 50° | strutturale | **non cambiato**: è la proiezione del terreno e di tutti gli sprite; va deciso con te (§16) |
+| Campi | B: grano alto con covoni e steccati | campi dipinti piatti | medio | non affrontato (§15) |
+
+Risultato: tavole `compare/ITERATION_*.png` (iterazione 1 | iterazione 2) e le tavole con i riferimenti.
 
 ---
 
@@ -55,7 +97,7 @@ La prima versione completa (iterazione 1) è conservata in `screenshots/phase1b/
 | Persone | 7 ruoli, 4 animazioni | 9 ruoli con abiti e attrezzi propri, 6 animazioni (idle, walk, carry, work, talk, train), 82 persone nel quartiere |
 | Animali | nessuno | cavalli (2 mantelli), mucca, maiali, pecore, galline: idle, walk, graze — 30 nel quartiere |
 | Effetti | fumo semplice | fumo dei camini e della forgia, ruota del mulino, schiuma, stendardi al vento, alberi al vento, nuvole ai bordi, grade colore nel renderer |
-| Città | la città occupava la valle | il quartiere è una parte piccola della valle; il resto della valle si raccorda alle sue uscite |
+| Città | centro murato generico di case uguali | il quartiere sostituisce il vecchio centro, occupa una parte piccola della valle (≈ 220×220 m) e la rete stradale della valle si raccorda alle sue uscite |
 
 ## 2. Pipeline
 
@@ -206,7 +248,40 @@ massi della collina. Fiori, rose, girasoli, orti, canne, ninfee sono prop render
 
 ## 13. Prestazioni
 
-<<PERF>>
+Misure prese dal gioco durante la cattura (`screenshots/phase1b/perf.json`) e dal benchmark
+(`godot --path game -- --benchmark --views=res://data/capture/slice_views.json`), 1920×1080.
+
+**Ambiente di misura**: container senza GPU; Godot usa **llvmpipe** (OpenGL software sulla CPU, 4 core). I tempi
+e gli FPS qui sotto **non** rappresentano un PC con scheda video: servono per confronto tra viste e con la Fase 1.
+Draw call, nodi, memoria e VRAM invece sono valori reali del motore e valgono anche su GPU.
+
+| Vista | Draw call | Oggetti | Primitive | Tempo di disegno CPU (llvmpipe, ms) |
+|---|---|---|---|---|
+| VERTICAL_SLICE_FAR | 753 | 871 | 131.464 | 323.0 |
+| VERTICAL_SLICE_MID | 600 | 679 | 109.376 | 247.6 |
+| VERTICAL_SLICE_CLOSE | 285 | 302 | 100.860 | 235.1 |
+| MARKET_CLOSE | 291 | 312 | 98.104 | 211.0 |
+| MILL_CLOSE | 89 | 95 | 92.040 | 216.4 |
+| MILITARY_CLOSE | 257 | 284 | 98.048 | 222.6 |
+| RESIDENTIAL_CLOSE | 232 | 257 | 97.994 | 243.9 |
+| RIVER_CLOSE | 85 | 103 | 91.918 | 269.4 |
+| FARM_CLOSE | 111 | 129 | 90.778 | 213.4 |
+| VALLEY_FAR_1B | 734 | 867 | 560.448 | 324.8 |
+
+| Misura | Valore | Fase 1 | Note |
+|---|---|---|---|
+| FPS medi (benchmark, llvmpipe) | **7,6–7,8** in tutte le viste | — | costante tra viste: su llvmpipe domina il costo fisso di riempire 1920×1080 (terreno, acqua, grade). Su GPU il benchmark va rilanciato |
+| Frame peggiore (benchmark, llvmpipe) | 142–149 ms | — | nessun picco: niente caricamenti durante il gioco |
+| Draw call | **85–753** (max: vista FAR) | max 891 | budget < 1.500 |
+| Nodi nella scena | **2.887** | — | 82 persone + 30 animali + 266 oggetti + fumi + ombre |
+| Memoria statica del motore | **130,6 MB** | — | `Performance.MEMORY_STATIC` |
+| RAM del processo (picco) | **1.080 MB** | — | include le texture, che su llvmpipe stanno in RAM (su GPU stanno in VRAM) |
+| VRAM | **708 MB** (texture 694 MB) | 530 MB | +178 MB: sprite del quartiere, atlanti di persone e animali, 12 tessere del terreno dipinto |
+
+Ottimizzazioni attive: persone e animali aggiornati solo vicino alla vista e nascosti sotto zoom 0,07; fumo
+nascosto sotto zoom 0,09 e aggiornato solo se visibile; alberi in strisce MultiMesh (una draw call per striscia);
+terreno dipinto in tessere WebP compresse in VRAM; ombre degli sprite in un solo livello. Il grade colore è un
+solo rettangolo a schermo intero (una lettura della schermata per frame).
 
 ## 14. Problemi incontrati
 
@@ -259,38 +334,50 @@ Formato: PROBLEMA / CAUSA / LIMITE / SOLUZIONI / SOLUZIONE SCELTA.
 13. **Tempi di render** (solo CPU, 4 core): ogni correzione del kit obbliga a rifare gli sprite interessati
    (≈ 3–10 min per edificio). Le correzioni sono state verificate su render di prova piccoli prima di rilanciare.
 
-### Autocritica (iterazione 1 → iterazione 2)
-
-Screenshot dell'iterazione 1 (prima versione completa, con persone e animali): `screenshots/phase1b/iter1/`,
-con le tavole di confronto in `screenshots/phase1b/iter1/compare/`. Li ho aperti uno per uno e confrontati con i
-riferimenti A, B, C e D. Questa è la tabella che ne è uscita, con quello che ho fatto nell'iterazione 2.
-
-| ELEMENTO | REFERENCE | CURRENT (iter. 1) | GAP | AZIONE (iter. 2) |
-|---|---|---|---|---|
-| Suolo del villaggio | B/C: tra le case terra battuta, sentierini a ogni porta, erba solo a chiazze | prati verdi uniformi tra le case e tra i quartieri | **grande** | erba "di villaggio" (più secca, calpestata, chiazze di terra) entro ~16 m da ogni edificio; terra battuta intorno alle case più larga (20×17 m); 9 sentieri dalle porte alla strada più vicina |
-| Densità | B: case vicine, alberi a gruppi, nessun vuoto | 12 case sparse, grandi prati vuoti | **grande** | +4 case (sprite già renderizzati, angoli riusati), 70 alberi/cespugli nei vuoti lontano da strade e tetti, 9 boschetti, orti recintati (57 segmenti di steccato) |
-| Fumo dei camini | B/C: fumo da quasi ogni camino | **assente**: gli emettitori CPUParticles2D esistevano (10, visibili) ma non venivano disegnati | difetto | nuovo fumo a sprite (`fx/smoke_plume.gd`: 7 sbuffi in ciclo, salgono, derivano, si allargano, svaniscono); fucina più scura. Verificato in cattura |
-| Ruota del mulino | C: grande ruota sull'acqua, acqua bianca | ruota disegnata **4,5 m fuori posto**, sulla riva | difetto | causa: la ruota veniva agganciata a `objects[-1]`, che era l'ultimo prop dell'ecosistema del mulino; ora è agganciata al mulino. Schiuma a gocce morbide invece di quadratini |
-| Cavalli e mucca | D: cavalli riconoscibili da lontano | "palloncini" con collo e testa rovesciati | difetto | rotazione del collo corretta (la testa guarda avanti e in basso, al pascolo il muso tocca l'erba), proporzioni da cavallo da sella (garrese 1,5 m, gambe lunghe, petto e groppa) |
-| Persone | C/D: figure grandi, leggibili, molte | figure piccole e semplici | medio | scala 1,15 (sprite, non il nodo: un primo tentativo spostava tutti sui tetti, trovato e corretto); 18 persone in più (gruppi che chiacchierano, viandanti sulle strade, soldati) |
-| Persone dentro gli edifici | — | 14 attori con il punto dentro un'impronta (orto dentro casa, soldato nella tenda, galline in casa) | piccolo | controllo automatico nel layout: chi cade in un'impronta viene spostato oltre il lato più vicino (9 spostati); i mercanti restano dietro il banco |
-| Colore generale | A–D: luce calda, toni dorati e bruni, verdi oliva | verde dominante (primo colore della tavolozza ~30 %) | medio | grade nel renderer (caldo, saturazione 1,08, contrasto 1,07, vignetta leggera) + erba di villaggio; è un effetto del gioco, applicato a ogni frame, non un ritocco degli screenshot |
-| Acqua e rive | B/C: turchese chiaro, fondo visibile, molti massi e canne | blu-verde scuro e piatto, riva quasi nuda | medio | 32 gruppi di massi Blender + canne + cespugli lungo le due rive, nuovo materiale roccia (muschio, crepe); acqua bassa più chiara e verde |
-| Nuvole (A) | nuvole volumetriche con base in ombra | dischi bianchi piatti | medio | cumuli con volume (normali da un campo d'altezza, luce da nord-ovest, base e nuclei in ombra) |
-| Macchie grigie vicino al quartiere | — | massi della collina del castello come macchie grigie sfocate | piccolo | esclusi dall'area del quartiere (+25 m), scala ridotta |
-| Zona militare | D: cortile pieno (casse, botti, rastrelliere, carro), stendardi, soldati che si addestrano | tutti gli elementi c'erano, ma il cortile era vuoto | piccolo | +11 prop (casse, botti, sacchi, rastrelliera, tavolo, carro, 2 stendardi), 2 coppie di duellanti, porta con guardie, soldato che porta casse, cavallo con scudiero |
-| Tetti | C: paglia spessa, irregolare, con muschio | puliti e regolari | medio | fili della paglia più grossi e colmi in paglia vera; **resta** più pulito del riferimento (vedi §15) |
-| Angolo di camera | ~35–40° di elevazione, più facciata visibile | 50° | strutturale | **non cambiato**: è la proiezione del terreno e di tutti gli sprite (Fase 1); cambiarla vuol dire rifare tutto. Vedi §15–16 |
-| Campi | B: grano dorato con covoni e steccati | campi grandi, piatti | medio | non affrontato in questa iterazione (vedi §15) |
-
-
 ## 15. Differenze rimanenti rispetto ai riferimenti
 
-<<REMAINING>>
+Confronto onesto dopo l'iterazione 2 (tavole in `screenshots/phase1b/compare/`). Il quartiere ora è
+riconoscibile come lo stesso tipo di mondo dei riferimenti (stessi elementi, stesso ordine di grandezza, stessa
+"vita"), ma **non ha ancora la loro densità di dettaglio né la loro resa pittorica**.
+
+| Elemento | Riferimento | Fase 1B | Perché resta |
+|---|---|---|---|
+| Angolo di camera | ~35–40°, facciate molto visibili, prospettiva leggera | obliqua 50°, si vedono soprattutto i tetti | è la proiezione di tutto il gioco (terreno, sprite, layout). Cambiarla = rifare tutto il terreno e tutti gli sprite. Decisione da prendere con te (§16) |
+| Densità | B/C: ogni metro ha un oggetto (casse, piante, persone, recinti) | densità buona in piazza e caserma, ancora vuoti di prato tra i gruppi di case | serve una passata di "riempimento" più fine e altri prop; il tempo di render (CPU) è il limite |
+| Dettaglio delle superfici | pittura a mano: muschio, crepe, ogni tegola diversa, macchie | materiali procedurali puliti, leggibili ma più uniformi | i materiali procedurali non arrivano da soli a quella ricchezza; servirebbero texture dipinte o più strati di sporco |
+| Paglia | spessa, arruffata, con bordi irregolari | file regolari con fili, colmi in paglia | migliorata, ma ancora "pettinata" |
+| Persone | ~1,8 m disegnate grandi, abiti dettagliati, pose varie | figure semplici (capsule), 9 ruoli leggibili dal colore | i modelli sono procedurali e semplici; per avvicinarsi servono modelli scolpiti e animati a mano |
+| Animali | cavalli con selle e criniere, pose naturali | cavalli e mucche corretti ma geometrici | come sopra |
+| Acqua | turchese brillante, fondo visibile, molta schiuma bianca, rapide | verde-acqua con increspature e schiuma leggera, più scura | lo shader dipende dalla profondità reale del fiume, che è profondo; servono rapide e sassi nell'acqua dove il fiume è basso |
+| Rive | massi, sassi e piante fitte lungo tutta la riva | gruppi di massi ogni ~3 m, canne, cespugli | massi ancora un po' geometrici |
+| Campi | grano alto con spighe, covoni, steccati | campi dipinti piatti, covoni, steccati solo in parte | il grano è dipinto a terra, non ha volume |
+| Valle (A) | foreste fitte ovunque, molti laghi, nuvole volumetriche ai bordi | struttura giusta (montagne, fiumi, lago, foreste, campi) ma più ordinata; nuvole migliorate ma ancora "a cuscino" | la valle è della Fase 1; qui ho cambiato solo nuvole e raccordi |
+| Luce | ora dorata, forti contrasti, ombre lunghe e calde | sole alto, ombre corte; il grade riscalda ma non cambia l'ora | l'ora del sole è fissata per tutti gli sprite già renderizzati |
+
 
 ## 16. Cosa serve per arrivare alla qualità finale
 
-<<FINAL>>
+In ordine di impatto sul risultato:
+
+1. **Decidere l'angolo di camera.** È la differenza più grande rispetto ai riferimenti. Opzioni: (a) tenere 50°
+   (più leggibile per un city builder, tutto già fatto); (b) passare a ~40° per vedere più facciate: significa
+   rigenerare terreno, proiezione, tutti gli sprite e il terreno dipinto (la pipeline lo permette: è un
+   parametro, ma sono ore di render). Serve la tua scelta prima di produrre altri asset.
+2. **Una GPU per renderizzare.** Oggi Cycles gira su 4 core CPU: un edificio costa 3–10 minuti, una persona
+   ~3 minuti per ruolo con pochi campioni. Con una GPU si possono usare più campioni, più varianti, più
+   dettaglio geometrico (tegole e pietre modellate, paglia a fili) e iterare molto più spesso.
+3. **Texture dipinte per i materiali principali** (intonaco, pietra, paglia, legno): pochi materiali dipinti
+   (o generati e ritoccati) applicati sui modelli procedurali darebbero la ricchezza pittorica che il solo
+   procedurale non raggiunge.
+4. **Persone e animali migliori**: modelli con volti e mani, abiti con pieghe, più pose per ruolo, cavalli
+   montati, carri che si muovono. È il punto dove il divario con C e D è più evidente da vicino.
+5. **Riempimento fine**: un sistema che, dato un edificio e il suo tipo, sparge decine di piccoli oggetti
+   (fiori, sacchi, attrezzi, galline, vasi, panni stesi) e piante in tutti gli spazi liberi, con regole di
+   distanza da porte e strade. Le regole ci sono già (ecosistema per edificio): vanno estese.
+6. **Acqua più viva** dove il fiume è basso: sassi nell'acqua, rapide bianche, riflessi del cielo.
+7. **Luce dell'ora dorata**: sole più basso e caldo per tutti gli sprite (va scelto una volta, poi si rifà tutto).
+8. **Benchmark su una GPU vera** per i numeri di FPS reali (il comando è pronto).
+
 
 ---
 
