@@ -88,8 +88,8 @@ if [ "$need_import" = 1 ]; then
     else
         say "Prima apertura: preparazione delle risorse (texture, sprite, terreno). Può richiedere alcuni minuti..."
     fi
-    if ! "${G[@]}" --headless --path "$GAME" --import >"$HERE/.import_log.txt" 2>&1; then
-        say "Errore durante l'importazione. Dettagli in .import_log.txt"
+    if ! "${G[@]}" --headless --path "$GAME" --import >"$HERE/import_log.txt" 2>&1; then
+        say "Errore durante l'importazione. Dettagli in import_log.txt"
         exit 1
     fi
     touch "$STAMP"

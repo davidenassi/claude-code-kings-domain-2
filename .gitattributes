@@ -1,4 +1,4 @@
-# launchers: Windows needs CRLF, bash needs LF
-*.bat text eol=crlf
+# launchers: the .bat is stored with CRLF as-is (raw downloads and zips keep it), bash needs LF
+*.bat -text
 *.sh text eol=lf
 *.command text eol=lf

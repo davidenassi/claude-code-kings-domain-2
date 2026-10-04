@@ -25,4 +25,4 @@ __pycache__/
 
 # launcher: personal Godot path and import log
 godot_path.txt
-.import_log.txt
+import_log.txt
