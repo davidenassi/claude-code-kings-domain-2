@@ -1760,6 +1760,256 @@
    ],
    "face_yaw": -20,
    "anim": "idle"
+  },
+  {
+   "role": "artisan",
+   "mode": "idle",
+   "spot": [
+    1491.13,
+    962.11
+   ],
+   "face_yaw": 474.95,
+   "anim": "talk",
+   "start": 0.9
+  },
+  {
+   "role": "woman",
+   "mode": "idle",
+   "spot": [
+    1492.49,
+    961.47
+   ],
+   "face_yaw": 654.95,
+   "anim": "talk",
+   "start": 0.28
+  },
+  {
+   "role": "merchant",
+   "mode": "idle",
+   "spot": [
+    1495.45,
+    942.67
+   ],
+   "face_yaw": 386.57,
+   "anim": "talk",
+   "start": 0.89
+  },
+  {
+   "role": "woman",
+   "mode": "idle",
+   "spot": [
+    1496.12,
+    944.01
+   ],
+   "face_yaw": 566.57,
+   "anim": "talk",
+   "start": 0.48
+  },
+  {
+   "role": "artisan",
+   "mode": "idle",
+   "spot": [
+    1496.68,
+    941.79
+   ],
+   "face_yaw": 330.99,
+   "anim": "talk",
+   "start": 0.55
+  },
+  {
+   "role": "woman",
+   "mode": "idle",
+   "spot": [
+    1495.96,
+    943.11
+   ],
+   "face_yaw": 510.99,
+   "anim": "talk",
+   "start": 0.3
+  },
+  {
+   "role": "merchant",
+   "mode": "idle",
+   "spot": [
+    1491.01,
+    958.01
+   ],
+   "face_yaw": 429.4,
+   "anim": "talk",
+   "start": 0.09
+  },
+  {
+   "role": "merchant",
+   "mode": "idle",
+   "spot": [
+    1492.42,
+    958.53
+   ],
+   "face_yaw": 609.4,
+   "anim": "talk",
+   "start": 0.55
+  },
+  {
+   "role": "artisan",
+   "mode": "idle",
+   "spot": [
+    1495.41,
+    954.0
+   ],
+   "face_yaw": 412.89,
+   "anim": "talk",
+   "start": 0.47
+  },
+  {
+   "role": "merchant",
+   "mode": "idle",
+   "spot": [
+    1496.61,
+    954.9
+   ],
+   "face_yaw": 592.89,
+   "anim": "talk",
+   "start": 0.61
+  },
+  {
+   "role": "merchant",
+   "mode": "idle",
+   "spot": [
+    1491.6,
+    963.18
+   ],
+   "face_yaw": 524.36,
+   "anim": "talk",
+   "start": 0.46
+  },
+  {
+   "role": "woman",
+   "mode": "idle",
+   "spot": [
+    1492.01,
+    961.74
+   ],
+   "face_yaw": 704.36,
+   "anim": "talk",
+   "start": 0.72
+  },
+  {
+   "role": "woman",
+   "mode": "idle",
+   "spot": [
+    1487.6,
+    940.19
+   ],
+   "face_yaw": 400.18,
+   "anim": "talk",
+   "start": 0.29
+  },
+  {
+   "role": "artisan",
+   "mode": "idle",
+   "spot": [
+    1488.57,
+    941.34
+   ],
+   "face_yaw": 580.18,
+   "anim": "talk",
+   "start": 0.87
+  },
+  {
+   "role": "builder",
+   "mode": "carry",
+   "path": [
+    [
+     1471.62,
+     956.24
+    ],
+    [
+     1461.01,
+     949.88
+    ],
+    [
+     1451.82,
+     939.27
+    ],
+    [
+     1439.8,
+     931.49
+    ]
+   ],
+   "speed": 0.91,
+   "start": 0.82
+  },
+  {
+   "role": "citizen",
+   "mode": "carry",
+   "path": [
+    [
+     1489.29,
+     969.68
+    ],
+    [
+     1504.07,
+     983.97
+    ],
+    [
+     1514.86,
+     996.26
+    ]
+   ],
+   "speed": 1.16,
+   "start": 0.71
+  },
+  {
+   "role": "woodcutter",
+   "mode": "carry",
+   "path": [
+    [
+     1448.21,
+     1016.57
+    ],
+    [
+     1442.21,
+     1028.57
+    ],
+    [
+     1428.28,
+     1040.82
+    ],
+    [
+     1392.21,
+     1066.57
+    ],
+    [
+     1358.21,
+     1082.57
+    ]
+   ],
+   "speed": 1.11,
+   "start": 0.27
+  },
+  {
+   "role": "builder",
+   "mode": "carry",
+   "path": [
+    [
+     1446.21,
+     1024.57
+    ],
+    [
+     1458.21,
+     1034.57
+    ],
+    [
+     1472.21,
+     1042.57
+    ],
+    [
+     1488.21,
+     1046.57
+    ]
+   ],
+   "speed": 0.91,
+   "start": 0.3
   }
  ],
  "animals": [
@@ -2011,6 +2261,46 @@
     1062.57
    ],
    "radius": 3.0,
+   "dir": "S"
+  },
+  {
+   "kind": "chicken",
+   "mode": "wander",
+   "spot": [
+    1424.21,
+    1040.57
+   ],
+   "radius": 2.5,
+   "dir": "S"
+  },
+  {
+   "kind": "chicken",
+   "mode": "wander",
+   "spot": [
+    1463.13,
+    944.93
+   ],
+   "radius": 2.5,
+   "dir": "S"
+  },
+  {
+   "kind": "chicken",
+   "mode": "wander",
+   "spot": [
+    1448.99,
+    950.59
+   ],
+   "radius": 2.5,
+   "dir": "S"
+  },
+  {
+   "kind": "chicken",
+   "mode": "wander",
+   "spot": [
+    1515.92,
+    969.85
+   ],
+   "radius": 2.5,
    "dir": "S"
   }
  ],

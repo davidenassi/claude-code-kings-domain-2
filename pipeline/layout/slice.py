@@ -459,6 +459,32 @@ for x in np.arange(BR_C[0] - 52.0, MILL[0] + 36.0, 3.2):
                         "y": round(float(q[1] + land * 2.0), 2), "scale": 0.85})
 
 # ================================================================================================
+# more life (references B/C: the square and the streets are crowded) - own rng, appended last
+prng = np.random.default_rng(91)
+stall_pts = [P(u, v) for _, u, v, _ in stalls] + [P(0, 0)]
+groups = 0
+while groups < 7:
+    c = P(prng.uniform(-13, 13), prng.uniform(-10, 10))
+    if min(np.linalg.norm(c - q) for q in stall_pts) < 3.6:
+        continue
+    yaw = prng.uniform(0, 360)
+    n = 2 if prng.random() < 0.6 else 3
+    for k in range(n):
+        a_ = math.radians(yaw + k * 360.0 / n)
+        q = c + np.array([math.sin(a_), math.cos(a_)]) * 0.75
+        person(str(prng.choice(["woman", "citizen", "merchant", "artisan", "farmer", "woman"])), "idle", spot=q,
+               face_yaw=float(yaw + k * 360.0 / n + 180.0), anim="talk", start=round(float(prng.random()), 2))
+    groups += 1
+for r in ground["roads"]:
+    if r["kind"] in ("rural", "lane", "path") and len(r["points"]) >= 3:
+        pts_ = [np.array(q, float) for q in r["points"]]
+        person(str(prng.choice(["farmer", "woman", "citizen", "builder", "woodcutter"])),
+               "carry" if prng.random() < 0.35 else "walk", path=pts_, speed=round(float(prng.uniform(0.85, 1.2)), 2),
+               start=round(float(prng.random()), 2))
+for q in (FARM + np.array([6.0, 4.0]), P(-14, -24), P(-28, -30), SM + np.array([4.0, 3.0])):
+    animal("chicken", "wander", q, 2.5)
+
+# ================================================================================================
 # district outline (for the countryside generator, vegetation masks and the ground painter)
 pts = np.array([[o["x"], o["y"]] for o in objects] + [list(p) for f in ground["fields"] for p in f["polygon"]])
 REGION = [float(pts[:, 0].min() - 26), float(pts[:, 1].min() - 26), float(pts[:, 0].max() + 26), float(pts[:, 1].max() + 26)]
