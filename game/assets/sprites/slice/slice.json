@@ -250,11 +250,11 @@
  },
  "dummy@m045": {
   "anchor": [
-   34.04,
-   56.07
+   24.07,
+   56.57
   ],
   "size": [
-   105,
+   95,
    71
   ],
   "footprint": [
@@ -442,12 +442,12 @@
  },
  "grave_cross@000": {
   "anchor": [
-   19.2,
-   46.55
+   19.23,
+   47.95
   ],
   "size": [
    58,
-   57
+   56
   ],
   "footprint": [
    0.8,
@@ -474,12 +474,12 @@
  },
  "grave_stone@000": {
   "anchor": [
-   19.2,
-   44.05
+   18.61,
+   44.57
   ],
   "size": [
    61,
-   54
+   55
   ],
   "footprint": [
    0.8,
@@ -720,6 +720,607 @@
   "footprint": [
    1.6,
    1.0
+  ],
+  "yaw": 0,
+  "chimneys": []
+ },
+ "logs@m045": {
+  "anchor": [
+   70.23,
+   74.95
+  ],
+  "size": [
+   166,
+   130
+  ],
+  "footprint": [
+   4.2,
+   1.6
+  ],
+  "yaw": -45,
+  "chimneys": []
+ },
+ "mill@m025": {
+  "anchor": [
+   278.23,
+   340.28
+  ],
+  "size": [
+   733,
+   559
+  ],
+  "footprint": [
+   9.0,
+   7.0
+  ],
+  "yaw": -25,
+  "chimneys": [
+   [
+    126.0,
+    -208.1
+   ]
+  ],
+  "attach": {
+   "wheel": [
+    0.935,
+    5.567,
+    -0.55
+   ]
+  }
+ },
+ "mill_wheel_0@m025": {
+  "anchor": [
+   54.36,
+   -72.37
+  ],
+  "size": [
+   179,
+   150
+  ],
+  "footprint": [
+   2.0,
+   2.0
+  ],
+  "yaw": -25,
+  "chimneys": [],
+  "sort_point": [
+   0.935,
+   5.567,
+   -0.55
+  ]
+ },
+ "mill_wheel_1@m025": {
+  "anchor": [
+   54.36,
+   -72.49
+  ],
+  "size": [
+   179,
+   150
+  ],
+  "footprint": [
+   2.0,
+   2.0
+  ],
+  "yaw": -25,
+  "chimneys": [],
+  "sort_point": [
+   0.935,
+   5.567,
+   -0.55
+  ]
+ },
+ "mill_wheel_2@m025": {
+  "anchor": [
+   54.36,
+   -72.37
+  ],
+  "size": [
+   179,
+   150
+  ],
+  "footprint": [
+   2.0,
+   2.0
+  ],
+  "yaw": -25,
+  "chimneys": [],
+  "sort_point": [
+   0.935,
+   5.567,
+   -0.55
+  ]
+ },
+ "mill_wheel_3@m025": {
+  "anchor": [
+   54.36,
+   -72.49
+  ],
+  "size": [
+   179,
+   150
+  ],
+  "footprint": [
+   2.0,
+   2.0
+  ],
+  "yaw": -25,
+  "chimneys": [],
+  "sort_point": [
+   0.935,
+   5.567,
+   -0.55
+  ]
+ },
+ "mill_wheel_4@m025": {
+  "anchor": [
+   54.36,
+   -72.37
+  ],
+  "size": [
+   179,
+   150
+  ],
+  "footprint": [
+   2.0,
+   2.0
+  ],
+  "yaw": -25,
+  "chimneys": [],
+  "sort_point": [
+   0.935,
+   5.567,
+   -0.55
+  ]
+ },
+ "mill_wheel_5@m025": {
+  "anchor": [
+   54.36,
+   -72.49
+  ],
+  "size": [
+   179,
+   150
+  ],
+  "footprint": [
+   2.0,
+   2.0
+  ],
+  "yaw": -25,
+  "chimneys": [],
+  "sort_point": [
+   0.935,
+   5.567,
+   -0.55
+  ]
+ },
+ "mill_wheel_6@m025": {
+  "anchor": [
+   54.36,
+   -72.37
+  ],
+  "size": [
+   179,
+   150
+  ],
+  "footprint": [
+   2.0,
+   2.0
+  ],
+  "yaw": -25,
+  "chimneys": [],
+  "sort_point": [
+   0.935,
+   5.567,
+   -0.55
+  ]
+ },
+ "mill_wheel_7@m025": {
+  "anchor": [
+   54.36,
+   -72.49
+  ],
+  "size": [
+   179,
+   150
+  ],
+  "footprint": [
+   2.0,
+   2.0
+  ],
+  "yaw": -25,
+  "chimneys": [],
+  "sort_point": [
+   0.935,
+   5.567,
+   -0.55
+  ]
+ },
+ "palisade@045": {
+  "anchor": [
+   126.8,
+   151.2
+  ],
+  "size": [
+   322,
+   231
+  ],
+  "footprint": [
+   8.0,
+   0.6
+  ],
+  "yaw": 45,
+  "chimneys": []
+ },
+ "pottery@000": {
+  "anchor": [
+   28.22,
+   34.77
+  ],
+  "size": [
+   56,
+   54
+  ],
+  "footprint": [
+   1.2,
+   1.0
+  ],
+  "yaw": 0,
+  "chimneys": []
+ },
+ "reeds@000": {
+  "anchor": [
+   44.97,
+   61.05
+  ],
+  "size": [
+   119,
+   84
+  ],
+  "footprint": [
+   1.6,
+   1.0
+  ],
+  "yaw": 0,
+  "chimneys": []
+ },
+ "rocks_bank@000": {
+  "anchor": [
+   84.54,
+   62.32
+  ],
+  "size": [
+   168,
+   112
+  ],
+  "footprint": [
+   3.2,
+   1.6
+  ],
+  "yaw": 0,
+  "chimneys": []
+ },
+ "rosebush@000": {
+  "anchor": [
+   36.05,
+   43.3
+  ],
+  "size": [
+   104,
+   68
+  ],
+  "footprint": [
+   1.6,
+   1.2
+  ],
+  "yaw": 0,
+  "chimneys": []
+ },
+ "sacks@000": {
+  "anchor": [
+   33.39,
+   40.54
+  ],
+  "size": [
+   85,
+   55
+  ],
+  "footprint": [
+   1.4,
+   1.2
+  ],
+  "yaw": 0,
+  "chimneys": []
+ },
+ "signpost@045": {
+  "anchor": [
+   11.3,
+   65.92
+  ],
+  "size": [
+   87,
+   76
+  ],
+  "footprint": [
+   1.0,
+   0.6
+  ],
+  "yaw": 45,
+  "chimneys": []
+ },
+ "smithy@m045": {
+  "anchor": [
+   195.53,
+   263.17
+  ],
+  "size": [
+   580,
+   452
+  ],
+  "footprint": [
+   11.6,
+   6.0
+  ],
+  "yaw": -45,
+  "chimneys": [
+   [
+    162.9,
+    -79.5
+   ]
+  ]
+ },
+ "stable@045": {
+  "anchor": [
+   227.86,
+   258.19
+  ],
+  "size": [
+   563,
+   429
+  ],
+  "footprint": [
+   14.0,
+   6.0
+  ],
+  "yaw": 45,
+  "chimneys": []
+ },
+ "stall_blue@m045": {
+  "anchor": [
+   91.72,
+   115.25
+  ],
+  "size": [
+   240,
+   186
+  ],
+  "footprint": [
+   3.6,
+   2.6
+  ],
+  "yaw": -45,
+  "chimneys": []
+ },
+ "stall_canvas@045": {
+  "anchor": [
+   79.28,
+   125.51
+  ],
+  "size": [
+   243,
+   194
+  ],
+  "footprint": [
+   3.6,
+   2.6
+  ],
+  "yaw": 45,
+  "chimneys": []
+ },
+ "stall_green@m045": {
+  "anchor": [
+   91.72,
+   115.49
+  ],
+  "size": [
+   240,
+   187
+  ],
+  "footprint": [
+   3.6,
+   2.6
+  ],
+  "yaw": -45,
+  "chimneys": []
+ },
+ "stall_red@045": {
+  "anchor": [
+   79.73,
+   115.51
+  ],
+  "size": [
+   238,
+   184
+  ],
+  "footprint": [
+   3.6,
+   2.6
+  ],
+  "yaw": 45,
+  "chimneys": []
+ },
+ "stall_red@135": {
+  "anchor": [
+   79.79,
+   123.05
+  ],
+  "size": [
+   238,
+   186
+  ],
+  "footprint": [
+   3.6,
+   2.6
+  ],
+  "yaw": 135,
+  "chimneys": []
+ },
+ "stump@000": {
+  "anchor": [
+   30.8,
+   27.81
+  ],
+  "size": [
+   64,
+   54
+  ],
+  "footprint": [
+   1.0,
+   1.0
+  ],
+  "yaw": 0,
+  "chimneys": []
+ },
+ "target@m045": {
+  "anchor": [
+   27.92,
+   54.33
+  ],
+  "size": [
+   97,
+   69
+  ],
+  "footprint": [
+   1.4,
+   1.0
+  ],
+  "yaw": -45,
+  "chimneys": []
+ },
+ "tent@m045": {
+  "anchor": [
+   116.61,
+   165.27
+  ],
+  "size": [
+   331,
+   253
+  ],
+  "footprint": [
+   5.0,
+   5.0
+  ],
+  "yaw": -45,
+  "chimneys": []
+ },
+ "tools_rack@m045": {
+  "anchor": [
+   26.1,
+   49.27
+  ],
+  "size": [
+   95,
+   74
+  ],
+  "footprint": [
+   1.6,
+   0.5
+  ],
+  "yaw": -45,
+  "chimneys": []
+ },
+ "trough@045": {
+  "anchor": [
+   38.55,
+   43.1
+  ],
+  "size": [
+   92,
+   74
+  ],
+  "footprint": [
+   2.0,
+   0.8
+  ],
+  "yaw": 45,
+  "chimneys": []
+ },
+ "wall_low@045": {
+  "anchor": [
+   60.02,
+   69.07
+  ],
+  "size": [
+   157,
+   116
+  ],
+  "footprint": [
+   4.0,
+   0.6
+  ],
+  "yaw": 45,
+  "chimneys": []
+ },
+ "watchtower@m045": {
+  "anchor": [
+   134.22,
+   319.08
+  ],
+  "size": [
+   550,
+   395
+  ],
+  "footprint": [
+   4.8,
+   4.8
+  ],
+  "yaw": -45,
+  "chimneys": []
+ },
+ "weapon_rack@045": {
+  "anchor": [
+   40.81,
+   83.82
+  ],
+  "size": [
+   154,
+   115
+  ],
+  "footprint": [
+   2.8,
+   0.8
+  ],
+  "yaw": 45,
+  "chimneys": []
+ },
+ "weapons_table@045": {
+  "anchor": [
+   43.07,
+   68.08
+  ],
+  "size": [
+   116,
+   100
+  ],
+  "footprint": [
+   2.6,
+   1.2
+  ],
+  "yaw": 45,
+  "chimneys": []
+ },
+ "wheelbarrow@000": {
+  "anchor": [
+   36.96,
+   30.69
+  ],
+  "size": [
+   81,
+   45
+  ],
+  "footprint": [
+   1.6,
+   0.8
   ],
   "yaw": 0,
   "chimneys": []

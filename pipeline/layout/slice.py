@@ -442,11 +442,7 @@ for x in np.arange(BR_C[0] - 52.0, MILL[0] + 36.0, 3.2):
         r = brng.random()
         if r < 0.42:
             q = shore + np.array([0.0, land * brng.uniform(0.0, 1.2)])
-            if brng.random() < 0.5:
-                put("rocks_bank", q[0], q[1], 0)
-            else:
-                veg.append({"type": str(brng.choice(["rock_a", "rock_b", "rock_c", "rock_d"])), "x": round(float(q[0]), 2),
-                            "y": round(float(q[1]), 2), "scale": round(float(brng.uniform(0.7, 1.1)), 2)})
+            put("rocks_bank", q[0], q[1], 0)
         elif r < 0.64:
             q = shore + np.array([0.0, -land * brng.uniform(0.2, 0.9)])
             put("reeds", q[0], q[1])
@@ -483,6 +479,71 @@ for r in ground["roads"]:
                start=round(float(prng.random()), 2))
 for q in (FARM + np.array([6.0, 4.0]), P(-14, -24), P(-28, -30), SM + np.array([4.0, 3.0])):
     animal("chicken", "wander", q, 2.5)
+
+# ================================================================================================
+# density pass (self-critique vs reference B: empty lawns between the quarters). Four more houses that
+# reuse rendered sprites (same angle -> no new renders), each with its garden, fence and woodpile; shade
+# trees and bushes in the remaining gaps, kept off roads, buildings and the water.
+drng = np.random.default_rng(123)
+extra_houses = [("house_town", -5.5, 25.0, 49, [("garden_bed", -2.0, 8.5, 0), ("firewood", 4.6, 1.0, 0), ("barrel", -4.2, -3.6, 0)]),
+                ("house_stone", -7.0, 39.0, -39, [("garden_bed", 1.0, 8.5, 0), ("laundry", -5.5, 2.0, 90), ("flowers", 2.6, -4.0, 0)]),
+                ("house_cottage", 13.5, 41.0, 127, [("firewood", 0.0, 4.2, 0), ("barrels", 3.8, 3.0, 0)]),
+                ("house_timber", 23.0, 52.0, -50, [("wheelbarrow", 3.6, -3.6, 30), ("garden_bed", -1.0, 8.0, 0)])]
+for base, u, v, yaw, eco in extra_houses:
+    q = P(u, v)
+    building(base, q[0], q[1], yaw, eco=eco)
+    ground["trampled"].append({"center": [float(q[0]), float(q[1])], "size": [14.0, 12.0], "yaw": 0, "soft": True})
+    g = q + local_to_world(-1.0, 8.5, yaw)
+    ground["gardens"].append({"center": g, "size": [7.0, 5.0], "yaw": yaw})
+    for k in range(2):
+        b = q + drng.normal(0, 6.0, 2)
+        veg.append({"type": str(drng.choice(["bush_a", "bush_c", "bush_d"])), "x": round(float(b[0]), 2),
+                    "y": round(float(b[1]), 2), "scale": 0.8})
+    tree(str(drng.choice(["fruit_a", "fruit_b", "fruit_c"])), *(q + local_to_world(5.0, 7.0, yaw)), 0.9)
+
+
+def seg_dist(q, a_, b_):
+    a_, b_ = np.array(a_, float), np.array(b_, float)
+    d = b_ - a_
+    t = np.clip(((q - a_) @ d) / max(d @ d, 1e-6), 0, 1)
+    return float(np.linalg.norm(q - (a_ + d * t)))
+
+
+def free(q, m_obj, m_road):
+    if wet(*q) or near_obj(q, m_obj) or near_bridge(q, 6.0):
+        return False
+    for r in ground["roads"]:
+        pts_ = r["points"]
+        for i in range(len(pts_) - 1):
+            if seg_dist(q, pts_[i], pts_[i + 1]) < r["width"] / 2 + m_road:
+                return False
+    for pz in ground["plazas"]:
+        c = np.mean(np.array(pz["polygon"], float), 0)
+        if np.linalg.norm(q - c) < 20.0:
+            return False
+    return True
+
+
+x0_, y0_ = min(o["x"] for o in objects), min(o["y"] for o in objects)
+x1_, y1_ = max(o["x"] for o in objects), max(o["y"] for o in objects)
+placed = 0
+tries = 0
+while placed < 70 and tries < 4000:
+    tries += 1
+    q = np.array([drng.uniform(x0_, x1_), drng.uniform(y0_, y1_)])
+    big = drng.random() < 0.35
+    if not free(q, 6.5 if big else 3.5, 2.5 if big else 1.2):
+        continue
+    if any((q[0] - t_["x"]) ** 2 + (q[1] - t_["y"]) ** 2 < (5.0 if big else 2.2) ** 2 for t_ in veg):
+        continue
+    if big:
+        tree(str(drng.choice(["oak_a", "oak_b", "beech_a", "beech_b", "birch_a", "poplar_a"])), q[0], q[1],
+             round(float(drng.uniform(0.75, 1.0)), 2))
+    else:
+        veg.append({"type": str(drng.choice(["bush_a", "bush_b", "bush_c", "bush_d"])), "x": round(float(q[0]), 2),
+                    "y": round(float(q[1]), 2), "scale": round(float(drng.uniform(0.7, 1.0)), 2)})
+    placed += 1
+print("density pass: trees/bushes", placed)
 
 # ================================================================================================
 # district outline (for the countryside generator, vegetation masks and the ground painter)

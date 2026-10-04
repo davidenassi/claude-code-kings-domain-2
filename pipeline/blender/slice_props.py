@@ -361,7 +361,7 @@ def _gs(rng):
     o = K2.box(0.6, 0.16, 0.75, (0, 0, 0), st, bevel=0.05)
     o.rotation_euler = (rng.uniform(-0.08, 0.08), rng.uniform(-0.06, 0.06), 0)
     objs = [o, K2.sphere(0.3, (0, 0, 0.75), st, scale=(1, 0.27, 0.6), segs=10)]
-    objs.append(K2.box(0.7, 1.5, 0.06, (0, 0.65, 0), K2.flat((92, 112, 58), noise=0.3)))
+    objs.append(K2.sphere(1.0, (0, 0.7, -0.02), K2.flat((104, 98, 62), noise=0.35, scale=9), scale=(0.34, 0.72, 0.12), segs=12))
     objs.append(K2.sphere(0.12, (0.2, 0.3, 0.06), K2.flat((222, 210, 120), noise=0.2), segs=5))
     return objs, (0.8, 1.6)
 
