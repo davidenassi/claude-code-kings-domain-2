@@ -459,7 +459,17 @@
    "x": 1513.5,
    "y": 1003.9,
    "kind": "building",
-   "z": 109.79
+   "z": 109.79,
+   "wheel": [
+    "mill_wheel_0@m025",
+    "mill_wheel_1@m025",
+    "mill_wheel_2@m025",
+    "mill_wheel_3@m025",
+    "mill_wheel_4@m025",
+    "mill_wheel_5@m025",
+    "mill_wheel_6@m025",
+    "mill_wheel_7@m025"
+   ]
   },
   {
    "sprite": "cart_goods@045",
@@ -477,17 +487,7 @@
    "sprite": "crates@m045",
    "x": 1517.88,
    "y": 1000.43,
-   "kind": "prop",
-   "wheel": [
-    "mill_wheel_0@m025",
-    "mill_wheel_1@m025",
-    "mill_wheel_2@m025",
-    "mill_wheel_3@m025",
-    "mill_wheel_4@m025",
-    "mill_wheel_5@m025",
-    "mill_wheel_6@m025",
-    "mill_wheel_7@m025"
-   ]
+   "kind": "prop"
   },
   {
    "sprite": "reeds@000",

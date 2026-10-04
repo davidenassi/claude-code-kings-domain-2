@@ -278,11 +278,12 @@ put("haystack", *P(-28, -2))
 # 6. the water mill on the north bank, downstream of the bridge
 MILL = np.array([1513.5, 1003.9])
 mill_z = hz(*(MILL + np.array([0.0, -2.0])))
-building("mill", MILL[0], MILL[1], -25, z=mill_z,
-         eco=[("cart_goods", -6.5, 6.0, 90), ("sacks", -3.0, 5.2, 0), ("crates", 2.5, 5.0, 0)])
+mill_obj = building("mill", MILL[0], MILL[1], -25, z=mill_z,
+                    eco=[("cart_goods", -6.5, 6.0, 90), ("sacks", -3.0, 5.2, 0), ("crates", 2.5, 5.0, 0)])
 for f in range(8):
     sprites.add(yaw_name(f"mill_wheel_{f}", -25))
-objects[-1]["wheel"] = [yaw_name(f"mill_wheel_{f}", -25) for f in range(8)]
+# (the wheel belongs to the mill object itself: objects[-1] would be the last prop of its ecosystem)
+mill_obj["wheel"] = [yaw_name(f"mill_wheel_{f}", -25) for f in range(8)]
 ground["yards"].append({"center": MILL + local_to_world(0, 6.0, -25), "size": [16.0, 8.0], "yaw": -25})
 mill_lane = [P(-14, 13), MILL + local_to_world(-2.0, 7.5, -25)]
 ground["roads"].append({"kind": "rural", "width": 3.4, "points": [P(-13, 12), (P(-13, 12) + mill_lane[1]) / 2 + np.array([2, 1]), mill_lane[1]]})
