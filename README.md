@@ -19,15 +19,31 @@ quella forza per affrontare **un mondo molto più grande** (campagne e conquista
 
 ## Aprire il gioco
 
-1. Godot **4.7.2** (renderer Compatibility).
-2. Aprire la cartella `game/` come progetto, avviare la scena principale (`valley/valley.tscn`).
+**Il modo più semplice:** serve solo Godot **4.7.2** (versione standard, non .NET:
+https://godotengine.org/download/archive/ — basta estrarre lo zip, non va installato). Poi:
+
+| Sistema | Come avviare |
+|---|---|
+| Windows | doppio clic su **`AVVIA_GIOCO.bat`** |
+| macOS | doppio clic su **`avvia_gioco.command`** (la prima volta: tasto destro → Apri) |
+| Linux | `./avvia_gioco.sh` |
+
+Il file di avvio trova Godot da solo (PATH, Download, Desktop, Documenti, Programmi, Steam, cartella del gioco).
+Se non lo trova chiede dove si trova — su Windows basta trascinare il file `Godot_v4.7.2-stable_win64.exe`
+nella finestra — e lo ricorda in `godot_path.txt`. Alla **prima apertura** prepara le risorse (texture, sprite,
+terreno): richiede alcuni minuti, le volte successive pochi secondi. Opzioni: `galleria` (galleria degli asset),
+`benchmark` (misura gli FPS, risultato in `user://benchmark.json`).
+
+**A mano**, con l'editor di Godot 4.7.2 (renderer Compatibility): aprire la cartella `game/` come progetto e
+avviare la scena principale (`valley/valley.tscn`).
 
 Comandi della Valle: rotellina = zoom verso il cursore · WASD / frecce = spostamento · tasto destro o centrale
 trascinato = spostamento · **F3** = prestazioni.
 
 Galleria della libreria grafica: scena `gallery/gallery.tscn`.
 
-Benchmark su una GPU reale: `godot --path game -- --benchmark` (scrive `user://benchmark.json`).
+Benchmark su una GPU reale: `AVVIA_GIOCO.bat benchmark` / `./avvia_gioco.sh benchmark`, oppure
+`godot --path game -- --benchmark --views=res://data/capture/slice_views.json` (scrive `user://benchmark.json`).
 
 ## Rigenerare gli asset
 

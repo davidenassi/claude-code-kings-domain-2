@@ -22,3 +22,7 @@ pipeline/.tools/
 pipeline/.cache/
 __pycache__/
 *.pyc
+
+# launcher: personal Godot path and import log
+godot_path.txt
+.import_log.txt

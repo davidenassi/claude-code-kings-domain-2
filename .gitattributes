@@ -1,0 +1,4 @@
+# launchers: Windows needs CRLF, bash needs LF
+*.bat text eol=crlf
+*.sh text eol=lf
+*.command text eol=lf
