@@ -401,11 +401,14 @@ def rock(c1=(170, 166, 156), c2=(118, 114, 108), lichen=(132, 136, 84)):
 
 
 @cached
-def straw(axis="Z", old=False):
+def straw(axis="Z", old=False, thatch=False):
     """Loose straw / hay on any shape (object coordinates, no UVs): fibres along `axis`, clumps, sun-bleached
-    tips. Haystacks (Z), bales and cart loads (X), skeps."""
-    pal = ((82, 62, 38), (154, 118, 70), (194, 158, 104)) if old else ((112, 80, 38), (184, 146, 78), (226, 194, 124))
-    g = G("straw_" + axis + ("_old" if old else ""))
+    tips. Haystacks (Z), bales and cart loads (X), skeps; thatch=True matches the thatched roofs (ridges, verges)."""
+    if thatch:
+        pal = ((70, 58, 40), (126, 106, 72), (172, 150, 108)) if old else ((80, 62, 34), (150, 120, 70), (204, 174, 114))
+    else:
+        pal = ((82, 62, 38), (154, 118, 70), (194, 158, 104)) if old else ((112, 80, 38), (184, 146, 78), (226, 194, 124))
+    g = G("straw_" + axis + ("_old" if old else "") + ("_th" if thatch else ""))
     x, y, z = g.sep(g.coords("Object"))
     k = {"X": (0.12, 1.0, 1.0), "Y": (1.0, 0.12, 1.0), "Z": (1.0, 1.0, 0.12)}[axis]
     vec = g.comb(g.math("MULTIPLY", x, k[0] * 34.0), g.math("MULTIPLY", y, k[1] * 34.0), g.math("MULTIPLY", z, k[2] * 34.0))
@@ -662,7 +665,8 @@ def gable_roof(w, d, z0, pitch, kind, rng, overhang=0.5, gable_over=0.35, ridge_
     objs = [o]
     # ridge
     if kind.startswith("thatch"):
-        rr = cyl(0.26, L + 0.1, (0, 0, zr + 0.02), roof(kind), verts=10, rot=(0, math.pi / 2, 0), name="ridge")
+        sm = straw("Z", kind == "thatch_old", thatch=True)
+        rr = cyl(0.26, L + 0.1, (0, 0, zr + 0.02), sm, verts=10, rot=(0, math.pi / 2, 0), name="ridge")
         rr.location = (-L / 2 - 0.05, 0, zr + 0.06)
         rr.scale = (1.0, 1.0, 1.0)
         objs.append(rr)
@@ -670,11 +674,12 @@ def gable_roof(w, d, z0, pitch, kind, rng, overhang=0.5, gable_over=0.35, ridge_
         for sx in (-1, 1):
             for side in (-1, 1):
                 objs.append(beam((sx * L / 2, side * hd, ze + 0.05), (sx * L / 2, 0, zr + 0.05), 0.28,
-                                 roof(kind), size2=0.22))
+                                 sm, size2=0.22))
     elif kind.startswith("tile"):
         objs.append(cyl(0.13, L, (-L / 2, 0, zr + 0.04), roof(kind), verts=8, rot=(0, math.pi / 2, 0), name="ridge"))
     else:
-        objs.append(box(L, 0.36, 0.1, (0, 0, zr - 0.02), timber(), name="ridge"))
+        objs.append(box(L, 0.36, 0.1, (0, 0, zr - 0.02),
+                        flat((72, 74, 82), noise=0.15) if kind == "slate" else timber(), name="ridge"))
     if not kind.startswith("thatch"):
         # barge boards on the gable edges
         for sx in (-1, 1):
@@ -771,8 +776,8 @@ def hip_roof(w, d, z0, pitch, kind, rng, overhang=0.5, name="hiproof"):
     objs = [ob]
     if ridge_half > 0.01:
         if kind.startswith("thatch"):
-            objs.append(cyl(0.24, 2 * ridge_half + 0.4, (-ridge_half - 0.2, 0, zr + 0.04), roof(kind), verts=10,
-                            rot=(0, math.pi / 2, 0), name="ridge"))
+            objs.append(cyl(0.24, 2 * ridge_half + 0.4, (-ridge_half - 0.2, 0, zr + 0.04),
+                            straw("Z", kind == "thatch_old", thatch=True), verts=10, rot=(0, math.pi / 2, 0), name="ridge"))
         elif kind.startswith("tile"):
             objs.append(cyl(0.12, 2 * ridge_half + 0.2, (-ridge_half - 0.1, 0, zr + 0.03), roof(kind), verts=8,
                             rot=(0, math.pi / 2, 0), name="ridge"))
@@ -812,14 +817,22 @@ def cone_roof(r, h, z0, kind, rng, overhang=0.35, segs=24, name="cone"):
         z_0 = z0 + h * s0 / slope_len
         z_1 = z0 + h * s1 / slope_len
         n = max(6, int(2 * math.pi * r0 / ew))
+        poly = segs <= 8                       # pyramid spire: elements follow the faces, joints at the corners
+        a_off = math.pi / segs if poly else 0.0
+        if poly:
+            n = segs * max(1, int(round(n / segs)))
         for k in range(n):
-            a0 = 2 * math.pi * k / n
-            a1 = 2 * math.pi * (k + 1) / n
+            a0 = 2 * math.pi * k / n + a_off
+            a1 = 2 * math.pi * (k + 1) / n + a_off
             lf = lift * (0.8 + 0.4 * rng.random())
             ja = jag * rng.random()
             pts = []
             for (rad, zz, aa, out) in ((r0 + lf, z_0 - ja, a0, 1), (r0 + lf, z_0 - ja, a1, 1), (r1, z_1, a1, 0),
                                        (r1, z_1, a0, 0)):
+                if poly:
+                    sector = 2 * math.pi / segs
+                    dev = ((aa + sector / 2) % sector) - sector / 2
+                    rad = rad * math.cos(sector / 2) / math.cos(dev)
                 pts.append(Vector((math.cos(aa) * rad, math.sin(aa) * rad, zz)))
             vt = [bm.verts.new(p) for p in pts]
             vb = [bm.verts.new(p - Vector((math.cos((a0 + a1) / 2), math.sin((a0 + a1) / 2), 0)) * th) for p in pts]

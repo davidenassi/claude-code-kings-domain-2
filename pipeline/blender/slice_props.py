@@ -348,15 +348,16 @@ def _well(rng):
 
 @reg("grave_cross", 825)
 def _gc(rng):
-    st = K2.stone((176, 170, 156), (140, 136, 126))
-    objs = [K2.box(0.14, 0.12, 1.0, (0, 0, 0), st), K2.box(0.55, 0.12, 0.12, (0, 0, 0.7), st)]
-    objs.append(K2.box(0.7, 1.6, 0.08, (0, 0.7, 0), K2.flat((84, 110, 54), noise=0.3)))
+    st = K2.rock((184, 178, 164), (140, 136, 126), (128, 134, 84))
+    objs = [K2.box(0.14, 0.12, 1.0, (0, 0, 0), st, bevel=0.02), K2.box(0.55, 0.12, 0.12, (0, 0, 0.7), st, bevel=0.02)]
+    # low grave mound: turned earth with grass growing over it
+    objs.append(K2.sphere(1.0, (0, 0.75, -0.02), K2.flat((104, 98, 62), noise=0.35, scale=9), scale=(0.36, 0.78, 0.14), segs=12))
     return objs, (0.8, 1.8)
 
 
 @reg("grave_stone", 826)
 def _gs(rng):
-    st = K2.stone((168, 162, 150), (132, 128, 120))
+    st = K2.rock((176, 170, 158), (132, 128, 120), (124, 130, 82))
     o = K2.box(0.6, 0.16, 0.75, (0, 0, 0), st, bevel=0.05)
     o.rotation_euler = (rng.uniform(-0.08, 0.08), rng.uniform(-0.06, 0.06), 0)
     objs = [o, K2.sphere(0.3, (0, 0, 0.75), st, scale=(1, 0.27, 0.6), segs=10)]

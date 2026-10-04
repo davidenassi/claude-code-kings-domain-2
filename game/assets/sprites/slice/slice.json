@@ -183,5 +183,277 @@
   ],
   "yaw": 40,
   "chimneys": []
+ },
+ "coop@000": {
+  "anchor": [
+   38.72,
+   69.03
+  ],
+  "size": [
+   131,
+   109
+  ],
+  "footprint": [
+   1.8,
+   1.6
+  ],
+  "yaw": 0,
+  "chimneys": []
+ },
+ "crates@000": {
+  "anchor": [
+   28.45,
+   49.5
+  ],
+  "size": [
+   100,
+   68
+  ],
+  "footprint": [
+   1.8,
+   1.4
+  ],
+  "yaw": 0,
+  "chimneys": []
+ },
+ "crates@045": {
+  "anchor": [
+   43.46,
+   55.36
+  ],
+  "size": [
+   111,
+   77
+  ],
+  "footprint": [
+   1.8,
+   1.4
+  ],
+  "yaw": 45,
+  "chimneys": []
+ },
+ "crates@m045": {
+  "anchor": [
+   26.46,
+   47.67
+  ],
+  "size": [
+   96,
+   81
+  ],
+  "footprint": [
+   1.8,
+   1.4
+  ],
+  "yaw": -45,
+  "chimneys": []
+ },
+ "dummy@m045": {
+  "anchor": [
+   34.04,
+   56.07
+  ],
+  "size": [
+   105,
+   71
+  ],
+  "footprint": [
+   1.4,
+   0.8
+  ],
+  "yaw": -45,
+  "chimneys": []
+ },
+ "fence@045": {
+  "anchor": [
+   56.99,
+   68.57
+  ],
+  "size": [
+   144,
+   114
+  ],
+  "footprint": [
+   4.0,
+   0.3
+  ],
+  "yaw": 45,
+  "chimneys": []
+ },
+ "fence@m045": {
+  "anchor": [
+   56.86,
+   70.06
+  ],
+  "size": [
+   144,
+   115
+  ],
+  "footprint": [
+   4.0,
+   0.3
+  ],
+  "yaw": -45,
+  "chimneys": []
+ },
+ "fence@m067": {
+  "anchor": [
+   36.24,
+   80.27
+  ],
+  "size": [
+   103,
+   136
+  ],
+  "footprint": [
+   4.0,
+   0.3
+  ],
+  "yaw": -67,
+  "chimneys": []
+ },
+ "fence@m090": {
+  "anchor": [
+   10.77,
+   83.96
+  ],
+  "size": [
+   54,
+   143
+  ],
+  "footprint": [
+   4.0,
+   0.3
+  ],
+  "yaw": -90,
+  "chimneys": []
+ },
+ "fence_wattle@m045": {
+  "anchor": [
+   54.61,
+   64.29
+  ],
+  "size": [
+   136,
+   108
+  ],
+  "footprint": [
+   4.0,
+   0.2
+  ],
+  "yaw": -45,
+  "chimneys": []
+ },
+ "firewood@045": {
+  "anchor": [
+   44.69,
+   46.35
+  ],
+  "size": [
+   148,
+   104
+  ],
+  "footprint": [
+   3.4,
+   1.4
+  ],
+  "yaw": 45,
+  "chimneys": []
+ },
+ "firewood@m045": {
+  "anchor": [
+   72.2,
+   43.49
+  ],
+  "size": [
+   133,
+   101
+  ],
+  "footprint": [
+   3.4,
+   1.4
+  ],
+  "yaw": -45,
+  "chimneys": []
+ },
+ "flowers@000": {
+  "anchor": [
+   34.44,
+   33.73
+  ],
+  "size": [
+   94,
+   63
+  ],
+  "footprint": [
+   2.0,
+   1.2
+  ],
+  "yaw": 0,
+  "chimneys": []
+ },
+ "fountain@000": {
+  "anchor": [
+   77.51,
+   102.48
+  ],
+  "size": [
+   209,
+   164
+  ],
+  "footprint": [
+   4.4,
+   4.4
+  ],
+  "yaw": 0,
+  "chimneys": []
+ },
+ "garden_bed@045": {
+  "anchor": [
+   105.98,
+   92.45
+  ],
+  "size": [
+   224,
+   175
+  ],
+  "footprint": [
+   5.0,
+   3.6
+  ],
+  "yaw": 45,
+  "chimneys": []
+ },
+ "garden_bed@m045": {
+  "anchor": [
+   105.98,
+   92.45
+  ],
+  "size": [
+   224,
+   175
+  ],
+  "footprint": [
+   5.0,
+   3.6
+  ],
+  "yaw": -45,
+  "chimneys": []
+ },
+ "grave_cross@000": {
+  "anchor": [
+   19.2,
+   46.55
+  ],
+  "size": [
+   58,
+   57
+  ],
+  "footprint": [
+   0.8,
+   1.8
+  ],
+  "yaw": 0,
+  "chimneys": []
  }
 }

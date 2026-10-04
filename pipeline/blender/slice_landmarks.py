@@ -565,7 +565,7 @@ def fountain(rng):
         objs.append(K2.box(math.dist(p0, p1) + 0.05, 0.42, 0.75, ((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2, 0), st,
                            rot=(0, 0, (a0 + a1) / 2 + math.pi / 2)))
         bpy.data.objects.remove(seg, do_unlink=True)
-    objs.append(K2.cyl(R0 - 0.1, 0.55, (0, 0, 0.05), K2.flat((64, 128, 140), rough=0.12, noise=0.08, ao=0.75), verts=24))
+    objs.append(K2.cyl(R0 - 0.1, 0.55, (0, 0, 0.05), K2.flat((48, 92, 96), rough=0.12, noise=0.08, ao=0.75), verts=24))
     objs.append(K2.cyl(0.55, 0.4, (0, 0, 0), st, verts=12))
     objs.append(K2.cyl(0.32, 1.8, (0, 0, 0.4), st, verts=12))
     objs.append(K2.cyl(0.85, 0.18, (0, 0, 2.2), st, verts=16))
@@ -777,11 +777,12 @@ def dummy(rng):
     tm = K2.timber((104, 76, 50))
     objs.append(K2.box(0.16, 0.16, 1.9, (0, 0, 0), tm))
     objs.append(K2.box(1.3, 0.12, 0.12, (0, 0, 1.45), tm))
-    objs.append(K2.sphere(0.32, (0, 0, 1.15), K2.cloth((196, 172, 120)), scale=(1.0, 0.8, 1.4), segs=10))
-    objs.append(K2.sphere(0.2, (0, 0, 1.75), K2.cloth((196, 172, 120)), segs=8))
-    objs.append(K2.cyl(0.21, 0.16, (0, 0, 1.82), K2.iron(), verts=10, r2=0.12))
-    sh = K2.cyl(0.36, 0.05, (0, 0, 0), K2.flat(LIVERY, noise=0.1), verts=14, rot=(math.pi / 2, 0, 0))
-    sh.location = (-0.5, -0.25, 1.1)
+    burlap = K2.cloth((150, 128, 92))
+    objs.append(K2.cyl(0.25, 0.72, (0, 0, 0.82), burlap, verts=12, r2=0.21))           # stuffed torso
+    objs.append(K2.sphere(0.19, (0, 0, 1.74), burlap, segs=10))
+    objs.append(K2.cyl(0.21, 0.16, (0, 0, 1.84), K2.iron(), verts=10, r2=0.12))         # old helmet
+    sh = K2.cyl(0.34, 0.05, (0, 0, 0), K2.flat(LIVERY, noise=0.1), verts=14, rot=(math.pi / 2, 0, 0))
+    sh.location = (0.0, -0.3, 1.15)                                                     # shield strapped in front
     objs.append(sh)
     objs.append(K2.box(0.4, 0.4, 0.12, (0, 0, 0), tm))
     return objs, (1.4, 0.8)
