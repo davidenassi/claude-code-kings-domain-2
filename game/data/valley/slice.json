@@ -1232,6 +1232,72 @@
    "x": 1548.52,
    "y": 966.6,
    "kind": "prop"
+  },
+  {
+   "sprite": "crates@045",
+   "x": 1540.98,
+   "y": 951.36,
+   "kind": "prop"
+  },
+  {
+   "sprite": "barrels@000",
+   "x": 1542.75,
+   "y": 950.73,
+   "kind": "prop"
+  },
+  {
+   "sprite": "barrel@000",
+   "x": 1529.6,
+   "y": 962.47,
+   "kind": "prop"
+  },
+  {
+   "sprite": "sacks@000",
+   "x": 1531.01,
+   "y": 962.47,
+   "kind": "prop"
+  },
+  {
+   "sprite": "weapon_rack@045",
+   "x": 1533.13,
+   "y": 960.91,
+   "kind": "prop"
+  },
+  {
+   "sprite": "weapons_table@045",
+   "x": 1538.65,
+   "y": 950.3,
+   "kind": "prop"
+  },
+  {
+   "sprite": "cart_goods@045",
+   "x": 1528.33,
+   "y": 959.78,
+   "kind": "prop"
+  },
+  {
+   "sprite": "banner_pole@000",
+   "x": 1534.83,
+   "y": 939.98,
+   "kind": "prop"
+  },
+  {
+   "sprite": "banner_pole@000",
+   "x": 1539.36,
+   "y": 944.5,
+   "kind": "prop"
+  },
+  {
+   "sprite": "crates@000",
+   "x": 1542.18,
+   "y": 947.9,
+   "kind": "prop"
+  },
+  {
+   "sprite": "barrel@000",
+   "x": 1530.45,
+   "y": 937.58,
+   "kind": "prop"
   }
  ],
  "people": [
@@ -2124,6 +2190,109 @@
    ],
    "speed": 0.91,
    "start": 0.3
+  },
+  {
+   "role": "soldier",
+   "mode": "train",
+   "spot": [
+    1520.26,
+    950.3
+   ],
+   "face_yaw": 135,
+   "anim": "train",
+   "start": 0.0
+  },
+  {
+   "role": "soldier",
+   "mode": "train",
+   "spot": [
+    1521.18,
+    949.38
+   ],
+   "face_yaw": -45,
+   "anim": "train",
+   "start": 0.4
+  },
+  {
+   "role": "soldier",
+   "mode": "train",
+   "spot": [
+    1527.76,
+    957.8
+   ],
+   "face_yaw": 135,
+   "anim": "train",
+   "start": 0.17
+  },
+  {
+   "role": "soldier",
+   "mode": "train",
+   "spot": [
+    1528.68,
+    956.88
+   ],
+   "face_yaw": -45,
+   "anim": "train",
+   "start": 0.57
+  },
+  {
+   "role": "soldier",
+   "mode": "carry",
+   "path": [
+    [
+     1539.64,
+     950.73
+    ],
+    [
+     1535.25,
+     954.83
+    ],
+    [
+     1532.43,
+     959.64
+    ]
+   ],
+   "speed": 0.9
+  },
+  {
+   "role": "soldier",
+   "mode": "idle",
+   "spot": [
+    1533.56,
+    959.35
+   ],
+   "face_yaw": -45,
+   "anim": "idle"
+  },
+  {
+   "role": "guard",
+   "mode": "idle",
+   "spot": [
+    1535.68,
+    941.68
+   ],
+   "face_yaw": -135,
+   "anim": "idle"
+  },
+  {
+   "role": "guard",
+   "mode": "idle",
+   "spot": [
+    1537.66,
+    943.66
+   ],
+   "face_yaw": -135,
+   "anim": "idle"
+  },
+  {
+   "role": "soldier",
+   "mode": "idle",
+   "spot": [
+    1518.99,
+    959.21
+   ],
+   "face_yaw": -135,
+   "anim": "talk"
   }
  ],
  "animals": [
@@ -2416,6 +2585,16 @@
    ],
    "radius": 2.5,
    "dir": "S"
+  },
+  {
+   "kind": "horse",
+   "mode": "idle",
+   "spot": [
+    1518.0,
+    957.94
+   ],
+   "radius": 0.4,
+   "dir": "SW"
   }
  ],
  "ground": {

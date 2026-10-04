@@ -501,6 +501,24 @@ for base, u, v, yaw, eco in extra_houses:
                     "y": round(float(b[1]), 2), "scale": 0.8})
     tree(str(drng.choice(["fruit_a", "fruit_b", "fruit_c"])), *(q + local_to_world(5.0, 7.0, yaw)), 0.9)
 
+# military yard clutter and more drill (reference D: racks full of spears, crates, barrels, sacks, a supply
+# cart, banners at the barracks door, sparring pairs) - existing sprites only
+for base, u, v, yaw in (("crates", 36.5, 35.6, 45), ("barrels", 38.2, 36.4, 0), ("barrel", 20.6, 35.4, 0),
+                        ("sacks", 21.6, 36.4, 0), ("weapon_rack", 24.2, 36.8, 45), ("weapons_table", 35.6, 33.2, 45),
+                        ("cart_goods", 21.6, 32.6, 45), ("banner_pole", 40.2, 23.2, 0), ("banner_pole", 40.2, 29.6, 0),
+                        ("crates", 39.8, 34.0, 0), ("barrel", 38.8, 18.4, 0)):
+    q = P(u, v)
+    put(base, q[0], q[1], yaw)
+for k, v in enumerate((20.2, 30.8)):
+    for side, (du, fy) in enumerate(((0.0, 135), (1.3, -45))):
+        person("soldier", "train", spot=P(22.6 + du, v), face_yaw=fy, anim="train", start=round(0.17 * k + 0.4 * side, 2))
+person("soldier", "carry", path=[P(36.0, 34.2), P(30.0, 34.0), P(24.6, 35.4)], speed=0.9)
+person("soldier", "idle", spot=P(25.6, 36.0), face_yaw=-45, anim="idle")
+person("guard", "idle", spot=P(39.6, 25.0), face_yaw=-135, anim="idle")
+person("guard", "idle", spot=P(39.6, 27.8), face_yaw=-135, anim="idle")
+animal("horse", "idle", P(15.6, 24.0), 0.4, dirn="SW")
+person("soldier", "idle", spot=P(15.4, 25.6), face_yaw=-135, anim="talk")
+
 
 def seg_dist(q, a_, b_):
     a_, b_ = np.array(a_, float), np.array(b_, float)

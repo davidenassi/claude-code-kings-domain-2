@@ -306,6 +306,11 @@ def main():
     dry = (sample(wet, qx, qy) < 0.5) & (sample(d_water, qx, qy) > 2.0)
     t_ok = on_hill & off_castle & dry & (qs > 0.12) & (qs < 1.0) & (rng.random(k) < np.where(qs > 0.25, 0.09, 0.04))
     r_ok = on_hill & off_castle & dry & (qs > 0.38) & (rng.random(k) < 0.07)
+    # no big hill boulders against the Phase 1B quarter (they read as grey smudges next to the barracks)
+    sp_ = os.path.join(K.GAME_DIR, "data", "valley", "slice.json")
+    if os.path.exists(sp_):
+        sx0, sy0, sx1, sy1 = json.load(open(sp_))["region"]
+        r_ok &= ~((qx > sx0 - 25) & (qx < sx1 + 25) & (qy > sy0 - 25) & (qy < sy1 + 25))
     tx_, ty_ = qx[t_ok], qy[t_ok]
     ts_ = rng.choice(["oak_a", "oak_b", "beech_a", "pine_a", "pine_b", "bush_a", "bush_c", "bush_d", "birch_a"],
                      len(tx_), p=[0.14, 0.14, 0.12, 0.14, 0.1, 0.12, 0.1, 0.08, 0.06])
@@ -318,7 +323,7 @@ def main():
     S = np.concatenate([species, ms, rsp, hs, ts_, rs2])
     SC = np.concatenate([scale, rng.uniform(0.8, 1.1, len(mx)), rng.uniform(0.7, 1.3, len(rx)),
                          rng.uniform(0.75, 1.05, len(hx)), rng.uniform(0.8, 1.1, len(tx_)),
-                         rng.uniform(1.0, 1.8, len(rx2))])
+                         rng.uniform(0.9, 1.4, len(rx2))])
     keep = ~sample(lmask, X, Y)
     X, Y, S, SC = X[keep], Y[keep], S[keep], SC[keep]
     # hand-placed vegetation of the settlement (orchards, hedges, garden and roadside trees)
